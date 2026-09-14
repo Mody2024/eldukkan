@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet} from 'react-router-dom';
 import { ShoppingBag, ShieldCheck, Sun, Moon, Menu, X } from 'lucide-react';
 import AICopilot from '../components/AICopilot';
 
@@ -7,7 +7,6 @@ export default function Layout() {
   const [cartCount, setCartCount] = useState(0);
   const [darkMode, setDarkMode] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (darkMode) {
