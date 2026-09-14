@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import { useStore } from './store';
-import { Layout } from './components/Layout';
+import Layout from './components/Layout';
 
 // Placeholder imports for pages we will build next
 import Home from './pages/Home';
