@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
-import { Product, CartItem } from './types';
+import type { Product, CartItem } from './types';
 import { ShoppingCart, Store, Shield, Search } from 'lucide-react';
 import { CheckoutModal } from './components/CheckoutModal';
 import { AdminPanel } from './components/AdminPanel';
@@ -14,7 +14,7 @@ export function App() {
   const [showCheckout, setShowCheckout] = useState(false);
 
   useEffect(() => {
-    supabase.from('products').select('*').then(({ data }) => {
+    supabase.from('products').select('*').then(({ data }: { data: Product[] | null }) => {
       if (data) setProducts(data);
     });
   }, []);
@@ -102,10 +102,9 @@ export function App() {
         <div>
           <span className="font-bold text-amber-500">Eldukkan Marketplace Platform</span> — Egyptian & Global eCommerce
         </div>
-        <div>
-          Designed & Developed by <span className="text-amber-400 font-semibold">AlyEldeen Alaa</span> & <span className="text-amber-400 font-semibold">Almuddaththir Mahmoud</span>
-        </div>
       </footer>
     </div>
   );
 }
+
+export default App;

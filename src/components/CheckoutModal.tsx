@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Truck, Wallet, Receipt, CreditCard, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { CartItem } from '../types';
+import type { CartItem } from '../types';
 
 interface Props {
   cart: CartItem[];

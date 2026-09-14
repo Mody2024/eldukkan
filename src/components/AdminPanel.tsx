@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Product, Order } from '../types';
+import type { Product, Order } from '../types';
 import { Lock, Plus, Trash2 } from 'lucide-react';
 
 export const AdminPanel: React.FC = () => {
@@ -18,7 +18,7 @@ export const AdminPanel: React.FC = () => {
     const { data: pData } = await supabase.from('products').select('*');
     if (pData) setProducts(pData);
     const { data: oData } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-    if (oData) setOrders(oData);
+    if (oData) setOrders(oData as Order[]);
   };
 
   useEffect(() => {
