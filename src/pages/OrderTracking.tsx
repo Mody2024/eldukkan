@@ -1,84 +1,101 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Package, Truck, CheckCircle, Clock } from 'lucide-react';
 
 export default function OrderTracking() {
-  const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const [orderId, setOrderId] = useState(searchParams.get('order') || '');
   const [order, setOrder] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // 1. Fetch initial status
-    const fetchOrder = async () => {
-      const { data } = await supabase.from('orders').select('*').eq('id', id).single();
-      if (data) setOrder(data);
-    };
-    fetchOrder();
+    if (orderId) {
+      handleSearch(orderId);
+    }
+  }, []);
 
-    // 2. Subscribe to real-time database changes for live tracking
-    const subscription = supabase.channel('order_tracking')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${id}` }, 
-      (payload) => {
-        setOrder(payload.new);
-      }).subscribe();
+  const handleSearch = async (idToSearch?: string) => {
+    const targetId = idToSearch || orderId;
+    if (!targetId.trim()) return;
+    setLoading(true);
 
-    return () => { supabase.removeChannel(subscription); };
-  }, [id]);
-
-  if (!order) return <div className="text-center mt-20 animate-pulse font-bold dark:text-white">Locating order...</div>;
-
-  const steps = [
-    { id: 'pending', label: 'Order Placed', icon: Clock },
-    { id: 'processing', label: 'Processing', icon: Package },
-    { id: 'shipped', label: 'Shipped', icon: Truck },
-    { id: 'delivered', label: 'Delivered', icon: CheckCircle },
-  ];
-
-  const currentStepIndex = steps.findIndex(s => s.id === order.status);
+    try {
+      const { data, error } = await supabase.from('orders').select('*').eq('id', targetId.trim()).single();
+      if (error) throw error;
+      setOrder(data);
+    } catch {
+      alert('Order not found. Please check your order ID.');
+      setOrder(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 animate-in zoom-in-95 duration-500">
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 shadow-sm text-center">
-        
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500/10 text-amber-500 rounded-2xl mb-6">
-          <Truck size={32} />
-        </div>
-        
-        <h1 className="text-3xl font-black mb-2 dark:text-white tracking-tight">Order #{order.id.slice(0, 8).toUpperCase()}</h1>
-        <p className="text-zinc-500 mb-12 font-medium">Thank you, {order.customer_name}. We are preparing your items.</p>
-
-        {/* Live Progress Pipeline */}
-        <div className="relative flex justify-between items-center mb-12">
-          {/* Progress Bar Background */}
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full z-0"></div>
-          {/* Active Progress Bar */}
-          <div 
-            className="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 bg-amber-500 rounded-full z-0 transition-all duration-1000 ease-in-out"
-            style={{ width: `${(Math.max(currentStepIndex, 0) / (steps.length - 1)) * 100}%` }}
-          ></div>
-
-          {steps.map((step, index) => {
-            const Icon = step.icon;
-            const isCompleted = index <= currentStepIndex;
-            const isCurrent = index === currentStepIndex;
-            
-            return (
-              <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-4 transition-colors duration-500 ${isCompleted ? 'bg-amber-500 border-white dark:border-zinc-900 text-black shadow-lg shadow-amber-500/30' : 'bg-zinc-100 dark:bg-zinc-800 border-white dark:border-zinc-900 text-zinc-400'}`}>
-                  <Icon size={20} className={isCurrent ? 'animate-bounce' : ''} />
-                </div>
-                <span className={`text-sm font-bold ${isCompleted ? 'text-black dark:text-white' : 'text-zinc-400'}`}>
-                  {step.label}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-        
-        <Link to="/" className="inline-block bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold py-3 px-8 rounded-xl transition-colors">
-          Continue Shopping
-        </Link>
+    <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-300">
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-black dark:text-white tracking-tight">Order Tracking</h1>
+        <p className="text-zinc-500 text-sm">Enter your order ID to check real-time fulfillment status.</p>
       </div>
+
+      <div className="flex gap-2 bg-white dark:bg-zinc-900 p-3 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-sm">
+        <input 
+          type="text" 
+          placeholder="Enter Order ID (UUID)..." 
+          value={orderId} 
+          onChange={e => setOrderId(e.target.value)} 
+          className="flex-1 px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-2xl font-bold text-sm outline-none dark:text-white"
+        />
+        <button onClick={() => handleSearch()} disabled={loading} className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-black font-black rounded-2xl transition">
+          {loading ? 'Searching...' : 'Track'}
+        </button>
+      </div>
+
+      {order && (
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-8 rounded-3xl shadow-sm space-y-6">
+          <div className="flex justify-between items-center border-b border-zinc-100 dark:border-zinc-800 pb-4">
+            <div>
+              <p className="text-xs text-zinc-500 font-bold uppercase">Order Reference</p>
+              <h3 className="font-black text-xl dark:text-white">#{order.id}</h3>
+            </div>
+            <span className="px-3 py-1.5 bg-amber-500/10 text-amber-500 font-black text-xs uppercase rounded-xl">
+              {order.status}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-medium">
+            <div>
+              <p className="text-zinc-500 text-xs">Customer Name</p>
+              <p className="font-bold dark:text-white">{order.customer_name}</p>
+            </div>
+            <div>
+              <p className="text-zinc-500 text-xs">Phone Number</p>
+              <p className="font-bold dark:text-white">{order.customer_phone}</p>
+            </div>
+            <div className="sm:col-span-2">
+              <p className="text-zinc-500 text-xs">Delivery Address</p>
+              <p className="font-bold dark:text-white">{order.customer_address}</p>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800">
+            <h4 className="font-bold text-sm dark:text-white mb-3">Ordered Items</h4>
+            <div className="space-y-2">
+              {order.items?.map((item: any, idx: number) => (
+                <div key={idx} className="flex justify-between items-center text-sm bg-zinc-50 dark:bg-zinc-950 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                  <span className="font-bold dark:text-white">{item.name} x{item.quantity || 1}</span>
+                  <span className="text-amber-500 font-bold">EGP {item.price * (item.quantity || 1)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-between items-center text-xl font-black dark:text-white">
+            <span>Total Amount</span>
+            <span className="text-amber-500">EGP {order.total_amount}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

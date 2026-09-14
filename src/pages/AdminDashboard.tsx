@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Package, ShoppingBag, Palette, Trash2, Plus, CheckCircle, Clock, Truck, Shield } from 'lucide-react';
+import { Package, ShoppingBag, Palette, Trash2, Plus } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'design'>('orders');
   const [orders, setOrders] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   
-  // New Product Form State
   const [newProduct, setNewProduct] = useState({ name: '', price: '', image_url: '', description: '' });
   
-  // Store Design Customization State
   const [storeConfig, setStoreConfig] = useState({
     storeName: 'Eldukkan V3',
-    primaryColor: '#f59e0b', // Amber-500
+    primaryColor: '#f59e0b',
     logoUrl: ''
   });
 
@@ -59,8 +57,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
-      
-      {/* Header & Navigation Tabs */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-sm">
         <div>
           <h1 className="text-3xl font-black dark:text-white tracking-tight">Admin Command Center</h1>
@@ -80,7 +76,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* TAB 1: ORDERS */}
       {activeTab === 'orders' && (
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm space-y-4">
           <h2 className="text-xl font-black dark:text-white mb-4">Customer Transactions</h2>
@@ -101,8 +96,6 @@ export default function AdminDashboard() {
                   
                   <div className="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
                     <span className="text-xl font-black text-amber-500">EGP {order.total_amount}</span>
-                    
-                    {/* Status Toggle Selector */}
                     <select 
                       value={order.status} 
                       onChange={(e) => updateOrderStatus(order.id, e.target.value)}
@@ -121,11 +114,8 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* TAB 2: PRODUCTS INVENTORY */}
       {activeTab === 'products' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Add Product Form */}
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm h-fit">
             <h2 className="text-xl font-black dark:text-white mb-4 flex items-center gap-2">
               <Plus size={20} className="text-amber-500" /> Add New Item
@@ -141,7 +131,6 @@ export default function AdminDashboard() {
             </form>
           </div>
 
-          {/* Product Listing Grid */}
           <div className="lg:col-span-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm space-y-4">
             <h2 className="text-xl font-black dark:text-white mb-4">Current Inventory ({products.length})</h2>
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
@@ -161,11 +150,9 @@ export default function AdminDashboard() {
               ))}
             </div>
           </div>
-
         </div>
       )}
 
-      {/* TAB 3: DESIGN STUDIO */}
       {activeTab === 'design' && (
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 shadow-sm max-w-2xl mx-auto space-y-6">
           <div className="flex items-center gap-3">
@@ -200,7 +187,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

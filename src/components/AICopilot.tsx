@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Sparkles, Send, Bot, User, X, Terminal } from 'lucide-react';
+import { Sparkles, Send, Bot, User, X } from 'lucide-react';
 
 export default function AICopilot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,11 +25,9 @@ export default function AICopilot() {
     setLoading(true);
 
     try {
-      // Fetch live store context to feed into the assistant's awareness
       const { data: products } = await supabase.from('products').select('*');
       const { data: orders } = await supabase.from('orders').select('*');
 
-      // Intelligent command parsing or AI endpoint connection simulation
       let aiResponse = "";
       const lowerQuery = userMessage.toLowerCase();
 
@@ -40,13 +38,13 @@ export default function AICopilot() {
         const productList = products?.map(p => `${p.name} (EGP ${p.price})`).join(', ') || 'No products found';
         aiResponse = `Here is your current inventory stock: ${productList}.`;
       } else if (lowerQuery.includes('update') || lowerQuery.includes('file') || lowerQuery.includes('code') || lowerQuery.includes('change')) {
-        aiResponse = `I am ready to modify files or adjust configurations! Tell me specifically which file or component you want to update (e.g., Home.tsx, Checkout.tsx, or theme styles), and I will generate the complete delta patch for you.`;
+        aiResponse = `I am ready to modify files or adjust configurations! Tell me specifically which file or component you want to update, and I will generate the complete patch for you.`;
       } else {
         aiResponse = `I've processed your request regarding "${userMessage}". As your Eldukkan V3 assistant, I can check inventory metrics, analyze orders, or write code updates for your store files instantly. What would you like to build or change next?`;
       }
 
       setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
-    } catch (err) {
+    } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error connecting to the store database.' }]);
     } finally {
       setLoading(false);
@@ -65,8 +63,6 @@ export default function AICopilot() {
         </button>
       ) : (
         <div className="w-[380px] sm:w-[420px] h-[550px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
-          
-          {/* Chat Header */}
           <div className="bg-zinc-50 dark:bg-zinc-950 p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center font-bold">
@@ -84,7 +80,6 @@ export default function AICopilot() {
             </button>
           </div>
 
-          {/* Messages Area */}
           <div className="flex-1 p-4 overflow-y-auto space-y-4">
             {messages.map((msg, index) => (
               <div key={index} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -111,7 +106,6 @@ export default function AICopilot() {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Input Box */}
           <form onSubmit={handleSendMessage} className="p-3 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 flex gap-2">
             <input 
               type="text" 
@@ -124,7 +118,6 @@ export default function AICopilot() {
               <Send size={18} />
             </button>
           </form>
-
         </div>
       )}
     </div>
