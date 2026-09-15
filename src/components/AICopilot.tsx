@@ -1,15 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { useStore } from '../store';
 import { Sparkles, Send, Bot, User, X } from 'lucide-react';
 
 export default function AICopilot() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! I am your Eldukkan V3 Copilot. I have full context of your inventory, orders, and storefront structure. How can I assist you today?' }
+    { role: 'assistant', content: 'Hi! I can help with product info here on the storefront. Sign in as an admin to ask about orders or sales.' }
   ]);
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const isAuthorizedAdmin = useStore((s) => s.isAuthorizedAdmin);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -21,31 +23,38 @@ export default function AICopilot() {
 
     const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setLoading(true);
 
     try {
-      const { data: products } = await supabase.from('products').select('*');
-      const { data: orders } = await supabase.from('orders').select('*');
-
-      let aiResponse = "";
       const lowerQuery = userMessage.toLowerCase();
+      let aiResponse: string;
 
-      if (lowerQuery.includes('status') || lowerQuery.includes('orders') || lowerQuery.includes('sales')) {
-        const totalSales = orders?.reduce((sum, o) => sum + o.total_amount, 0) || 0;
-        aiResponse = `You currently have ${orders?.length || 0} total orders recorded, with a cumulative revenue of EGP ${totalSales}. Everything is syncing smoothly with Supabase!`;
+      const asksAboutOrders = lowerQuery.includes('status') || lowerQuery.includes('orders') || lowerQuery.includes('sales');
+
+      if (asksAboutOrders) {
+        // Order/revenue data is customer PII and business data — this
+        // widget renders on every public page, so it must never fetch the
+        // orders table for a non-admin session. RLS also blocks this read
+        // for the anon key regardless, but we don't even attempt it here.
+        if (!isAuthorizedAdmin) {
+          aiResponse = "I can't share order or sales data here — that's restricted to signed-in admins.";
+        } else {
+          const { data: orders } = await supabase.from('orders').select('total_amount');
+          const totalSales = orders?.reduce((sum, o) => sum + o.total_amount, 0) || 0;
+          aiResponse = `You currently have ${orders?.length || 0} total orders recorded, with a cumulative revenue of EGP ${totalSales}.`;
+        }
       } else if (lowerQuery.includes('product') || lowerQuery.includes('inventory') || lowerQuery.includes('stock')) {
-        const productList = products?.map(p => `${p.name} (EGP ${p.price})`).join(', ') || 'No products found';
-        aiResponse = `Here is your current inventory stock: ${productList}.`;
-      } else if (lowerQuery.includes('update') || lowerQuery.includes('file') || lowerQuery.includes('code') || lowerQuery.includes('change')) {
-        aiResponse = `I am ready to modify files or adjust configurations! Tell me specifically which file or component you want to update, and I will generate the complete patch for you.`;
+        const { data: products } = await supabase.from('products').select('name, price');
+        const productList = products?.map((p) => `${p.name} (EGP ${p.price})`).join(', ') || 'No products found';
+        aiResponse = `Here is the current storefront catalog: ${productList}.`;
       } else {
-        aiResponse = `I've processed your request regarding "${userMessage}". As your Eldukkan V3 assistant, I can check inventory metrics, analyze orders, or write code updates for your store files instantly. What would you like to build or change next?`;
+        aiResponse = `I can help you look up products in the catalog. What are you looking for?`;
       }
 
-      setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: aiResponse }]);
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error connecting to the store database.' }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error connecting to the store database.' }]);
     } finally {
       setLoading(false);
     }
@@ -54,12 +63,12 @@ export default function AICopilot() {
   return (
     <div className="fixed bottom-6 right-6 z-50">
       {!isOpen ? (
-        <button 
+        <button
           onClick={() => setIsOpen(true)}
           className="flex items-center gap-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black px-6 py-4 rounded-2xl shadow-2xl shadow-amber-500/30 hover:scale-105 transition-all group"
         >
-          <Sparkles className="animate-spin" size={22} />
-          <span>AI Copilot</span>
+          <Sparkles size={22} />
+          <span>Ask Eldukkan</span>
         </button>
       ) : (
         <div className="w-[380px] sm:w-[420px] h-[550px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
@@ -69,9 +78,9 @@ export default function AICopilot() {
                 <Bot size={22} />
               </div>
               <div>
-                <h3 className="font-black dark:text-white text-sm">Eldukkan Copilot</h3>
+                <h3 className="font-black dark:text-white text-sm">Eldukkan Assistant</h3>
                 <p className="text-xs text-emerald-500 font-bold flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live Supabase Link
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live catalog lookup
                 </p>
               </div>
             </div>
@@ -100,18 +109,18 @@ export default function AICopilot() {
             ))}
             {loading && (
               <div className="flex gap-3 items-center text-zinc-400 text-xs font-semibold animate-pulse">
-                <Bot size={16} /> Analyzing store logs & files...
+                <Bot size={16} /> Thinking...
               </div>
             )}
             <div ref={chatEndRef} />
           </div>
 
           <form onSubmit={handleSendMessage} className="p-3 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 flex gap-2">
-            <input 
-              type="text" 
-              placeholder="Ask to update files, check inventory..." 
-              value={input} 
-              onChange={e => setInput(e.target.value)} 
+            <input
+              type="text"
+              placeholder="Ask about a product..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
               className="flex-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500 dark:text-white"
             />
             <button type="submit" className="bg-amber-500 hover:bg-amber-600 text-black p-3 rounded-xl transition shadow-md">

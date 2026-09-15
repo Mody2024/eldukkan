@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Package, ShoppingBag, Palette, Trash2, Plus } from 'lucide-react';
+import { Package, ShoppingBag, Palette, Trash2, Plus, LogOut } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'design'>('orders');
   const [orders, setOrders] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', image_url: '', description: '' });
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', image_url: '', description: '', category: '' });
   
   const [storeConfig, setStoreConfig] = useState({
     storeName: 'Eldukkan V3',
@@ -39,10 +39,10 @@ export default function AdminDashboard() {
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     const { error } = await supabase.from('products').insert([
-      { name: newProduct.name, price: parseFloat(newProduct.price), image_url: newProduct.image_url, description: newProduct.description }
+      { name: newProduct.name, price: parseFloat(newProduct.price), image_url: newProduct.image_url, description: newProduct.description, category: newProduct.category || null, is_active: true }
     ]);
     if (!error) {
-      setNewProduct({ name: '', price: '', image_url: '', description: '' });
+      setNewProduct({ name: '', price: '', image_url: '', description: '', category: '' });
       fetchData();
       alert('Product added successfully!');
     }
@@ -63,15 +63,24 @@ export default function AdminDashboard() {
           <p className="text-zinc-500 font-medium text-sm">Manage live transactions, inventory, and storefront branding.</p>
         </div>
         
-        <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1.5 rounded-2xl gap-2 w-full md:w-auto">
-          <button onClick={() => setActiveTab('orders')} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === 'orders' ? 'bg-amber-500 text-black shadow-md' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}>
-            <Package size={18} /> Orders
-          </button>
-          <button onClick={() => setActiveTab('products')} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === 'products' ? 'bg-amber-500 text-black shadow-md' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}>
-            <ShoppingBag size={18} /> Inventory
-          </button>
-          <button onClick={() => setActiveTab('design')} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === 'design' ? 'bg-amber-500 text-black shadow-md' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}>
-            <Palette size={18} /> Design Studio
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1.5 rounded-2xl gap-2 flex-1 md:flex-none">
+            <button onClick={() => setActiveTab('orders')} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === 'orders' ? 'bg-amber-500 text-black shadow-md' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}>
+              <Package size={18} /> Orders
+            </button>
+            <button onClick={() => setActiveTab('products')} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === 'products' ? 'bg-amber-500 text-black shadow-md' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}>
+              <ShoppingBag size={18} /> Inventory
+            </button>
+            <button onClick={() => setActiveTab('design')} className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === 'design' ? 'bg-amber-500 text-black shadow-md' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}>
+              <Palette size={18} /> Design Studio
+            </button>
+          </div>
+          <button
+            onClick={() => supabase.auth.signOut()}
+            title="Sign out"
+            className="p-3.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-red-500 transition"
+          >
+            <LogOut size={18} />
           </button>
         </div>
       </div>
@@ -91,11 +100,11 @@ export default function AdminDashboard() {
                       <span className="text-xs uppercase font-bold px-2.5 py-1 bg-amber-500/10 text-amber-500 rounded-lg">{order.payment_method}</span>
                     </div>
                     <p className="font-bold text-zinc-700 dark:text-zinc-300">{order.customer_name} &bull; <span className="text-zinc-500">{order.customer_phone}</span></p>
-                    <p className="text-xs text-zinc-500">{order.customer_address}</p>
+                    <p className="text-xs text-zinc-500">{order.address}</p>
                   </div>
                   
                   <div className="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
-                    <span className="text-xl font-black text-amber-500">EGP {order.total_amount}</span>
+                    <span className="text-xl font-black text-amber-500">EGP {order.total}</span>
                     <select 
                       value={order.status} 
                       onChange={(e) => updateOrderStatus(order.id, e.target.value)}
@@ -124,6 +133,7 @@ export default function AdminDashboard() {
               <input required type="text" placeholder="Product Name" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white" />
               <input required type="number" placeholder="Price (EGP)" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white" />
               <input required type="url" placeholder="Image URL" value={newProduct.image_url} onChange={e => setNewProduct({...newProduct, image_url: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white" />
+              <input type="text" placeholder="Category (e.g. Streetwear)" value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none dark:text-white" />
               <textarea placeholder="Product Description" value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} className="w-full p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none min-h-[80px] dark:text-white" />
               <button type="submit" className="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-black font-black rounded-xl transition shadow-lg shadow-amber-500/20">
                 Publish Product

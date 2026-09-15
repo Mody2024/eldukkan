@@ -1,52 +1,39 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useStore } from '../store';
+import type { Product } from '../types';
 import { ShoppingBag, ArrowLeft, ShieldCheck } from 'lucide-react';
 
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const addToCart = useStore((s) => s.addToCart);
+  const showToast = useStore((s) => s.showToast);
 
   useEffect(() => {
     fetchProduct();
   }, [id]);
 
   const fetchProduct = async () => {
+    setLoading(true);
     try {
       const { data, error } = await supabase.from('products').select('*').eq('id', id).single();
       if (error) throw error;
       setProduct(data);
     } catch {
-      setProduct({
-        id: id || '1',
-        name: 'Eldukkan Custom Hoodie',
-        price: 650,
-        image_url: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80',
-        description: 'Premium heavyweight cotton streetwear hoodie. Crafted for maximum comfort and durability.'
-      });
+      setProduct(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const addToCart = () => {
+  const handleAddToCart = () => {
     if (!product) return;
-    try {
-      const cart = JSON.parse(localStorage.getItem('eldukkan_cart') || '[]');
-      const existing = cart.find((item: any) => item.id === product.id);
-      if (existing) {
-        existing.quantity = (existing.quantity || 1) + 1;
-      } else {
-        cart.push({ ...product, quantity: 1 });
-      }
-      localStorage.setItem('eldukkan_cart', JSON.stringify(cart));
-      window.dispatchEvent(new Event('cartUpdated'));
-      alert(`Added ${product.name} to cart!`);
-    } catch {
-      alert('Could not add to cart.');
-    }
+    addToCart(product);
+    showToast(`Added ${product.name} to cart`);
   };
 
   if (loading) {
@@ -84,7 +71,7 @@ export default function ProductDetails() {
             <div className="flex items-center gap-2 text-emerald-500 text-xs font-bold">
               <ShieldCheck size={16} /> Verified Supabase Catalog Item
             </div>
-            <button onClick={addToCart} className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-black font-black text-lg rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
+            <button onClick={handleAddToCart} className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-black font-black text-lg rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
               <ShoppingBag size={20} /> Add to Cart
             </button>
           </div>

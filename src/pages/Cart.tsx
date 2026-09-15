@@ -1,0 +1,79 @@
+import { useNavigate } from 'react-router-dom';
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { useStore } from '../store';
+
+export default function Cart() {
+  const { cart, updateQuantity, removeFromCart } = useStore();
+  const navigate = useNavigate();
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  if (cart.length === 0) {
+    return (
+      <div className="max-w-md mx-auto text-center py-20 space-y-6">
+        <div className="w-20 h-20 bg-amber-500/10 text-amber-500 rounded-3xl flex items-center justify-center mx-auto">
+          <ShoppingBag size={36} />
+        </div>
+        <h2 className="text-2xl font-black dark:text-white">Your cart is empty</h2>
+        <p className="text-zinc-500 text-sm">Add some items from the store first.</p>
+        <button onClick={() => navigate('/')} className="px-6 py-3.5 bg-amber-500 hover:bg-amber-600 text-black font-black rounded-xl transition">
+          Browse Storefront
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-300">
+      <h1 className="text-3xl font-black dark:text-white tracking-tight">Your Cart</h1>
+
+      <div className="space-y-4">
+        {cart.map((item) => (
+          <div key={item.id} className="flex items-center gap-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 rounded-2xl">
+            <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded-xl border border-zinc-200 dark:border-zinc-700 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold dark:text-white truncate">{item.name}</h3>
+              <p className="text-amber-500 font-black text-sm">EGP {item.price}</p>
+            </div>
+            <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-xl p-1">
+              <button
+                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                className="p-2 rounded-lg hover:bg-white dark:hover:bg-zinc-700 transition dark:text-white"
+                aria-label="Decrease quantity"
+              >
+                <Minus size={14} />
+              </button>
+              <span className="w-6 text-center font-bold text-sm dark:text-white">{item.quantity}</span>
+              <button
+                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                className="p-2 rounded-lg hover:bg-white dark:hover:bg-zinc-700 transition dark:text-white"
+                aria-label="Increase quantity"
+              >
+                <Plus size={14} />
+              </button>
+            </div>
+            <button
+              onClick={() => removeFromCart(item.id)}
+              className="p-3 text-red-500 hover:bg-red-500/10 rounded-xl transition shrink-0"
+              aria-label="Remove item"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl flex items-center justify-between">
+        <div>
+          <p className="text-zinc-500 text-xs font-bold uppercase">Total</p>
+          <p className="text-2xl font-black text-amber-500">EGP {total}</p>
+        </div>
+        <button
+          onClick={() => navigate('/checkout')}
+          className="flex items-center gap-2 px-6 py-4 bg-amber-500 hover:bg-amber-600 text-black font-black rounded-xl transition shadow-lg shadow-amber-500/20"
+        >
+          Checkout <ArrowRight size={18} />
+        </button>
+      </div>
+    </div>
+  );
+}

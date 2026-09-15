@@ -3,45 +3,40 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  category: string;
   image_url: string;
   images?: string[];
-  stock: number;
-  rating: number;
+  category?: string;
+  stock?: number;
+  vendor_name?: string;
+  rating?: number;
   review_count?: number;
-  is_active: boolean;
+  is_active?: boolean;
+  created_at?: string;
 }
 
 export interface CartItem extends Product {
   quantity: number;
 }
 
+export type PaymentMethod = 'cod' | 'instapay';
+export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered';
+
 export interface Order {
   id: string;
+  customer_id?: string | null;
   customer_name: string;
-  customer_email: string;
+  customer_email?: string | null;
   customer_phone: string;
   address: string;
-  city: string;
-  payment_method: 'cod' | 'vodafone' | 'fawry' | 'card';
-  payment_reference?: string;
+  notes?: string;
+  payment_method: PaymentMethod;
   total: number;
-  status: string;
+  status: OrderStatus;
   items: CartItem[];
   created_at: string;
 }
 
-export interface Review {
-  id: string;
-  product_id: string;
-  user_email: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-}
-
 export interface AdminUser {
-  id: string;
   email: string;
-  created_at: string;
+  created_at?: string;
 }

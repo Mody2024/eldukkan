@@ -1,39 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Link, Outlet} from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { ShoppingBag, ShieldCheck, Sun, Moon, Menu, X } from 'lucide-react';
-import AICopilot from '../components/AICopilot';
+import AICopilot from './AICopilot';
+import { useStore } from '../store';
 
 export default function Layout() {
-  const [cartCount, setCartCount] = useState(0);
-  const [darkMode, setDarkMode] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, toggleTheme, cart, toast, userId } = useStore();
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Theme is applied here as the single place that touches the DOM class,
+  // driven entirely by the shared store (no parallel local dark-mode state).
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
-
-  useEffect(() => {
-    const updateCartCount = () => {
-      try {
-        const cart = JSON.parse(localStorage.getItem('eldukkan_cart') || '[]');
-        const total = cart.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
-        setCartCount(total);
-      } catch {
-        setCartCount(0);
-      }
-    };
-    updateCartCount();
-    window.addEventListener('storage', updateCartCount);
-    window.addEventListener('cartUpdated', updateCartCount);
-    return () => {
-      window.removeEventListener('storage', updateCartCount);
-      window.removeEventListener('cartUpdated', updateCartCount);
-    };
-  }, []);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col font-sans transition-colors duration-300">
@@ -49,23 +29,28 @@ export default function Layout() {
               </span>
             </Link>
 
+            {/* No "Admin" link lives in this nav on purpose — the admin
+               dashboard is reached only by a private, unguessable URL and
+               is further gated behind Supabase auth + RLS. */}
             <nav className="hidden md:flex items-center gap-6 font-bold text-sm text-zinc-600 dark:text-zinc-400">
               <Link to="/" className="hover:text-amber-500 transition">Storefront</Link>
               <Link to="/tracking" className="hover:text-amber-500 transition">Order Tracking</Link>
-              <Link to="/admin" className="hover:text-amber-500 transition">Admin Command</Link>
+              <Link to={userId ? '/account' : '/login'} className="hover:text-amber-500 transition">
+                {userId ? 'My Account' : 'Sign In'}
+              </Link>
             </nav>
           </div>
 
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setDarkMode(!darkMode)}
+            <button
+              onClick={toggleTheme}
               className="p-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:scale-105 transition"
               title="Toggle Theme"
             >
-              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
-            <Link 
+            <Link
               to="/cart"
               className="relative p-3 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-black transition flex items-center gap-2 font-bold text-sm"
             >
@@ -78,7 +63,7 @@ export default function Layout() {
               )}
             </Link>
 
-            <button 
+            <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
             >
@@ -91,7 +76,9 @@ export default function Layout() {
           <div className="md:hidden bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-4 space-y-3 animate-in slide-in-from-top duration-200">
             <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-xl font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800">Storefront</Link>
             <Link to="/tracking" onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-xl font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800">Order Tracking</Link>
-            <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-xl font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800">Admin Command</Link>
+            <Link to={userId ? '/account' : '/login'} onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-xl font-bold hover:bg-zinc-100 dark:hover:bg-zinc-800">
+              {userId ? 'My Account' : 'Sign In'}
+            </Link>
           </div>
         )}
       </header>
@@ -110,6 +97,12 @@ export default function Layout() {
           </div>
         </div>
       </footer>
+
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold text-sm px-5 py-3 rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-200">
+          {toast}
+        </div>
+      )}
 
       <AICopilot />
     </div>
