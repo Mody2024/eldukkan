@@ -16,7 +16,18 @@ import AdminDashboard from '../pages/AdminDashboard';
  * or the public anon key, can read or write. Don't remove either layer.
  */
 export default function ProtectedAdminRoute() {
-  const { userEmail, isAuthorizedAdmin } = useStore();
+  const { userEmail, isAuthorizedAdmin, adminCheckPending } = useStore();
+
+  // Wait for the async admin_users lookup to actually finish before
+  // deciding anything — otherwise a real admin gets bounced during the
+  // moment their session is known but their admin status isn't yet.
+  if (userEmail && adminCheckPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-zinc-400 text-sm font-bold">
+        Checking access...
+      </div>
+    );
+  }
 
   if (!userEmail) return <AdminLogin />;
   if (!isAuthorizedAdmin) return <Navigate to="/" replace />;

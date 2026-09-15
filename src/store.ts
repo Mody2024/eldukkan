@@ -20,6 +20,8 @@ interface StoreState {
   setUserId: (id: string | null) => void;
   isAuthorizedAdmin: boolean;
   setAdminStatus: (status: boolean) => void;
+  adminCheckPending: boolean;
+  setAdminCheckPending: (pending: boolean) => void;
 
   toast: string | null;
   showToast: (message: string) => void;
@@ -56,6 +58,13 @@ export const useStore = create<StoreState>()(
       setUserId: (id) => set({ userId: id }),
       isAuthorizedAdmin: false,
       setAdminStatus: (status) => set({ isAuthorizedAdmin: status }),
+      // True until the first admin-status check (against admin_users) has
+      // resolved. ProtectedAdminRoute must wait for this instead of
+      // assuming "not yet confirmed admin" means "not admin" — otherwise a
+      // real admin gets bounced out during the split second before the
+      // async Supabase query finishes.
+      adminCheckPending: true,
+      setAdminCheckPending: (pending) => set({ adminCheckPending: pending }),
 
       // Lightweight in-store toast so we don't rely on blocking alert() popups.
       toast: null,

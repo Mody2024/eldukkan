@@ -21,14 +21,20 @@ import Account from './pages/Account';
 const ADMIN_PATH = (import.meta.env.VITE_ADMIN_PATH || 'ops-console-7f2k9x').replace(/^\/+/, '');
 
 export function App() {
-  const { setUserEmail, setUserId, setAdminStatus } = useStore();
+  const { setUserEmail, setUserId, setAdminStatus, setAdminCheckPending } = useStore();
 
   useEffect(() => {
     // Global Auth Listener
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user) {
         setUserId(data.user.id);
-        if (data.user.email) checkAdminAccess(data.user.email);
+        if (data.user.email) {
+          checkAdminAccess(data.user.email);
+        } else {
+          setAdminCheckPending(false);
+        }
+      } else {
+        setAdminCheckPending(false);
       }
     });
 
@@ -36,8 +42,12 @@ export function App() {
       const email = session?.user?.email || null;
       setUserEmail(email);
       setUserId(session?.user?.id || null);
-      if (email) checkAdminAccess(email);
-      else setAdminStatus(false);
+      if (email) {
+        checkAdminAccess(email);
+      } else {
+        setAdminStatus(false);
+        setAdminCheckPending(false);
+      }
     });
 
     return () => { authListener.subscription.unsubscribe(); };
@@ -47,6 +57,7 @@ export function App() {
     setUserEmail(email);
     const { data } = await supabase.from('admin_users').select('email').eq('email', email.trim().toLowerCase());
     setAdminStatus(!!(data && data.length > 0));
+    setAdminCheckPending(false);
   };
 
   return (
