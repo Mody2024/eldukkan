@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import type { PaymentMethod } from '../types';
-import { ShoppingBag, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, CheckCircle2, CreditCard } from 'lucide-react';
 
 export default function Checkout() {
   const { cart, clearCart, showToast, userEmail, userId } = useStore();
@@ -61,8 +61,31 @@ export default function Checkout() {
 
       if (error) throw error;
 
+      if (formData.paymentMethod === 'cod') {
+        clearCart();
+        navigate(`/tracking/${data.id}`);
+        return;
+      }
+
+      // Real online payment: ask the create-payment Edge Function (server
+      // side, holds the Paymob secret key) to open a payment session, then
+      // send the browser to Paymob's hosted checkout — card, Vodafone Cash,
+      // InstaPay, and Fawry all live on that one page. Order status only
+      // flips to "paid" once the paymob-webhook function verifies the
+      // transaction — never on the strength of this redirect alone.
+      const { data: paymentData, error: paymentError } = await supabase.functions.invoke('create-payment', {
+        body: { order_id: data.id },
+      });
+
+      if (paymentError || !paymentData?.checkout_url) {
+        showToast('Could not start online payment. You can retry, or contact support with your order ID.');
+        clearCart();
+        navigate(`/tracking/${data.id}`);
+        return;
+      }
+
       clearCart();
-      navigate(`/tracking/${data.id}`);
+      window.location.href = paymentData.checkout_url;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       showToast(`Error placing order: ${message}`);
@@ -125,14 +148,21 @@ export default function Checkout() {
                   <CheckCircle2 size={18} /> Cash on Delivery
                 </button>
                 <button type="button" onClick={() => setFormData({ ...formData, paymentMethod: 'instapay' })} className={`p-4 rounded-xl border font-bold text-sm flex items-center justify-center gap-2 transition ${formData.paymentMethod === 'instapay' ? 'border-amber-500 bg-amber-500/10 text-amber-500' : 'border-zinc-200 dark:border-zinc-700 text-zinc-500'}`}>
-                  <CheckCircle2 size={18} /> InstaPay / Wallet
+                  <CreditCard size={18} /> Pay Online
                 </button>
               </div>
+              {formData.paymentMethod === 'instapay' && (
+                <p className="text-xs text-zinc-500 mt-2">Card, Vodafone Cash, InstaPay, or Fawry — choose on the next screen.</p>
+              )}
             </div>
           </div>
 
           <button disabled={loading} type="submit" className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-black font-black text-lg rounded-xl transition shadow-lg shadow-amber-500/20 disabled:opacity-50">
-            {loading ? 'Processing Order...' : `Place Order (EGP ${displayTotal})`}
+            {loading
+              ? 'Processing...'
+              : formData.paymentMethod === 'cod'
+                ? `Place Order (EGP ${displayTotal})`
+                : `Continue to Payment (EGP ${displayTotal})`}
           </button>
         </form>
 

@@ -3,28 +3,52 @@ import { supabase } from '../lib/supabase';
 import { Lock } from 'lucide-react';
 
 export default function AdminLogin() {
+  const [mode, setMode] = useState<'signin' | 'register'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setInfo(null);
 
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (authError) {
-      // Deliberately generic: never confirm whether the email exists or is an admin.
-      setError('Invalid credentials.');
+    if (mode === 'signin') {
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
+      if (authError) {
+        // Deliberately generic: never confirm whether the email exists or is an admin.
+        setError('Invalid credentials.');
+        return;
+      }
+      // App.tsx's onAuthStateChange listener picks up the session and checks
+      // admin_users automatically; ProtectedAdminRoute re-renders once that
+      // resolves, so there's nothing else to do here.
       return;
     }
-    // App.tsx's onAuthStateChange listener picks up the session and checks
-    // admin_users automatically; ProtectedAdminRoute re-renders once that
-    // resolves, so there's nothing else to do here.
+
+    // Registration only completes access for an email an owner already
+    // whitelisted in admin_users — anyone else can create an account here
+    // but ProtectedAdminRoute will still send them to the storefront.
+    const { error: authError } = await supabase.auth.signUp({ email, password });
     setLoading(false);
+    if (authError) {
+      setError(authError.message);
+      return;
+    }
+    setInfo('Account created. If your email was added by an owner, check your inbox to confirm, then sign in.');
+    setMode('signin');
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.href },
+    });
   };
 
   return (
@@ -35,11 +59,16 @@ export default function AdminLogin() {
             <Lock size={22} />
           </div>
           <h1 className="text-xl font-black dark:text-white">Restricted Area</h1>
-          <p className="text-zinc-500 text-xs">Sign in with an authorized admin account.</p>
+          <p className="text-zinc-500 text-xs">
+            {mode === 'signin' ? 'Sign in with an authorized admin account.' : 'Register with the email an owner whitelisted for you.'}
+          </p>
         </div>
 
         {error && (
           <p className="text-red-500 text-xs font-bold bg-red-500/10 p-3 rounded-xl text-center">{error}</p>
+        )}
+        {info && (
+          <p className="text-emerald-500 text-xs font-bold bg-emerald-500/10 p-3 rounded-xl text-center">{info}</p>
         )}
 
         <div className="space-y-3">
@@ -53,6 +82,7 @@ export default function AdminLogin() {
           />
           <input
             required
+            minLength={6}
             type="password"
             placeholder="Password"
             value={password}
@@ -66,7 +96,29 @@ export default function AdminLogin() {
           type="submit"
           className="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-black font-black rounded-xl transition disabled:opacity-50"
         >
-          {loading ? 'Signing in...' : 'Sign In'}
+          {loading ? 'Please wait...' : mode === 'signin' ? 'Sign In' : 'Register'}
+        </button>
+
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
+          <span className="text-[10px] font-bold text-zinc-400 uppercase">or</span>
+          <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          className="w-full py-3.5 border border-zinc-200 dark:border-zinc-700 rounded-xl font-bold text-sm dark:text-white flex items-center justify-center gap-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition"
+        >
+          Continue with Google
+        </button>
+
+        <button
+          type="button"
+          onClick={() => { setMode(mode === 'signin' ? 'register' : 'signin'); setError(null); setInfo(null); }}
+          className="w-full text-center text-xs font-bold text-zinc-500 hover:text-amber-500 transition"
+        >
+          {mode === 'signin' ? 'Were you whitelisted as an admin? Register here' : 'Already registered? Sign in'}
         </button>
       </form>
     </div>

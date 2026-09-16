@@ -75,6 +75,19 @@ export default function OrderTracking() {
             </span>
           </div>
 
+          {order.payment_status && (
+            <div className="flex items-center gap-2 text-xs font-bold">
+              <span className="text-zinc-500">Payment:</span>
+              <span className={`px-2.5 py-1 rounded-lg uppercase ${
+                order.payment_status === 'paid' ? 'bg-emerald-500/10 text-emerald-500' :
+                order.payment_status === 'failed' ? 'bg-red-500/10 text-red-500' :
+                'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'
+              }`}>
+                {order.payment_status}
+              </span>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-medium">
             <div>
               <p className="text-zinc-500 text-xs">Customer Name</p>

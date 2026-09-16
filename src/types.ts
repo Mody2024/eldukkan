@@ -21,6 +21,8 @@ export interface CartItem extends Product {
 export type PaymentMethod = 'cod' | 'instapay';
 export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered';
 
+export type PaymentStatus = 'unpaid' | 'paid' | 'failed';
+
 export interface Order {
   id: string;
   customer_id?: string | null;
@@ -30,6 +32,7 @@ export interface Order {
   address: string;
   notes?: string;
   payment_method: PaymentMethod;
+  payment_status?: PaymentStatus;
   total: number;
   status: OrderStatus;
   items: CartItem[];

@@ -12,6 +12,7 @@ import OrderTracking from './pages/OrderTracking';
 import Checkout from './pages/Checkout';
 import CustomerLogin from './pages/CustomerLogin';
 import Account from './pages/Account';
+import Wishlist from './pages/Wishlist';
 
 // The admin dashboard lives at a private, unguessable path instead of the
 // old public "/admin". Set VITE_ADMIN_PATH in your environment (Vercel +
@@ -21,9 +22,26 @@ import Account from './pages/Account';
 const ADMIN_PATH = (import.meta.env.VITE_ADMIN_PATH || 'ops-console-7f2k9x').replace(/^\/+/, '');
 
 export function App() {
-  const { setUserEmail, setUserId, setAdminStatus, setAdminCheckPending } = useStore();
+  const { setUserEmail, setUserId, setAdminStatus, setAdminRole, setAdminCheckPending, setSiteSettings } = useStore();
 
   useEffect(() => {
+    // Site-wide settings (announcement banner, maintenance mode) — public
+    // read, no auth needed. Re-fetched live via Realtime so an admin's
+    // change shows up for visitors without a page reload.
+    const loadSettings = async () => {
+      const { data } = await supabase.from('site_settings').select('announcement_banner, maintenance_mode, store_name, logo_url').eq('id', true).single();
+      if (data) setSiteSettings({
+        announcementBanner: data.announcement_banner,
+        maintenanceMode: data.maintenance_mode,
+        storeName: data.store_name || 'Eldukkan',
+        logoUrl: data.logo_url,
+      });
+    };
+    loadSettings();
+    const settingsChannel = supabase
+      .channel('site-settings-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, loadSettings)
+      .subscribe();
     // Global Auth Listener
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user) {
@@ -46,17 +64,23 @@ export function App() {
         checkAdminAccess(email);
       } else {
         setAdminStatus(false);
+        setAdminRole(null);
         setAdminCheckPending(false);
       }
     });
 
-    return () => { authListener.subscription.unsubscribe(); };
+    return () => {
+      authListener.subscription.unsubscribe();
+      supabase.removeChannel(settingsChannel);
+    };
   }, []);
 
   const checkAdminAccess = async (email: string) => {
     setUserEmail(email);
-    const { data } = await supabase.from('admin_users').select('email').eq('email', email.trim().toLowerCase());
-    setAdminStatus(!!(data && data.length > 0));
+    const { data } = await supabase.from('admin_users').select('email, role').eq('email', email.trim().toLowerCase());
+    const match = data && data.length > 0 ? data[0] : null;
+    setAdminStatus(!!match);
+    setAdminRole(match?.role === 'owner' ? 'owner' : match ? 'admin' : null);
     setAdminCheckPending(false);
   };
 
@@ -74,6 +98,7 @@ export function App() {
             <Route path="tracking/:id" element={<OrderTracking />} />
             <Route path="login" element={<CustomerLogin />} />
             <Route path="account" element={<Account />} />
+            <Route path="wishlist" element={<Wishlist />} />
           </Route>
 
           {/* Admin dashboard: private path, gated by auth + admin_users + RLS */}

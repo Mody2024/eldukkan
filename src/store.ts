@@ -20,11 +20,23 @@ interface StoreState {
   setUserId: (id: string | null) => void;
   isAuthorizedAdmin: boolean;
   setAdminStatus: (status: boolean) => void;
+  adminRole: 'owner' | 'admin' | null;
+  setAdminRole: (role: 'owner' | 'admin' | null) => void;
   adminCheckPending: boolean;
   setAdminCheckPending: (pending: boolean) => void;
 
   toast: string | null;
   showToast: (message: string) => void;
+
+  announcementBanner: string | null;
+  maintenanceMode: boolean;
+  storeName: string;
+  logoUrl: string | null;
+  setSiteSettings: (settings: { announcementBanner: string | null; maintenanceMode: boolean; storeName: string; logoUrl: string | null }) => void;
+
+  wishlist: string[];
+  setWishlist: (ids: string[]) => void;
+  toggleWishlistId: (id: string) => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -58,6 +70,8 @@ export const useStore = create<StoreState>()(
       setUserId: (id) => set({ userId: id }),
       isAuthorizedAdmin: false,
       setAdminStatus: (status) => set({ isAuthorizedAdmin: status }),
+      adminRole: null,
+      setAdminRole: (role) => set({ adminRole: role }),
       // True until the first admin-status check (against admin_users) has
       // resolved. ProtectedAdminRoute must wait for this instead of
       // assuming "not yet confirmed admin" means "not admin" — otherwise a
@@ -73,6 +87,21 @@ export const useStore = create<StoreState>()(
         set({ toast: message });
         toastTimer = setTimeout(() => set({ toast: null }), 2600);
       },
+
+      announcementBanner: null,
+      maintenanceMode: false,
+      storeName: 'Eldukkan',
+      logoUrl: null,
+      setSiteSettings: ({ announcementBanner, maintenanceMode, storeName, logoUrl }) =>
+        set({ announcementBanner, maintenanceMode, storeName, logoUrl }),
+
+      // Wishlist is a list of product IDs, synced with the `wishlists`
+      // table for signed-in customers (see Account/ProductDetails).
+      wishlist: [],
+      setWishlist: (ids) => set({ wishlist: ids }),
+      toggleWishlistId: (id) => set((state) => ({
+        wishlist: state.wishlist.includes(id) ? state.wishlist.filter((w) => w !== id) : [...state.wishlist, id],
+      })),
     }),
     {
       name: 'eldukkan-storage',

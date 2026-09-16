@@ -39,6 +39,14 @@ export default function CustomerLogin() {
     navigate('/account');
   };
 
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/account` },
+    });
+  };
+
   return (
     <div className="min-h-[70vh] flex items-center justify-center">
       <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-8 rounded-3xl shadow-sm space-y-5">
@@ -84,6 +92,20 @@ export default function CustomerLogin() {
           className="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-black font-black rounded-xl transition disabled:opacity-50"
         >
           {loading ? 'Please wait...' : mode === 'signin' ? 'Sign In' : 'Sign Up'}
+        </button>
+
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
+          <span className="text-[10px] font-bold text-zinc-400 uppercase">or</span>
+          <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-700" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          className="w-full py-3.5 border border-zinc-200 dark:border-zinc-700 rounded-xl font-bold text-sm dark:text-white flex items-center justify-center gap-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition"
+        >
+          Continue with Google
         </button>
 
         <button
