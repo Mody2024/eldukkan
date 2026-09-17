@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Tailwind v4 defaults dark: to prefers-color-scheme (OS setting), not a
+   toggleable class. This line is what makes the manual light/dark toggle
+   in Layout.tsx (which sets/removes .dark on <html>) actually work. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 body {
-  @apply bg-zinc-950 text-zinc-100 antialiased;
+  @apply bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 antialiased;
 }
