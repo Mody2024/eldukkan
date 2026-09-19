@@ -10,12 +10,12 @@ export default function Cart() {
   if (cart.length === 0) {
     return (
       <div className="max-w-md mx-auto text-center py-20 space-y-6">
-        <div className="w-20 h-20 bg-amber-500/10 text-amber-500 rounded-3xl flex items-center justify-center mx-auto">
+        <div className="w-20 h-20 bg-brand-500/10 text-brand-500 rounded-3xl flex items-center justify-center mx-auto">
           <ShoppingBag size={36} />
         </div>
         <h2 className="text-2xl font-black dark:text-white">Your cart is empty</h2>
-        <p className="text-zinc-500 text-sm">Add some items from the store first.</p>
-        <button onClick={() => navigate('/')} className="px-6 py-3.5 bg-amber-500 hover:bg-amber-600 text-black font-black rounded-xl transition">
+        <p className="text-stone-500 text-sm">Add some items from the store first.</p>
+        <button onClick={() => navigate('/')} className="px-6 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition">
           Browse Storefront
         </button>
       </div>
@@ -28,16 +28,16 @@ export default function Cart() {
 
       <div className="space-y-4">
         {cart.map((item) => (
-          <div key={item.id} className="flex items-center gap-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 rounded-2xl">
-            <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded-xl border border-zinc-200 dark:border-zinc-700 shrink-0" />
+          <div key={item.id} className="flex items-center gap-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-4 rounded-2xl">
+            <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded-xl border border-stone-200 dark:border-stone-700 shrink-0" />
             <div className="flex-1 min-w-0">
               <h3 className="font-bold dark:text-white truncate">{item.name}</h3>
-              <p className="text-amber-500 font-black text-sm">EGP {item.price}</p>
+              <p className="text-brand-500 font-black text-sm">EGP {item.price}</p>
             </div>
-            <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-xl p-1">
+            <div className="flex items-center gap-2 bg-stone-100 dark:bg-stone-800 rounded-xl p-1">
               <button
                 onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                className="p-2 rounded-lg hover:bg-white dark:hover:bg-zinc-700 transition dark:text-white"
+                className="p-2 rounded-lg hover:bg-white dark:hover:bg-stone-700 transition dark:text-white"
                 aria-label="Decrease quantity"
               >
                 <Minus size={14} />
@@ -45,7 +45,7 @@ export default function Cart() {
               <span className="w-6 text-center font-bold text-sm dark:text-white">{item.quantity}</span>
               <button
                 onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                className="p-2 rounded-lg hover:bg-white dark:hover:bg-zinc-700 transition dark:text-white"
+                className="p-2 rounded-lg hover:bg-white dark:hover:bg-stone-700 transition dark:text-white"
                 aria-label="Increase quantity"
               >
                 <Plus size={14} />
@@ -62,14 +62,14 @@ export default function Cart() {
         ))}
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl flex items-center justify-between">
+      <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 rounded-3xl flex items-center justify-between">
         <div>
-          <p className="text-zinc-500 text-xs font-bold uppercase">Total</p>
-          <p className="text-2xl font-black text-amber-500">EGP {total}</p>
+          <p className="text-stone-500 text-xs font-bold uppercase">Total</p>
+          <p className="text-2xl font-black text-brand-500">EGP {total}</p>
         </div>
         <button
           onClick={() => navigate('/checkout')}
-          className="flex items-center gap-2 px-6 py-4 bg-amber-500 hover:bg-amber-600 text-black font-black rounded-xl transition shadow-lg shadow-amber-500/20"
+          className="flex items-center gap-2 px-6 py-4 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition shadow-lg shadow-brand-500/20"
         >
           Checkout <ArrowRight size={18} />
         </button>

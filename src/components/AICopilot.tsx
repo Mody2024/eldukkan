@@ -65,16 +65,16 @@ export default function AICopilot() {
       {!isOpen ? (
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black px-6 py-4 rounded-2xl shadow-2xl shadow-amber-500/30 hover:scale-105 transition-all group"
+          className="flex items-center gap-3 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-400 hover:to-brand-500 text-white font-black px-6 py-4 rounded-2xl shadow-2xl shadow-brand-500/30 hover:scale-105 transition-all group"
         >
           <Sparkles size={22} />
           <span>Ask Eldukkan</span>
         </button>
       ) : (
-        <div className="w-[380px] sm:w-[420px] h-[550px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
-          <div className="bg-zinc-50 dark:bg-zinc-950 p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+        <div className="w-[380px] sm:w-[420px] h-[550px] bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+          <div className="bg-stone-50 dark:bg-stone-950 p-4 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center font-bold">
+              <div className="w-10 h-10 bg-brand-500/10 text-brand-500 rounded-xl flex items-center justify-center font-bold">
                 <Bot size={22} />
               </div>
               <div>
@@ -84,7 +84,7 @@ export default function AICopilot() {
                 </p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-zinc-400 hover:text-zinc-700 dark:hover:text-white p-2 rounded-xl transition">
+            <button onClick={() => setIsOpen(false)} className="text-stone-400 hover:text-stone-700 dark:hover:text-white p-2 rounded-xl transition">
               <X size={20} />
             </button>
           </div>
@@ -93,37 +93,37 @@ export default function AICopilot() {
             {messages.map((msg, index) => (
               <div key={index} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 mt-1">
+                  <div className="w-8 h-8 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center shrink-0 mt-1">
                     <Bot size={16} />
                   </div>
                 )}
-                <div className={`max-w-[75%] p-3.5 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-amber-500 text-black font-semibold rounded-br-none' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-bl-none'}`}>
+                <div className={`max-w-[75%] p-3.5 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-brand-500 text-white font-semibold rounded-br-none' : 'bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 rounded-bl-none'}`}>
                   {msg.content}
                 </div>
                 {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-lg bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 flex items-center justify-center shrink-0 mt-1">
+                  <div className="w-8 h-8 rounded-lg bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300 flex items-center justify-center shrink-0 mt-1">
                     <User size={16} />
                   </div>
                 )}
               </div>
             ))}
             {loading && (
-              <div className="flex gap-3 items-center text-zinc-400 text-xs font-semibold animate-pulse">
+              <div className="flex gap-3 items-center text-stone-400 text-xs font-semibold animate-pulse">
                 <Bot size={16} /> Thinking...
               </div>
             )}
             <div ref={chatEndRef} />
           </div>
 
-          <form onSubmit={handleSendMessage} className="p-3 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 flex gap-2">
+          <form onSubmit={handleSendMessage} className="p-3 bg-stone-50 dark:bg-stone-950 border-t border-stone-200 dark:border-stone-800 flex gap-2">
             <input
               type="text"
               placeholder="Ask about a product..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="flex-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500 dark:text-white"
+              className="flex-1 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 dark:text-white"
             />
-            <button type="submit" className="bg-amber-500 hover:bg-amber-600 text-black p-3 rounded-xl transition shadow-md">
+            <button type="submit" className="bg-brand-500 hover:bg-brand-600 text-white p-3 rounded-xl transition shadow-md">
               <Send size={18} />
             </button>
           </form>

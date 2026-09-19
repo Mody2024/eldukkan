@@ -5,6 +5,48 @@
    in Layout.tsx (which sets/removes .dark on <html>) actually work. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * ELDUKKAN DESIGN SYSTEM
+ *
+ * "Eldukkan" (الدكان) is the old Egyptian word for a small neighborhood
+ * shop — warm, familiar, unhurried. The palette below moves off the
+ * generic amber/zinc AI-template look toward a warm terracotta accent
+ * (echoing old shopfronts and pottery) against calm, warm-neutral
+ * backgrounds instead of stark black/white — meant to feel easy on the
+ * eyes rather than "tech dashboard."
+ *
+ * `brand-*` replaces every former `amber-*` class (same shade numbers,
+ * so existing utility classes like `brand-500` keep working everywhere
+ * they were `amber-500`). `stone-*` (Tailwind's built-in warm gray)
+ * replaces `zinc-*` for the same reason — warmer neutrals than zinc's
+ * cool blue-gray.
+ */
+@theme {
+  --color-brand-50: #fdf6ee;
+  --color-brand-100: #faebd6;
+  --color-brand-200: #f3d3ac;
+  --color-brand-300: #e9b378;
+  --color-brand-400: #dd8f4c;
+  --color-brand-500: #c96a2e;
+  --color-brand-600: #ad5223;
+  --color-brand-700: #8c3f1f;
+  --color-brand-800: #71341f;
+  --color-brand-900: #5d2c1d;
+  --color-brand-950: #33150c;
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
 body {
-  @apply bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 antialiased;
+  font-family: var(--font-sans);
+  @apply bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 antialiased;
+}
+
+/* Headlines get the display serif everywhere automatically — this is
+   the single biggest lever for "looks designed" vs. "looks templated",
+   and it applies site-wide with no per-page JSX changes needed. */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
 }

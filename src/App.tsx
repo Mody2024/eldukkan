@@ -22,19 +22,22 @@ import Wishlist from './pages/Wishlist';
 const ADMIN_PATH = (import.meta.env.VITE_ADMIN_PATH || 'ops-console-7f2k9x').replace(/^\/+/, '');
 
 export function App() {
-  const { setUserEmail, setUserId, setAdminStatus, setAdminRole, setAdminCheckPending, setSiteSettings } = useStore();
+  const { setUserEmail, setUserId, setAdminStatus, setAdminRole, setAdminPermissions, setAdminCheckPending, setSiteSettings } = useStore();
 
   useEffect(() => {
     // Site-wide settings (announcement banner, maintenance mode) — public
     // read, no auth needed. Re-fetched live via Realtime so an admin's
     // change shows up for visitors without a page reload.
     const loadSettings = async () => {
-      const { data } = await supabase.from('site_settings').select('announcement_banner, maintenance_mode, store_name, logo_url').eq('id', true).single();
+      const { data } = await supabase.from('site_settings').select('*').eq('id', true).single();
       if (data) setSiteSettings({
         announcementBanner: data.announcement_banner,
         maintenanceMode: data.maintenance_mode,
         storeName: data.store_name || 'Eldukkan',
         logoUrl: data.logo_url,
+        heroHeadline: data.hero_headline,
+        heroSubheadline: data.hero_subheadline,
+        heroImageUrl: data.hero_image_url,
       });
     };
     loadSettings();
@@ -65,6 +68,7 @@ export function App() {
       } else {
         setAdminStatus(false);
         setAdminRole(null);
+        setAdminPermissions([]);
         setAdminCheckPending(false);
       }
     });
@@ -77,15 +81,16 @@ export function App() {
 
   const checkAdminAccess = async (email: string) => {
     setUserEmail(email);
-    const { data } = await supabase.from('admin_users').select('email, role').eq('email', email.trim().toLowerCase());
+    const { data } = await supabase.from('admin_users').select('email, role, permissions').eq('email', email.trim().toLowerCase());
     const match = data && data.length > 0 ? data[0] : null;
     setAdminStatus(!!match);
-    setAdminRole(match?.role === 'owner' ? 'owner' : match ? 'admin' : null);
+    setAdminRole(match?.role === 'owner' ? 'owner' : match?.role === 'staff' ? 'staff' : match ? 'admin' : null);
+    setAdminPermissions(Array.isArray(match?.permissions) ? match.permissions : []);
     setAdminCheckPending(false);
   };
 
   return (
-    <div className="min-h-screen transition-colors duration-300 bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+    <div className="min-h-screen transition-colors duration-300 bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100">
       <BrowserRouter>
         <Routes>
           {/* Public Storefront Routes wrapped in Layout */}

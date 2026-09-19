@@ -23,7 +23,7 @@ export default function ProtectedAdminRoute() {
   // moment their session is known but their admin status isn't yet.
   if (userEmail && adminCheckPending) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-zinc-400 text-sm font-bold">
+      <div className="min-h-screen flex items-center justify-center text-stone-400 text-sm font-bold">
         Checking access...
       </div>
     );

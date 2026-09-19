@@ -51,29 +51,29 @@ export default function Wishlist() {
       </h1>
 
       {loading ? (
-        <p className="text-zinc-500 text-center py-20 font-bold">Loading your wishlist...</p>
+        <p className="text-stone-500 text-center py-20 font-bold">Loading your wishlist...</p>
       ) : products.length === 0 ? (
-        <div className="text-center py-20 space-y-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl">
-          <Heart className="mx-auto text-zinc-400" size={32} />
-          <p className="text-zinc-500 text-sm">Nothing saved yet.</p>
-          <Link to="/" className="inline-block px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-black text-sm rounded-xl transition">
+        <div className="text-center py-20 space-y-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl">
+          <Heart className="mx-auto text-stone-400" size={32} />
+          <p className="text-stone-500 text-sm">Nothing saved yet.</p>
+          <Link to="/" className="inline-block px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-black text-sm rounded-xl transition">
             Browse Storefront
           </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
-            <div key={product.id} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-sm flex flex-col">
-              <Link to={`/product/${product.id}`} className="h-48 bg-zinc-100 dark:bg-zinc-800 block">
+            <div key={product.id} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl overflow-hidden shadow-sm flex flex-col">
+              <Link to={`/product/${product.id}`} className="h-48 bg-stone-100 dark:bg-stone-800 block">
                 <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
               </Link>
               <div className="p-5 flex-1 flex flex-col justify-between gap-3">
                 <div>
                   <h3 className="font-black dark:text-white">{product.name}</h3>
-                  <p className="text-amber-500 font-black">EGP {product.price}</p>
+                  <p className="text-brand-500 font-black">EGP {product.price}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => handleAddToCart(product)} className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm rounded-xl transition flex items-center justify-center gap-2">
+                  <button onClick={() => handleAddToCart(product)} className="flex-1 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2">
                     <ShoppingBag size={16} /> Add to Cart
                   </button>
                   <button onClick={() => handleRemove(product.id)} className="p-2.5 text-red-500 hover:bg-red-500/10 rounded-xl transition">

@@ -39,11 +39,11 @@ export default function Account() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black dark:text-white tracking-tight">My Account</h1>
-          <p className="text-zinc-500 text-sm">{userEmail}</p>
+          <p className="text-stone-500 text-sm">{userEmail}</p>
         </div>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:text-red-500 font-bold text-sm transition"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:text-red-500 font-bold text-sm transition"
         >
           <LogOut size={16} /> Sign Out
         </button>
@@ -53,12 +53,12 @@ export default function Account() {
         <h2 className="text-lg font-black dark:text-white">Order History</h2>
 
         {loading ? (
-          <p className="text-zinc-500 text-sm py-8 text-center font-bold">Loading your orders...</p>
+          <p className="text-stone-500 text-sm py-8 text-center font-bold">Loading your orders...</p>
         ) : orders.length === 0 ? (
-          <div className="text-center py-16 space-y-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl">
-            <Package className="mx-auto text-zinc-400" size={32} />
-            <p className="text-zinc-500 text-sm">No orders yet.</p>
-            <Link to="/" className="inline-block px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-black text-sm rounded-xl transition">
+          <div className="text-center py-16 space-y-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl">
+            <Package className="mx-auto text-stone-400" size={32} />
+            <p className="text-stone-500 text-sm">No orders yet.</p>
+            <Link to="/" className="inline-block px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-black text-sm rounded-xl transition">
               Start Shopping
             </Link>
           </div>
@@ -68,15 +68,15 @@ export default function Account() {
               <Link
                 key={order.id}
                 to={`/tracking/${order.id}`}
-                className="flex items-center justify-between bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-2xl hover:border-amber-500/50 transition"
+                className="flex items-center justify-between bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-5 rounded-2xl hover:border-brand-500/50 transition"
               >
                 <div>
                   <p className="font-black dark:text-white">#{order.id.slice(0, 8).toUpperCase()}</p>
-                  <p className="text-xs text-zinc-500">{new Date(order.created_at).toLocaleDateString()}</p>
+                  <p className="text-xs text-stone-500">{new Date(order.created_at).toLocaleDateString()}</p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-xs uppercase font-bold px-2.5 py-1 bg-amber-500/10 text-amber-500 rounded-lg">{order.status}</span>
-                  <span className="font-black text-amber-500">EGP {order.total}</span>
+                  <span className="text-xs uppercase font-bold px-2.5 py-1 bg-brand-500/10 text-brand-500 rounded-lg">{order.status}</span>
+                  <span className="font-black text-brand-500">EGP {order.total}</span>
                 </div>
               </Link>
             ))}

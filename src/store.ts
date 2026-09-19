@@ -20,8 +20,11 @@ interface StoreState {
   setUserId: (id: string | null) => void;
   isAuthorizedAdmin: boolean;
   setAdminStatus: (status: boolean) => void;
-  adminRole: 'owner' | 'admin' | null;
-  setAdminRole: (role: 'owner' | 'admin' | null) => void;
+  adminRole: 'owner' | 'admin' | 'staff' | null;
+  setAdminRole: (role: 'owner' | 'admin' | 'staff' | null) => void;
+  adminPermissions: string[];
+  setAdminPermissions: (perms: string[]) => void;
+  hasPermission: (perm: string) => boolean;
   adminCheckPending: boolean;
   setAdminCheckPending: (pending: boolean) => void;
 
@@ -32,7 +35,13 @@ interface StoreState {
   maintenanceMode: boolean;
   storeName: string;
   logoUrl: string | null;
-  setSiteSettings: (settings: { announcementBanner: string | null; maintenanceMode: boolean; storeName: string; logoUrl: string | null }) => void;
+  heroHeadline: string | null;
+  heroSubheadline: string | null;
+  heroImageUrl: string | null;
+  setSiteSettings: (settings: {
+    announcementBanner: string | null; maintenanceMode: boolean; storeName: string; logoUrl: string | null;
+    heroHeadline?: string | null; heroSubheadline?: string | null; heroImageUrl?: string | null;
+  }) => void;
 
   wishlist: string[];
   setWishlist: (ids: string[]) => void;
@@ -41,7 +50,7 @@ interface StoreState {
 
 export const useStore = create<StoreState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       theme: 'dark',
       toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
 
@@ -72,6 +81,15 @@ export const useStore = create<StoreState>()(
       setAdminStatus: (status) => set({ isAuthorizedAdmin: status }),
       adminRole: null,
       setAdminRole: (role) => set({ adminRole: role }),
+      adminPermissions: [],
+      setAdminPermissions: (perms) => set({ adminPermissions: perms }),
+      // Owner has every capability, non-negotiable in the UI too (mirrors
+      // the SQL admin_has_permission() short-circuit for owner).
+      hasPermission: (perm) => {
+        const state = get();
+        if (state.adminRole === 'owner') return true;
+        return state.adminPermissions.includes(perm);
+      },
       // True until the first admin-status check (against admin_users) has
       // resolved. ProtectedAdminRoute must wait for this instead of
       // assuming "not yet confirmed admin" means "not admin" — otherwise a
@@ -92,8 +110,19 @@ export const useStore = create<StoreState>()(
       maintenanceMode: false,
       storeName: 'Eldukkan',
       logoUrl: null,
-      setSiteSettings: ({ announcementBanner, maintenanceMode, storeName, logoUrl }) =>
-        set({ announcementBanner, maintenanceMode, storeName, logoUrl }),
+      heroHeadline: null,
+      heroSubheadline: null,
+      heroImageUrl: null,
+      setSiteSettings: (settings) =>
+        set({
+          announcementBanner: settings.announcementBanner,
+          maintenanceMode: settings.maintenanceMode,
+          storeName: settings.storeName,
+          logoUrl: settings.logoUrl,
+          heroHeadline: settings.heroHeadline ?? null,
+          heroSubheadline: settings.heroSubheadline ?? null,
+          heroImageUrl: settings.heroImageUrl ?? null,
+        }),
 
       // Wishlist is a list of product IDs, synced with the `wishlists`
       // table for signed-in customers (see Account/ProductDetails).
