@@ -24,10 +24,15 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationParams
     throw new Error('EmailJS is not configured: missing ' + missing.join(', '));
   }
 
+  // The validation above guarantees these values are present.
+  const serviceId = SERVICE_ID as string;
+  const templateId = TEMPLATE_ID as string;
+  const publicKey = PUBLIC_KEY as string;
+
   try {
     await emailjs.send(
-      SERVICE_ID,
-      TEMPLATE_ID,
+      serviceId,
+      templateId,
       {
         to_email: params.to_email,
         to_name: params.to_name,
@@ -36,7 +41,7 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationParams
         order_items_summary: params.order_items_summary,
         tracking_url: params.tracking_url,
       },
-      { publicKey: PUBLIC_KEY },
+      { publicKey },
     );
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
