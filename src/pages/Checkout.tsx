@@ -164,7 +164,10 @@ export default function Checkout() {
           order_total: verifiedTotal,
           order_items_summary: verifiedItems.map((i) => `${i.name} x${i.quantity}`).join(', '),
           tracking_url: `${window.location.origin}/tracking/${data.id}`,
-        }).catch(() => {});
+        }).catch((emailError) => {
+          console.error('Order confirmation email failed:', emailError);
+          showToast('Order placed, but the confirmation email could not be sent.');
+        });
       }
 
       if (formData.paymentMethod === 'cod') {
