@@ -61,32 +61,47 @@ const CART_TOOL = {
   },
 };
 
+const GEMINI_MODEL = 'gemini-3.5-flash-lite';
+
 async function callGemini(apiKey: string, contents: unknown[]) {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-      body: JSON.stringify({
-        contents,
-        tools: [{ functionDeclarations: [SEARCH_TOOL, CART_TOOL] }],
-        systemInstruction: {
-          parts: [{
-            text: `You are a friendly, concise shopping assistant for an Egyptian online store called Eldukkan (an old word for "the shop"). 
+  const payload = {
+    contents,
+    tools: [{ functionDeclarations: [SEARCH_TOOL, CART_TOOL] }],
+    systemInstruction: {
+      parts: [{
+        text: `You are a friendly, concise shopping assistant for an Egyptian online store called Eldukkan (an old word for "the shop"). 
 Help customers find products and, when they clearly want to buy something ("buy me the best X", "get me a Y"), search for it and suggest adding the single best match to their cart.
 Never invent products or prices — always use search_products first, never guess a product_id.
 If a search returns multiple reasonable matches and the customer's request is ambiguous, ask a brief clarifying question instead of guessing.
 Keep replies short (2-3 sentences max) and warm, not robotic.`,
-          }],
-        },
-      }),
-    }
-  );
-  if (!res.ok) {
+      }],
+    },
+  };
+
+  // Gemini 3.5 Flash-Lite is Google's fast, cost-efficient model and has a
+  // free tier. Retry temporary capacity/rate-limit failures before giving up.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (res.ok) return res.json();
+
     const details = await res.text();
-    throw new Error(`Gemini API error: ${details}`);
+    if ((res.status === 429 || res.status === 503) && attempt < 2) {
+      await new Promise((resolve) => setTimeout(resolve, 800 * (attempt + 1)));
+      continue;
+    }
+
+    throw new Error(`Gemini API error (${res.status}, model ${GEMINI_MODEL}): ${details}`);
   }
-  return res.json();
+
+  throw new Error('Gemini API request failed after retries.');
 }
 
 Deno.serve(async (req) => {
