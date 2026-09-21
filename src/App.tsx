@@ -49,23 +49,33 @@ export function App() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, loadSettings)
       .subscribe();
     // Global Auth Listener
-    supabase.auth.getUser().then(({ data }) => {
-      if (data?.user) {
-        setUserId(data.user.id);
-        if (data.user.email) {
-          checkAdminAccess(data.user.email);
-        } else {
-          setAdminCheckPending(false);
-        }
-      } else {
-        setAdminCheckPending(false);
-      }
-    });
-
+    // Register the listener before asking for the current session so OAuth
+    // redirects (including INITIAL_SESSION / SIGNED_IN) are not missed.
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       const email = session?.user?.email || null;
       setUserEmail(email);
       setUserId(session?.user?.id || null);
+
+      if (email) {
+        checkAdminAccess(email);
+      } else {
+        setAdminStatus(false);
+        setAdminRole(null);
+        setAdminPermissions([]);
+        setAdminCheckPending(false);
+      }
+    });
+
+    // Fallback/current-session sync. Supabase automatically restores a
+    // persisted browser session and detects OAuth credentials in the URL.
+    // This makes the app resilient if the initial auth event happened before
+    // React mounted this component.
+    supabase.auth.getSession().then(({ data }) => {
+      const session = data.session;
+      const email = session?.user?.email || null;
+      setUserEmail(email);
+      setUserId(session?.user?.id || null);
+
       if (email) {
         checkAdminAccess(email);
       } else {
