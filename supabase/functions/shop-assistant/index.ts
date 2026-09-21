@@ -63,7 +63,7 @@ const CART_TOOL = {
 
 async function callGemini(apiKey: string, contents: unknown[]) {
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -144,7 +144,7 @@ Deno.serve(async (req) => {
     let response = await callGemini(GEMINI_API_KEY, contents);
     let parts = response.candidates?.[0]?.content?.parts ?? [];
     let functionCall = parts.find((p: { functionCall?: unknown }) => p.functionCall)?.functionCall as
-      { name: string; args: Record<string, unknown> } | undefined;
+      { id?: string; name: string; args: Record<string, unknown> } | undefined;
 
     let searchResults: Product[] = [];
     let suggestedAction: { type: 'add_to_cart'; product_id: string; quantity: number; product_name?: string } | null = null;
@@ -153,21 +153,39 @@ Deno.serve(async (req) => {
     // add_to_cart based on what the search found.
     for (let round = 0; round < 2 && functionCall; round++) {
       if (functionCall.name === 'search_products') {
-        const query = String(functionCall.args.query ?? '');
+        const query = String(functionCall.args.query ?? '').trim();
         const sort = String(functionCall.args.sort ?? '');
+
+        // Keep catalog searches safe even when Gemini returns punctuation
+        // or wildcard characters in the query.
+        const safeQuery = query.replace(/[%_,()]/g, ' ').trim();
+
         let q = supabaseAdmin.from('products').select('id, name, description, price, sale_price, category, stock, rating')
-          .or(`name.ilike.%${query}%,description.ilike.%${query}%,category.ilike.%${query}%`)
+          .or(`name.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%,category.ilike.%${safeQuery}%`)
           .limit(5);
         if (sort === 'rating') q = q.order('rating', { ascending: false });
         else if (sort === 'price_asc') q = q.order('price', { ascending: true });
         else if (sort === 'price_desc') q = q.order('price', { ascending: false });
-        const { data } = await q;
+        const { data, error: searchError } = await q;
+        if (searchError) throw new Error(`Catalog search failed: ${searchError.message}`);
         searchResults = data ?? [];
 
-        contents.push({ role: 'model', parts: [{ functionCall }] });
+        // Gemini 3 function calls can contain a required thoughtSignature.
+        // Re-send the COMPLETE model content instead of reconstructing only
+        // the functionCall, otherwise the next Gemini request can fail.
+        const modelContent = response.candidates?.[0]?.content;
+        if (!modelContent) throw new Error('Gemini returned an incomplete tool call.');
+
+        contents.push(modelContent);
         contents.push({
-          role: 'function',
-          parts: [{ functionResponse: { name: 'search_products', response: { results: searchResults } } }],
+          role: 'user',
+          parts: [{
+            functionResponse: {
+              name: 'search_products',
+              id: functionCall.id,
+              response: { results: searchResults },
+            },
+          }],
         });
       } else if (functionCall.name === 'add_to_cart') {
         const productId = String(functionCall.args.product_id ?? '');
@@ -180,7 +198,8 @@ Deno.serve(async (req) => {
 
       response = await callGemini(GEMINI_API_KEY, contents);
       parts = response.candidates?.[0]?.content?.parts ?? [];
-      functionCall = parts.find((p: { functionCall?: unknown }) => p.functionCall)?.functionCall;
+      functionCall = parts.find((p: { functionCall?: unknown }) => p.functionCall)?.functionCall as
+        { id?: string; name: string; args: Record<string, unknown> } | undefined;
     }
 
     const textPart = parts.find((p: { text?: string }) => p.text)?.text as string | undefined;
