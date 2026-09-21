@@ -1,17 +1,48 @@
 import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
-import { Sparkles, Send, Bot, User, X } from 'lucide-react';
+import { Sparkles, Send, Bot, User, X, ShoppingBag } from 'lucide-react';
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  sale_price: number | null;
+  category: string | null;
+  stock: number | null;
+  rating: number | null;
+}
+
+interface ChatEntry {
+  role: 'user' | 'model';
+  content: string;
+  products?: Product[];
+}
+
+// A stable per-browser identifier for guests (persisted in localStorage) —
+// used only for the assistant's daily rate limit, nothing else. Signed-in
+// customers use their real account id instead.
+function getAnonId(): string {
+  const key = 'eldukkan-anon-id';
+  let id = localStorage.getItem(key);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(key, id);
+  }
+  return id;
+}
 
 export default function AICopilot() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hi! I can help with product info here on the storefront. Sign in as an admin to ask about orders or sales.' }
+  const [messages, setMessages] = useState<ChatEntry[]>([
+    { role: 'model', content: "Hi! Tell me what you're looking for — I can search the catalog and add things to your cart for you." },
   ]);
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const isAuthorizedAdmin = useStore((s) => s.isAuthorizedAdmin);
+  const { userId, addToCart, showToast } = useStore();
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -27,34 +58,29 @@ export default function AICopilot() {
     setLoading(true);
 
     try {
-      const lowerQuery = userMessage.toLowerCase();
-      let aiResponse: string;
+      const history = messages.map((m) => ({ role: m.role, text: m.content }));
+      const { data, error } = await supabase.functions.invoke('shop-assistant', {
+        body: { message: userMessage, history, identifier: userId ?? getAnonId() },
+      });
 
-      const asksAboutOrders = lowerQuery.includes('status') || lowerQuery.includes('orders') || lowerQuery.includes('sales');
+      if (error) throw error;
 
-      if (asksAboutOrders) {
-        // Order/revenue data is customer PII and business data — this
-        // widget renders on every public page, so it must never fetch the
-        // orders table for a non-admin session. RLS also blocks this read
-        // for the anon key regardless, but we don't even attempt it here.
-        if (!isAuthorizedAdmin) {
-          aiResponse = "I can't share order or sales data here — that's restricted to signed-in admins.";
-        } else {
-          const { data: orders } = await supabase.from('orders').select('total_amount');
-          const totalSales = orders?.reduce((sum, o) => sum + o.total_amount, 0) || 0;
-          aiResponse = `You currently have ${orders?.length || 0} total orders recorded, with a cumulative revenue of EGP ${totalSales}.`;
+      // The agent may suggest adding a product to the cart — this is
+      // executed here (client-side, where the cart actually lives), but
+      // checkout itself always stays a separate, human-initiated step.
+      if (data.action?.type === 'add_to_cart' && data.products) {
+        const product = data.products.find((p: Product) => p.id === data.action.product_id);
+        if (product) {
+          for (let i = 0; i < (data.action.quantity || 1); i++) {
+            addToCart({ ...product, image_url: '', price: product.sale_price ?? product.price });
+          }
+          showToast(`Added ${product.name} to your cart`);
         }
-      } else if (lowerQuery.includes('product') || lowerQuery.includes('inventory') || lowerQuery.includes('stock')) {
-        const { data: products } = await supabase.from('products').select('name, price');
-        const productList = products?.map((p) => `${p.name} (EGP ${p.price})`).join(', ') || 'No products found';
-        aiResponse = `Here is the current storefront catalog: ${productList}.`;
-      } else {
-        aiResponse = `I can help you look up products in the catalog. What are you looking for?`;
       }
 
-      setMessages((prev) => [...prev, { role: 'assistant', content: aiResponse }]);
+      setMessages((prev) => [...prev, { role: 'model', content: data.reply, products: data.products }]);
     } catch {
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error connecting to the store database.' }]);
+      setMessages((prev) => [...prev, { role: 'model', content: 'Sorry, I ran into an issue connecting just now — try again in a moment.' }]);
     } finally {
       setLoading(false);
     }
@@ -65,7 +91,7 @@ export default function AICopilot() {
       {!isOpen ? (
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-3 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-400 hover:to-brand-500 text-white font-black px-6 py-4 rounded-2xl shadow-2xl shadow-brand-500/30 hover:scale-105 transition-all group"
+          className="flex items-center gap-3 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-400 hover:to-brand-500 text-white font-black px-6 py-4 rounded-2xl shadow-2xl shadow-brand-500/30 hover:scale-105 transition-all"
         >
           <Sparkles size={22} />
           <span>Ask Eldukkan</span>
@@ -80,7 +106,7 @@ export default function AICopilot() {
               <div>
                 <h3 className="font-black dark:text-white text-sm">Eldukkan Assistant</h3>
                 <p className="text-xs text-emerald-500 font-bold flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live catalog lookup
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live catalog + cart help
                 </p>
               </div>
             </div>
@@ -92,13 +118,28 @@ export default function AICopilot() {
           <div className="flex-1 p-4 overflow-y-auto space-y-4">
             {messages.map((msg, index) => (
               <div key={index} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                {msg.role === 'assistant' && (
+                {msg.role === 'model' && (
                   <div className="w-8 h-8 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center shrink-0 mt-1">
                     <Bot size={16} />
                   </div>
                 )}
-                <div className={`max-w-[75%] p-3.5 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-brand-500 text-white font-semibold rounded-br-none' : 'bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 rounded-bl-none'}`}>
-                  {msg.content}
+                <div className="max-w-[85%] space-y-2">
+                  <div className={`p-3.5 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-brand-500 text-white font-semibold rounded-br-none ml-auto w-fit' : 'bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 rounded-bl-none'}`}>
+                    {msg.content}
+                  </div>
+                  {msg.products && msg.products.length > 0 && (
+                    <div className="space-y-2">
+                      {msg.products.slice(0, 3).map((p) => (
+                        <Link key={p.id} to={`/product/${p.id}`} className="flex items-center justify-between bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl p-2.5 hover:border-brand-500/50 transition">
+                          <div className="min-w-0">
+                            <p className="font-bold text-xs dark:text-white truncate">{p.name}</p>
+                            <p className="text-brand-500 font-black text-xs">EGP {p.sale_price ?? p.price}</p>
+                          </div>
+                          <ShoppingBag size={14} className="text-stone-400 shrink-0" />
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 {msg.role === 'user' && (
                   <div className="w-8 h-8 rounded-lg bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300 flex items-center justify-center shrink-0 mt-1">
@@ -118,12 +159,12 @@ export default function AICopilot() {
           <form onSubmit={handleSendMessage} className="p-3 bg-stone-50 dark:bg-stone-950 border-t border-stone-200 dark:border-stone-800 flex gap-2">
             <input
               type="text"
-              placeholder="Ask about a product..."
+              placeholder="e.g. buy me the best headphones"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="flex-1 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-brand-500 dark:text-white"
             />
-            <button type="submit" className="bg-brand-500 hover:bg-brand-600 text-white p-3 rounded-xl transition shadow-md">
+            <button type="submit" disabled={loading} className="bg-brand-500 hover:bg-brand-600 text-white p-3 rounded-xl transition shadow-md disabled:opacity-50">
               <Send size={18} />
             </button>
           </form>

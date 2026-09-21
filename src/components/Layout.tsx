@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
-import { ShoppingBag, ShieldCheck, Sun, Moon, Menu, X, Megaphone, Wrench, Heart, User, Search, Truck, Headset } from 'lucide-react';
+import { ShoppingBag, ShieldCheck, Sun, Moon, Menu, X, Megaphone, Wrench, Heart, User, Search, Truck, Headset, Languages } from 'lucide-react';
 import AICopilot from './AICopilot';
 import ShopIntro from './ShopIntro';
 import { useStore } from '../store';
+import { useTranslation } from '../lib/i18n';
 
 export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -12,14 +13,19 @@ export default function Layout() {
   const {
     theme, toggleTheme, cart, toast, userId, announcementBanner, maintenanceMode,
     isAuthorizedAdmin, storeName, logoUrl, wishlist, footerCreditsEnabled, footerCreditsText, sponsors,
+    language, setLanguage,
   } = useStore();
+  const { t } = useTranslation();
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Theme is applied here as the single place that touches the DOM class,
-  // driven entirely by the shared store (no parallel local dark-mode state).
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
+
+  useEffect(() => {
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = language;
+  }, [language]);
 
   // Maintenance mode blocks the storefront for everyone except a confirmed
   // signed-in admin.
@@ -36,8 +42,8 @@ export default function Layout() {
       {/* Utility bar — the small strip real storefronts use for trust signals */}
       <div className="hidden sm:block bg-stone-900 dark:bg-black text-stone-300 text-xs font-bold">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-between">
-          <span className="flex items-center gap-1.5"><Truck size={13} /> Fast delivery across Egypt</span>
-          <span className="flex items-center gap-1.5"><Headset size={13} /> Need help? Ask the assistant below</span>
+          <span className="flex items-center gap-1.5"><Truck size={13} /> {t('fast_delivery')}</span>
+          <span className="flex items-center gap-1.5"><Headset size={13} /> {t('need_help')}</span>
         </div>
       </div>
 
@@ -64,7 +70,7 @@ export default function Layout() {
                 type="text"
                 value={headerSearch}
                 onChange={(e) => setHeaderSearch(e.target.value)}
-                placeholder={`Search ${storeName}...`}
+                placeholder={t('search_placeholder')}
                 className="w-full pl-11 pr-4 py-3 bg-stone-100 dark:bg-stone-800 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-stone-900 rounded-full font-semibold text-sm outline-none dark:text-white transition"
               />
             </div>
@@ -74,6 +80,14 @@ export default function Layout() {
              dashboard is reached only by a private, unguessable URL and
              is further gated behind Supabase auth + RLS. */}
           <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+            <button
+              onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
+              className="p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:scale-105 transition flex items-center gap-1.5 font-bold text-xs"
+              title="Language / اللغة"
+            >
+              <Languages size={16} /> {language === 'en' ? 'AR' : 'EN'}
+            </button>
+
             <button
               onClick={toggleTheme}
               className="p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:scale-105 transition"
@@ -85,7 +99,7 @@ export default function Layout() {
             <Link
               to="/wishlist"
               className="relative hidden sm:flex p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:text-red-500 transition"
-              title="Wishlist"
+              title={t('wishlist')}
             >
               <Heart size={18} />
               {wishlist.length > 0 && (
@@ -98,7 +112,7 @@ export default function Layout() {
             <Link
               to={userId ? '/account' : '/login'}
               className="hidden sm:flex p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:text-brand-500 transition"
-              title={userId ? 'My Account' : 'Sign In'}
+              title={userId ? t('my_account') : t('sign_in')}
             >
               <User size={18} />
             </Link>
@@ -108,7 +122,7 @@ export default function Layout() {
               className="relative p-3 rounded-xl bg-brand-500/10 text-brand-500 hover:bg-brand-500 hover:text-white transition flex items-center gap-2 font-bold text-sm"
             >
               <ShoppingBag size={18} />
-              <span className="hidden lg:inline">Cart</span>
+              <span className="hidden lg:inline">{t('cart')}</span>
               {cartCount > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-brand-500 text-white font-black text-xs w-5 h-5 rounded-full flex items-center justify-center shadow-md">
                   {cartCount}
@@ -128,9 +142,9 @@ export default function Layout() {
         {/* Secondary nav strip */}
         <div className="hidden md:block border-t border-stone-100 dark:border-stone-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center gap-6 font-bold text-sm text-stone-600 dark:text-stone-400">
-            <Link to="/" className="hover:text-brand-500 transition">All Products</Link>
-            <Link to="/tracking" className="hover:text-brand-500 transition">Track Order</Link>
-            <Link to="/wishlist" className="hover:text-brand-500 transition">Wishlist</Link>
+            <Link to="/" className="hover:text-brand-500 transition">{t('all_products')}</Link>
+            <Link to="/tracking" className="hover:text-brand-500 transition">{t('track_order')}</Link>
+            <Link to="/wishlist" className="hover:text-brand-500 transition">{t('wishlist')}</Link>
           </div>
         </div>
 
@@ -142,15 +156,15 @@ export default function Layout() {
                 type="text"
                 value={headerSearch}
                 onChange={(e) => setHeaderSearch(e.target.value)}
-                placeholder={`Search ${storeName}...`}
+                placeholder={t('search_placeholder')}
                 className="w-full pl-11 pr-4 py-3 bg-stone-100 dark:bg-stone-800 rounded-full font-semibold text-sm outline-none dark:text-white"
               />
             </form>
-            <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-xl font-bold hover:bg-stone-100 dark:hover:bg-stone-800">All Products</Link>
-            <Link to="/tracking" onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-xl font-bold hover:bg-stone-100 dark:hover:bg-stone-800">Track Order</Link>
-            <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-xl font-bold hover:bg-stone-100 dark:hover:bg-stone-800">Wishlist</Link>
+            <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-xl font-bold hover:bg-stone-100 dark:hover:bg-stone-800">{t('all_products')}</Link>
+            <Link to="/tracking" onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-xl font-bold hover:bg-stone-100 dark:hover:bg-stone-800">{t('track_order')}</Link>
+            <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-xl font-bold hover:bg-stone-100 dark:hover:bg-stone-800">{t('wishlist')}</Link>
             <Link to={userId ? '/account' : '/login'} onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-xl font-bold hover:bg-stone-100 dark:hover:bg-stone-800">
-              {userId ? 'My Account' : 'Sign In'}
+              {userId ? t('my_account') : t('sign_in')}
             </Link>
           </div>
         )}
@@ -184,19 +198,19 @@ export default function Layout() {
             <span className="text-lg font-black text-white">{storeName}</span>
             <p className="text-xs leading-relaxed">Your everyday storefront for streetwear, tech, and more — built for fast, reliable delivery.</p>
             <span className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs">
-              <ShieldCheck size={14} /> Secure Checkout
+              <ShieldCheck size={14} /> {t('secure_checkout')}
             </span>
           </div>
           <div className="space-y-3">
             <h4 className="font-black text-white text-sm uppercase tracking-wide">Shop</h4>
-            <Link to="/" className="block text-xs hover:text-brand-400 transition">All Products</Link>
-            <Link to="/cart" className="block text-xs hover:text-brand-400 transition">Your Cart</Link>
-            <Link to="/wishlist" className="block text-xs hover:text-brand-400 transition">Wishlist</Link>
+            <Link to="/" className="block text-xs hover:text-brand-400 transition">{t('all_products')}</Link>
+            <Link to="/cart" className="block text-xs hover:text-brand-400 transition">{t('your_cart')}</Link>
+            <Link to="/wishlist" className="block text-xs hover:text-brand-400 transition">{t('wishlist')}</Link>
           </div>
           <div className="space-y-3">
             <h4 className="font-black text-white text-sm uppercase tracking-wide">Support</h4>
-            <Link to="/tracking" className="block text-xs hover:text-brand-400 transition">Track an Order</Link>
-            <Link to="/login" className="block text-xs hover:text-brand-400 transition">Sign In</Link>
+            <Link to="/tracking" className="block text-xs hover:text-brand-400 transition">{t('track_order')}</Link>
+            <Link to="/login" className="block text-xs hover:text-brand-400 transition">{t('sign_in')}</Link>
           </div>
           <div className="space-y-3">
             <h4 className="font-black text-white text-sm uppercase tracking-wide">Payments</h4>
@@ -225,7 +239,7 @@ export default function Layout() {
 
         <div className="border-t border-stone-800 py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-            <p>&copy; {new Date().getFullYear()} {storeName}. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} {storeName}. {t('all_rights_reserved')}</p>
             {footerCreditsEnabled && (
               <p>{footerCreditsText || 'Built by AlyEldeen Alaa & Almuddaththir Mahmoud'}</p>
             )}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
+import { useTranslation } from '../lib/i18n';
 import type { Product } from '../types';
 import { ShoppingBag, Sparkles, Star, Heart } from 'lucide-react';
 
@@ -15,6 +16,7 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const [loading, setLoading] = useState(true);
   const { addToCart, showToast, userId, wishlist, toggleWishlistId, storeName, heroHeadline, heroSubheadline, heroImageUrl } = useStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchProducts();
@@ -97,10 +99,10 @@ export default function Home() {
             <Sparkles size={14} /> {storeName}
           </div>
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight dark:text-white max-w-xl">
-            {heroHeadline || 'Discover Premium Streetwear & Tech Gear'}
+            {heroHeadline || t('discover')}
           </h1>
           <p className="text-stone-600 dark:text-stone-400 font-medium max-w-lg text-sm sm:text-base">
-            {heroSubheadline || 'Real-time inventory, fast delivery, and secure checkout — explore our latest curated collections below.'}
+            {heroSubheadline || t('hero_sub')}
           </p>
         </div>
         {heroImageUrl && (
@@ -112,7 +114,7 @@ export default function Home() {
 
       {featuredProducts.length > 0 && (
         <div className="space-y-6">
-          <h2 className="text-2xl font-black dark:text-white tracking-tight">Featured</h2>
+          <h2 className="text-2xl font-black dark:text-white tracking-tight">{t('featured')}</h2>
           <div className="flex gap-5 overflow-x-auto pb-2">
             {featuredProducts.map((product) => (
               <Link key={product.id} to={`/product/${product.id}`} className="shrink-0 w-56 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition group">
@@ -132,9 +134,9 @@ export default function Home() {
       {searchQuery && (
         <div className="flex items-center gap-3 -mt-6">
           <p className="text-sm text-stone-500">
-            Showing results for <span className="font-bold text-stone-900 dark:text-white">"{searchQuery}"</span>
+            {t('showing_results_for')} <span className="font-bold text-stone-900 dark:text-white">"{searchQuery}"</span>
           </p>
-          <Link to="/" className="text-xs font-bold text-brand-500 hover:underline">Clear</Link>
+          <Link to="/" className="text-xs font-bold text-brand-500 hover:underline">{t('clear')}</Link>
         </div>
       )}
 
@@ -156,7 +158,7 @@ export default function Home() {
       <div className="space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <h2 className="text-2xl font-black dark:text-white tracking-tight">
-            {activeCategory ?? 'Available Inventory'}
+            {activeCategory ?? t('available_inventory')}
           </h2>
           <div className="flex items-center gap-3 flex-wrap">
             {activeCategory && (
@@ -169,11 +171,11 @@ export default function Home() {
               onChange={(e) => setSortBy(e.target.value as SortOption)}
               className="px-4 py-2.5 rounded-xl text-xs font-bold bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 dark:text-white outline-none cursor-pointer"
             >
-              <option value="featured">Featured</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="rating">Top Rated</option>
-              <option value="trending">🔥 Trending</option>
+              <option value="featured">{t('sort_featured')}</option>
+              <option value="price-asc">{t('sort_price_asc')}</option>
+              <option value="price-desc">{t('sort_price_desc')}</option>
+              <option value="rating">{t('sort_rating')}</option>
+              <option value="trending">{t('sort_trending')}</option>
             </select>
           </div>
         </div>
@@ -206,10 +208,10 @@ export default function Home() {
                       <span className="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg">Sale</span>
                     )}
                     {outOfStock && (
-                      <span className="absolute bottom-3 left-3 bg-stone-900/90 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg">Out of Stock</span>
+                      <span className="absolute bottom-3 left-3 bg-stone-900/90 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg">{t('out_of_stock')}</span>
                     )}
                     {!outOfStock && lowStock && (
-                      <span className="absolute bottom-3 left-3 bg-red-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg">Only {product.stock} left</span>
+                      <span className="absolute bottom-3 left-3 bg-red-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg">{t('only_left', { n: product.stock ?? 0 })}</span>
                     )}
                   </div>
                   <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
@@ -237,7 +239,7 @@ export default function Home() {
                       </span>
                       <div className="flex items-center gap-2">
                         <Link to={`/product/${product.id}`} className="p-3 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-xl transition text-stone-700 dark:text-stone-300 font-bold text-xs">
-                          Details
+                          {t('details')}
                         </Link>
                         <button
                           onClick={() => handleAddToCart(product)}

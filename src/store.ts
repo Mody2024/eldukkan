@@ -50,6 +50,9 @@ interface StoreState {
   wishlist: string[];
   setWishlist: (ids: string[]) => void;
   toggleWishlistId: (id: string) => void;
+
+  language: 'en' | 'ar';
+  setLanguage: (lang: 'en' | 'ar') => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -141,12 +144,15 @@ export const useStore = create<StoreState>()(
       toggleWishlistId: (id) => set((state) => ({
         wishlist: state.wishlist.includes(id) ? state.wishlist.filter((w) => w !== id) : [...state.wishlist, id],
       })),
+
+      language: 'en',
+      setLanguage: (lang) => set({ language: lang }),
     }),
     {
       name: 'eldukkan-storage',
       // Only persist what should survive a refresh; auth/admin status and the
       // toast are runtime-only and must never be cached to localStorage.
-      partialize: (state) => ({ theme: state.theme, cart: state.cart }),
+      partialize: (state) => ({ theme: state.theme, cart: state.cart, language: state.language }),
     }
   )
 );

@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '../lib/i18n';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useStore } from '../store';
 
 export default function Cart() {
   const { cart, updateQuantity, removeFromCart } = useStore();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -13,10 +15,10 @@ export default function Cart() {
         <div className="w-20 h-20 bg-brand-500/10 text-brand-500 rounded-3xl flex items-center justify-center mx-auto">
           <ShoppingBag size={36} />
         </div>
-        <h2 className="text-2xl font-black dark:text-white">Your cart is empty</h2>
+        <h2 className="text-2xl font-black dark:text-white">{t('cart_empty')}</h2>
         <p className="text-stone-500 text-sm">Add some items from the store first.</p>
         <button onClick={() => navigate('/')} className="px-6 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition">
-          Browse Storefront
+          {t('browse_storefront')}
         </button>
       </div>
     );
@@ -24,7 +26,7 @@ export default function Cart() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-300">
-      <h1 className="text-3xl font-black dark:text-white tracking-tight">Your Cart</h1>
+      <h1 className="text-3xl font-black dark:text-white tracking-tight">{t('your_cart')}</h1>
 
       <div className="space-y-4">
         {cart.map((item) => (
@@ -64,14 +66,14 @@ export default function Cart() {
 
       <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 rounded-3xl flex items-center justify-between">
         <div>
-          <p className="text-stone-500 text-xs font-bold uppercase">Total</p>
+          <p className="text-stone-500 text-xs font-bold uppercase">{t('total')}</p>
           <p className="text-2xl font-black text-brand-500">EGP {total}</p>
         </div>
         <button
           onClick={() => navigate('/checkout')}
           className="flex items-center gap-2 px-6 py-4 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition shadow-lg shadow-brand-500/20"
         >
-          Checkout <ArrowRight size={18} />
+          {t('checkout')} <ArrowRight size={18} />
         </button>
       </div>
     </div>

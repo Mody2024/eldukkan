@@ -50,3 +50,15 @@ h1, h2, h3 {
   font-family: var(--font-display);
   letter-spacing: -0.01em;
 }
+
+/* Arabic: swap the whole type system to Cairo (a proper Arabic-supporting
+   typeface) whenever the page is RTL, headline serif included — Fraunces
+   has no Arabic glyphs at all, so keeping it would silently fall back to
+   an ugly system font mid-word. */
+[dir="rtl"] body {
+  font-family: "Cairo", ui-sans-serif, system-ui, sans-serif;
+}
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3 {
+  font-family: "Cairo", ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0;
+}

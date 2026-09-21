@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { sendOrderConfirmationEmail } from '../lib/email';
 import { useStore } from '../store';
+import { useTranslation } from '../lib/i18n';
 import type { PaymentMethod } from '../types';
 import { ShoppingBag, ArrowLeft, CheckCircle2, CreditCard, Tag, X, Loader2 } from 'lucide-react';
 
 export default function Checkout() {
   const { cart, clearCart, showToast, userEmail, userId } = useStore();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -204,10 +206,10 @@ export default function Checkout() {
         <div className="w-20 h-20 bg-brand-500/10 text-brand-500 rounded-3xl flex items-center justify-center mx-auto">
           <ShoppingBag size={36} />
         </div>
-        <h2 className="text-2xl font-black dark:text-white">Your cart is empty</h2>
+        <h2 className="text-2xl font-black dark:text-white">{t('cart_empty')}</h2>
         <p className="text-stone-500 text-sm">Add some items from the store before checking out.</p>
         <button onClick={() => navigate('/')} className="px-6 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition">
-          Return to Storefront
+          {t('browse_storefront')}
         </button>
       </div>
     );
@@ -220,7 +222,7 @@ export default function Checkout() {
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 className="text-3xl font-black dark:text-white tracking-tight">Checkout</h1>
+          <h1 className="text-3xl font-black dark:text-white tracking-tight">{t('checkout')}</h1>
           <p className="text-stone-500 text-sm">
             {prefilling ? 'Filling in your saved details...' : 'Complete your delivery and payment details.'}
           </p>
@@ -229,21 +231,21 @@ export default function Checkout() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <form onSubmit={handleSubmitOrder} className="md:col-span-2 space-y-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 rounded-3xl shadow-sm">
-          <h2 className="text-xl font-black dark:text-white mb-4">Shipping Information</h2>
+          <h2 className="text-xl font-black dark:text-white mb-4">{t('shipping_info')}</h2>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Full Name</label>
+              <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">{t('full_name')}</label>
               <input required type="text" placeholder="Full name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Phone Number</label>
+              <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">{t('phone_number')}</label>
               <input required type="tel" placeholder="010XXXXXXXX" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Delivery Address</label>
+              <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">{t('delivery_address')}</label>
               <textarea required placeholder="Street address, city, landmark" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500 min-h-[100px]" />
             </div>
 
@@ -283,13 +285,13 @@ export default function Checkout() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Payment Method</label>
+              <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">{t('payment_method')}</label>
               <div className="grid grid-cols-2 gap-4">
                 <button type="button" onClick={() => setFormData({ ...formData, paymentMethod: 'cod' })} className={`p-4 rounded-xl border font-bold text-sm flex items-center justify-center gap-2 transition ${formData.paymentMethod === 'cod' ? 'border-brand-500 bg-brand-500/10 text-brand-500' : 'border-stone-200 dark:border-stone-700 text-stone-500'}`}>
-                  <CheckCircle2 size={18} /> Cash on Delivery
+                  <CheckCircle2 size={18} /> {t('cash_on_delivery')}
                 </button>
                 <button type="button" onClick={() => setFormData({ ...formData, paymentMethod: 'instapay' })} className={`p-4 rounded-xl border font-bold text-sm flex items-center justify-center gap-2 transition ${formData.paymentMethod === 'instapay' ? 'border-brand-500 bg-brand-500/10 text-brand-500' : 'border-stone-200 dark:border-stone-700 text-stone-500'}`}>
-                  <CreditCard size={18} /> Pay Online
+                  <CreditCard size={18} /> {t('pay_online')}
                 </button>
               </div>
               {formData.paymentMethod === 'instapay' && (
@@ -302,13 +304,13 @@ export default function Checkout() {
             {loading
               ? 'Processing...'
               : formData.paymentMethod === 'cod'
-                ? `Place Order (EGP ${displayTotal})`
-                : `Continue to Payment (EGP ${displayTotal})`}
+                ? `${t('place_order')} (EGP ${displayTotal})`
+                : `${t('continue_to_payment')} (EGP ${displayTotal})`}
           </button>
         </form>
 
         <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 rounded-3xl shadow-sm h-fit space-y-4">
-          <h2 className="text-xl font-black dark:text-white">Order Summary</h2>
+          <h2 className="text-xl font-black dark:text-white">{t('order_summary')}</h2>
           <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
             {cart.map((item) => (
               <div key={item.id} className="flex justify-between items-center text-sm font-bold dark:text-stone-200">
@@ -319,7 +321,7 @@ export default function Checkout() {
           </div>
           <div className="pt-4 border-t border-stone-200 dark:border-stone-800 space-y-2">
             <div className="flex justify-between items-center text-sm font-bold text-stone-500">
-              <span>Subtotal</span>
+              <span>{t('subtotal')}</span>
               <span>EGP {subtotal}</span>
             </div>
             {appliedDiscount && (
@@ -329,7 +331,7 @@ export default function Checkout() {
               </div>
             )}
             <div className="flex justify-between items-center text-lg font-black dark:text-white pt-2">
-              <span>Total</span>
+              <span>{t('total')}</span>
               <span className="text-brand-500">EGP {displayTotal}</span>
             </div>
           </div>
