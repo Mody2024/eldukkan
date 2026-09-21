@@ -9,9 +9,61 @@ export default function Account() {
   const { userId, userEmail, setUserId, setUserEmail, setAdminStatus } = useStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authChecking, setAuthChecking] = useState(!userId);
 
   useEffect(() => {
-    if (!userId) return;
+    let cancelled = false;
+
+    // OAuth redirects can render /account before App.tsx has finished
+    // synchronizing the Supabase session into the Zustand store. Do not
+    // redirect to /login during that short initialization window.
+    const loadSession = async () => {
+      if (userId) {
+        if (!cancelled) setAuthChecking(false);
+        return;
+      }
+
+      const { data } = await supabase.auth.getSession();
+      if (cancelled) return;
+
+      if (data.session?.user) {
+        setUserId(data.session.user.id);
+        setUserEmail(data.session.user.email ?? null);
+        setAuthChecking(false);
+      } else {
+        setAuthChecking(false);
+      }
+    };
+
+    loadSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return;
+
+      if (session?.user) {
+        setUserId(session.user.id);
+        setUserEmail(session.user.email ?? null);
+        setAuthChecking(false);
+      } else {
+        setUserId(null);
+        setUserEmail(null);
+        setAuthChecking(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      authListener.subscription.unsubscribe();
+    };
+  }, [userId, setUserId, setUserEmail]);
+
+  useEffect(() => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     supabase
       .from('orders')
       .select('*')
@@ -22,6 +74,14 @@ export default function Account() {
         setLoading(false);
       });
   }, [userId]);
+
+  if (authChecking) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <p className="text-stone-500 text-sm font-bold">Signing you in...</p>
+      </div>
+    );
+  }
 
   if (!userId) {
     return <Navigate to="/login" replace />;
