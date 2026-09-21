@@ -63,10 +63,10 @@ const CART_TOOL = {
 
 async function callGemini(apiKey: string, contents: unknown[]) {
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent`,
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
       body: JSON.stringify({
         contents,
         tools: [{ functionDeclarations: [SEARCH_TOOL, CART_TOOL] }],
@@ -108,10 +108,13 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Assistant not configured yet.' }), { status: 500, headers: corsHeaders });
     }
 
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (!supabaseUrl || !serviceRoleKey) {
+      throw new Error('Supabase server configuration is missing.');
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
     // ---------- daily rate limit, per identifier ----------
     const dailyLimit = parseInt(Deno.env.get('ASSISTANT_DAILY_LIMIT') || '30', 10);
