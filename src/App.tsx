@@ -38,6 +38,9 @@ export function App() {
         heroHeadline: data.hero_headline,
         heroSubheadline: data.hero_subheadline,
         heroImageUrl: data.hero_image_url,
+        footerCreditsEnabled: data.footer_credits_enabled ?? true,
+        footerCreditsText: data.footer_credits_text,
+        sponsors: Array.isArray(data.sponsors) ? data.sponsors : [],
       });
     };
     loadSettings();

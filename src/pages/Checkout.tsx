@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { sendOrderConfirmationEmail } from '../lib/email';
 import { useStore } from '../store';
 import type { PaymentMethod } from '../types';
 import { ShoppingBag, ArrowLeft, CheckCircle2, CreditCard, Tag, X, Loader2 } from 'lucide-react';
@@ -92,15 +93,20 @@ export default function Checkout() {
       // Never trust the price sitting in localStorage/client state at
       // checkout time — re-fetch the current price for every item straight
       // from the products table and compute the charged total from that,
-      // so a tampered client can't submit an arbitrary total_amount.
+      // so a tampered client can't submit an arbitrary total_amount. Sale
+      // pricing is honored here too — an active sale_price (not expired)
+      // is the real charged price, not the original price.
       const ids = cart.map((item) => item.id);
       const { data: liveProducts, error: priceError } = await supabase
         .from('products')
-        .select('id, price, name')
+        .select('id, price, sale_price, sale_ends_at, name')
         .in('id', ids);
       if (priceError) throw priceError;
 
-      const priceMap = new Map((liveProducts ?? []).map((p) => [p.id, p.price]));
+      const priceMap = new Map((liveProducts ?? []).map((p) => {
+        const onSale = p.sale_price && (!p.sale_ends_at || new Date(p.sale_ends_at) > new Date());
+        return [p.id, onSale ? p.sale_price : p.price];
+      }));
       const verifiedItems = cart.map((item) => ({
         ...item,
         price: priceMap.get(item.id) ?? item.price,
@@ -145,7 +151,19 @@ export default function Checkout() {
 
       // Fire-and-forget confirmation email — never blocks or fails the
       // order itself if the email provider has a hiccup.
-      supabase.functions.invoke('send-order-confirmation', { body: { order_id: data.id } }).catch(() => {});
+      // Fire-and-forget confirmation email via EmailJS (client-side, no
+      // domain or backend function needed) — never blocks or fails the
+      // order itself if email sending has a hiccup.
+      if (userEmail) {
+        sendOrderConfirmationEmail({
+          to_email: userEmail,
+          to_name: formData.name,
+          order_id: data.id,
+          order_total: verifiedTotal,
+          order_items_summary: verifiedItems.map((i) => `${i.name} x${i.quantity}`).join(', '),
+          tracking_url: `${window.location.origin}/tracking/${data.id}`,
+        }).catch(() => {});
+      }
 
       if (formData.paymentMethod === 'cod') {
         clearCart();

@@ -3,14 +3,14 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import type { Product } from '../types';
-import { ShoppingBag, Search, Sparkles, Star, Heart } from 'lucide-react';
+import { ShoppingBag, Sparkles, Star, Heart } from 'lucide-react';
 
-type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'rating';
+type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'trending';
 
 export default function Home() {
   const [searchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const searchQuery = searchParams.get('q') || '';
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const [loading, setLoading] = useState(true);
@@ -53,7 +53,8 @@ export default function Home() {
 
   const handleAddToCart = (product: Product) => {
     if (product.stock !== undefined && product.stock <= 0) return;
-    addToCart(product);
+    const isOnSale = !!(product.sale_price && (!product.sale_ends_at || new Date(product.sale_ends_at) > new Date()));
+    addToCart(isOnSale ? { ...product, price: product.sale_price! } : product);
     showToast(`Added ${product.name} to cart`);
   };
 
@@ -80,6 +81,7 @@ export default function Home() {
       if (sortBy === 'price-asc') return a.price - b.price;
       if (sortBy === 'price-desc') return b.price - a.price;
       if (sortBy === 'rating') return (b.rating ?? 0) - (a.rating ?? 0);
+      if (sortBy === 'trending') return (b.vote_score ?? 0) - (a.vote_score ?? 0);
       return 0;
     });
 
@@ -100,17 +102,6 @@ export default function Home() {
           <p className="text-stone-600 dark:text-stone-400 font-medium max-w-lg text-sm sm:text-base">
             {heroSubheadline || 'Real-time inventory, fast delivery, and secure checkout — explore our latest curated collections below.'}
           </p>
-
-          <div className="w-full max-w-md mt-4 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl font-bold text-sm outline-none focus:border-brand-500 dark:text-white shadow-sm"
-            />
-          </div>
         </div>
         {heroImageUrl && (
           <div className="w-full md:w-64 h-48 md:h-64 rounded-3xl overflow-hidden shrink-0">
@@ -135,6 +126,15 @@ export default function Home() {
               </Link>
             ))}
           </div>
+        </div>
+      )}
+
+      {searchQuery && (
+        <div className="flex items-center gap-3 -mt-6">
+          <p className="text-sm text-stone-500">
+            Showing results for <span className="font-bold text-stone-900 dark:text-white">"{searchQuery}"</span>
+          </p>
+          <Link to="/" className="text-xs font-bold text-brand-500 hover:underline">Clear</Link>
         </div>
       )}
 
@@ -173,6 +173,7 @@ export default function Home() {
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
               <option value="rating">Top Rated</option>
+              <option value="trending">🔥 Trending</option>
             </select>
           </div>
         </div>
@@ -186,6 +187,7 @@ export default function Home() {
             {filteredProducts.map((product) => {
               const outOfStock = product.stock !== undefined && product.stock <= 0;
               const lowStock = product.stock !== undefined && product.stock > 0 && product.stock <= 5;
+              const isOnSale = !!(product.sale_price && (!product.sale_ends_at || new Date(product.sale_ends_at) > new Date()));
               const isWishlisted = wishlist.includes(product.id);
 
               return (
@@ -200,6 +202,9 @@ export default function Home() {
                     >
                       <Heart size={16} className={isWishlisted ? 'fill-red-500 text-red-500' : 'text-stone-500'} />
                     </button>
+                    {isOnSale && (
+                      <span className="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg">Sale</span>
+                    )}
                     {outOfStock && (
                       <span className="absolute bottom-3 left-3 bg-stone-900/90 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg">Out of Stock</span>
                     )}
@@ -220,7 +225,16 @@ export default function Home() {
                       <p className="text-stone-500 text-xs line-clamp-2">{product.description}</p>
                     </div>
                     <div className="flex items-center justify-between pt-4 border-t border-stone-100 dark:border-stone-800">
-                      <span className="text-xl font-black text-brand-500">EGP {product.price}</span>
+                      <span className="text-xl font-black text-brand-500 flex items-center gap-1.5">
+                        {isOnSale ? (
+                          <>
+                            EGP {product.sale_price}
+                            <span className="text-xs font-bold text-stone-400 line-through">{product.price}</span>
+                          </>
+                        ) : (
+                          `EGP ${product.price}`
+                        )}
+                      </span>
                       <div className="flex items-center gap-2">
                         <Link to={`/product/${product.id}`} className="p-3 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-xl transition text-stone-700 dark:text-stone-300 font-bold text-xs">
                           Details

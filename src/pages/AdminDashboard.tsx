@@ -4,9 +4,10 @@ import Papa from 'papaparse';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import type { Order, Product, DiscountCode } from '../types';
+import ProductEditModal from '../components/ProductEditModal';
 import {
   Package, ShoppingBag, Settings as SettingsIcon, Users, Trash2, Plus, LogOut, Shield,
-  TrendingUp, DollarSign, ClipboardList, Tag, ScrollText, Power, Upload, FileUp, Star,
+  TrendingUp, DollarSign, ClipboardList, Tag, ScrollText, Power, FileUp, Star, Minus,
 } from 'lucide-react';
 
 interface AdminUserRow {
@@ -55,15 +56,14 @@ export default function AdminDashboard() {
     hero_headline: '', hero_subheadline: '', hero_image_url: '',
   });
 
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', image_url: '', description: '', category: '' });
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [newAdminRole, setNewAdminRole] = useState<'admin' | 'staff' | 'owner'>('admin');
   const [newAdminPermissions, setNewAdminPermissions] = useState<string[]>(ROLE_DEFAULTS.admin);
   const [editingAdminId, setEditingAdminId] = useState<string | null>(null);
   const [editingPermissions, setEditingPermissions] = useState<string[]>([]);
   const [newDiscount, setNewDiscount] = useState({ code: '', discount_type: 'percent' as 'percent' | 'fixed', discount_value: '', max_uses: '', expires_at: '' });
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [importingCsv, setImportingCsv] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | 'new' | null>(null);
 
   const { adminRole, userEmail, hasPermission, showToast } = useStore();
   const isOwner = adminRole === 'owner';
@@ -123,20 +123,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleAddProduct = async (e: FormEvent) => {
-    e.preventDefault();
-    const { error } = await supabase.from('products').insert([
-      { name: newProduct.name, price: parseFloat(newProduct.price), image_url: newProduct.image_url, description: newProduct.description, category: newProduct.category || null, is_active: true }
-    ]);
-    if (!error) {
-      setNewProduct({ name: '', price: '', image_url: '', description: '', category: '' });
-      fetchData();
-      showToast('Product published.');
-    } else {
-      showToast(`Error: ${error.message}`);
-    }
-  };
-
   const handleDeleteProduct = async (id: string, name: string) => {
     if (!confirm(`Delete "${name}"? This can't be undone.`)) return;
     await supabase.from('products').delete().eq('id', id);
@@ -144,21 +130,11 @@ export default function AdminDashboard() {
     logAction('delete_product', { product_id: id, name });
   };
 
-  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingImage(true);
-    try {
-      const path = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
-      const { error } = await supabase.storage.from('product-images').upload(path, file);
-      if (error) throw error;
-      const { data } = supabase.storage.from('product-images').getPublicUrl(path);
-      setNewProduct((prev) => ({ ...prev, image_url: data.publicUrl }));
-      showToast('Image uploaded.');
-    } catch (err) {
-      showToast(`Upload failed: ${err instanceof Error ? err.message : 'unknown error'}`);
-    } finally {
-      setUploadingImage(false);
+  const handleQuickStockChange = async (product: Product, delta: number) => {
+    const newStock = Math.max(0, (product.stock ?? 0) + delta);
+    const { error } = await supabase.from('products').update({ stock: newStock }).eq('id', product.id);
+    if (!error) {
+      setProducts(products.map((p) => p.id === product.id ? { ...p, stock: newStock } : p));
     }
   };
 
@@ -452,71 +428,85 @@ export default function AdminDashboard() {
       )}
 
       {activeTab === 'products' && hasPermission('manage_products') && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 shadow-sm h-fit">
-            <h2 className="text-xl font-black dark:text-white mb-4 flex items-center gap-2">
-              <Plus size={20} className="text-brand-500" /> Add New Item
-            </h2>
-            <form onSubmit={handleAddProduct} className="space-y-4">
-              <input required type="text" placeholder="Product Name" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} className="w-full p-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl outline-none dark:text-white" />
-              <input required type="number" placeholder="Price (EGP)" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} className="w-full p-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl outline-none dark:text-white" />
-
-              <div className="space-y-2">
-                <input required type="url" placeholder="Image URL" value={newProduct.image_url} onChange={e => setNewProduct({...newProduct, image_url: e.target.value})} className="w-full p-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl outline-none dark:text-white" />
-                <label className="flex items-center justify-center gap-2 p-2.5 bg-stone-100 dark:bg-stone-800 rounded-xl text-xs font-bold dark:text-white cursor-pointer hover:bg-stone-200 dark:hover:bg-stone-700 transition">
-                  <Upload size={14} /> {uploadingImage ? 'Uploading...' : 'Or upload an image file'}
-                  <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} className="hidden" />
-                </label>
-                {newProduct.image_url && (
-                  <img src={newProduct.image_url} alt="Preview" className="w-full h-32 object-cover rounded-xl border border-stone-200 dark:border-stone-700" />
-                )}
-              </div>
-
-              <input type="text" placeholder="Category (e.g. Streetwear)" value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})} className="w-full p-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl outline-none dark:text-white" />
-              <textarea placeholder="Product Description" value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} className="w-full p-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl outline-none min-h-[80px] dark:text-white" />
-              <button type="submit" className="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition shadow-lg shadow-brand-500/20">
-                Publish Product
-              </button>
-            </form>
-
-            <div className="mt-4 pt-4 border-t border-stone-100 dark:border-stone-800">
-              <label className="flex items-center justify-center gap-2 p-3 bg-stone-50 dark:bg-stone-950 border border-dashed border-stone-300 dark:border-stone-700 rounded-xl text-xs font-bold text-stone-600 dark:text-stone-300 cursor-pointer hover:border-brand-500 transition">
-                <FileUp size={14} /> {importingCsv ? 'Importing...' : 'Bulk import from CSV'}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <h2 className="text-2xl font-black dark:text-white">Inventory ({products.length})</h2>
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 px-4 py-2.5 bg-stone-100 dark:bg-stone-800 border border-dashed border-stone-300 dark:border-stone-700 rounded-xl text-xs font-bold text-stone-600 dark:text-stone-300 cursor-pointer hover:border-brand-500 transition">
+                <FileUp size={14} /> {importingCsv ? 'Importing...' : 'Bulk import CSV'}
                 <input type="file" accept=".csv" onChange={handleCsvImport} disabled={importingCsv} className="hidden" />
               </label>
-              <p className="text-[10px] text-stone-400 mt-1.5 text-center">Columns: name, price, description, category, image_url, stock</p>
+              <button
+                onClick={() => setEditingProduct('new')}
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition shadow-lg shadow-brand-500/20"
+              >
+                <Plus size={18} /> Add Product
+              </button>
             </div>
           </div>
+          <p className="text-[10px] text-stone-400 -mt-4">CSV columns: name, price, description, category, image_url, stock</p>
 
-          <div className="lg:col-span-2 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 shadow-sm space-y-4">
-            <h2 className="text-xl font-black dark:text-white mb-4">Current Inventory ({products.length})</h2>
-            <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-              {products.map((product) => (
-                <div key={product.id} className="flex items-center justify-between bg-stone-50 dark:bg-stone-950 p-4 rounded-2xl border border-stone-200 dark:border-stone-800">
-                  <div className="flex items-center gap-4">
-                    <img src={product.image_url} alt={product.name} className="w-14 h-14 object-cover rounded-xl border border-stone-200 dark:border-stone-700" />
-                    <div>
-                      <h4 className="font-bold text-base dark:text-white">{product.name}</h4>
-                      <p className="text-brand-500 font-black">EGP {product.price}</p>
+          <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 shadow-sm space-y-3">
+            {products.map((product) => (
+              <div key={product.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-stone-50 dark:bg-stone-950 p-4 rounded-2xl border border-stone-200 dark:border-stone-800">
+                <div className="flex items-center gap-4">
+                  <img src={product.image_url} alt={product.name} className="w-14 h-14 object-cover rounded-xl border border-stone-200 dark:border-stone-700" />
+                  <div>
+                    <h4 className="font-bold text-base dark:text-white">{product.name}</h4>
+                    <div className="flex items-center gap-2">
+                      {product.sale_price ? (
+                        <>
+                          <span className="text-brand-500 font-black">EGP {product.sale_price}</span>
+                          <span className="text-xs text-stone-400 line-through">{product.price}</span>
+                        </>
+                      ) : (
+                        <span className="text-brand-500 font-black">EGP {product.price}</span>
+                      )}
+                      <span className={`text-xs font-bold ${(product.stock ?? 0) <= 5 ? 'text-red-500' : 'text-stone-500'}`}>· {product.stock ?? 0} in stock</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleToggleFeatured(product)}
-                      title={product.featured ? 'Remove from Featured' : 'Add to Featured'}
-                      className={`p-3 rounded-xl transition ${product.featured ? 'bg-brand-500/10 text-brand-500' : 'text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800'}`}
-                    >
-                      <Star size={18} className={product.featured ? 'fill-brand-500' : ''} />
-                    </button>
-                    <button onClick={() => handleDeleteProduct(product.id, product.name)} className="p-3 text-red-500 hover:bg-red-500/10 rounded-xl transition">
-                      <Trash2 size={20} />
-                    </button>
-                  </div>
                 </div>
-              ))}
-            </div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    onClick={() => handleQuickStockChange(product, -1)}
+                    title="Decrease stock"
+                    className="p-2.5 text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-800 rounded-xl transition"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleQuickStockChange(product, 1)}
+                    title="Increase stock"
+                    className="p-2.5 text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-800 rounded-xl transition"
+                  >
+                    <Plus size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleToggleFeatured(product)}
+                    title={product.featured ? 'Remove from Featured' : 'Add to Featured'}
+                    className={`p-2.5 rounded-xl transition ${product.featured ? 'bg-brand-500/10 text-brand-500' : 'text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800'}`}
+                  >
+                    <Star size={16} className={product.featured ? 'fill-brand-500' : ''} />
+                  </button>
+                  <button onClick={() => setEditingProduct(product)} className="px-3 py-2.5 text-xs font-bold bg-stone-200 dark:bg-stone-800 dark:text-white rounded-xl hover:bg-stone-300 dark:hover:bg-stone-700 transition">
+                    Edit
+                  </button>
+                  <button onClick={() => handleDeleteProduct(product.id, product.name)} className="p-2.5 text-red-500 hover:bg-red-500/10 rounded-xl transition">
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
+      )}
+
+      {editingProduct && (
+        <ProductEditModal
+          product={editingProduct === 'new' ? null : editingProduct}
+          onClose={() => setEditingProduct(null)}
+          onSaved={() => { fetchData(); showToast(editingProduct === 'new' ? 'Product published.' : 'Product updated.'); }}
+        />
       )}
 
       {activeTab === 'discounts' && hasPermission('manage_discounts') && (

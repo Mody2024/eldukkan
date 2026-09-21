@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { ShoppingBag, ShieldCheck, Sun, Moon, Menu, X, Megaphone, Wrench, Heart, User, Search, Truck, Headset } from 'lucide-react';
 import AICopilot from './AICopilot';
+import ShopIntro from './ShopIntro';
 import { useStore } from '../store';
 
 export default function Layout() {
@@ -10,7 +11,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const {
     theme, toggleTheme, cart, toast, userId, announcementBanner, maintenanceMode,
-    isAuthorizedAdmin, storeName, logoUrl, wishlist,
+    isAuthorizedAdmin, storeName, logoUrl, wishlist, footerCreditsEnabled, footerCreditsText, sponsors,
   } = useStore();
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -31,6 +32,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col font-sans transition-colors duration-300">
+      <ShopIntro />
       {/* Utility bar — the small strip real storefronts use for trust signals */}
       <div className="hidden sm:block bg-stone-900 dark:bg-black text-stone-300 text-xs font-bold">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-between">
@@ -201,12 +203,32 @@ export default function Layout() {
             <p className="text-xs">Cash on Delivery, Card, Vodafone Cash, InstaPay, Fawry</p>
           </div>
         </div>
+
+        {sponsors.length > 0 && (
+          <div className="border-t border-stone-800 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-stone-500 text-center">In partnership with</p>
+              <div className="flex flex-wrap items-center justify-center gap-8">
+                {sponsors.map((sponsor, idx) => (
+                  sponsor.url ? (
+                    <a key={idx} href={sponsor.url} target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition">
+                      <img src={sponsor.logo_url} alt={sponsor.name} className="h-8 object-contain" />
+                    </a>
+                  ) : (
+                    <img key={idx} src={sponsor.logo_url} alt={sponsor.name} className="h-8 object-contain opacity-70" />
+                  )
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="border-t border-stone-800 py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
             <p>&copy; {new Date().getFullYear()} {storeName}. All rights reserved.</p>
-            <p>
-              Built by <span className="font-bold text-stone-300">AlyEldeen Alaa</span> &amp; <span className="font-bold text-stone-300">Almuddaththir Mahmoud</span>
-            </p>
+            {footerCreditsEnabled && (
+              <p>{footerCreditsText || 'Built by AlyEldeen Alaa & Almuddaththir Mahmoud'}</p>
+            )}
           </div>
         </div>
       </footer>

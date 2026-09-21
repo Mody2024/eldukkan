@@ -38,9 +38,13 @@ interface StoreState {
   heroHeadline: string | null;
   heroSubheadline: string | null;
   heroImageUrl: string | null;
+  footerCreditsEnabled: boolean;
+  footerCreditsText: string | null;
+  sponsors: { name: string; logo_url: string; url?: string }[];
   setSiteSettings: (settings: {
     announcementBanner: string | null; maintenanceMode: boolean; storeName: string; logoUrl: string | null;
     heroHeadline?: string | null; heroSubheadline?: string | null; heroImageUrl?: string | null;
+    footerCreditsEnabled?: boolean; footerCreditsText?: string | null; sponsors?: { name: string; logo_url: string; url?: string }[];
   }) => void;
 
   wishlist: string[];
@@ -113,6 +117,9 @@ export const useStore = create<StoreState>()(
       heroHeadline: null,
       heroSubheadline: null,
       heroImageUrl: null,
+      footerCreditsEnabled: true,
+      footerCreditsText: null,
+      sponsors: [],
       setSiteSettings: (settings) =>
         set({
           announcementBanner: settings.announcementBanner,
@@ -122,6 +129,9 @@ export const useStore = create<StoreState>()(
           heroHeadline: settings.heroHeadline ?? null,
           heroSubheadline: settings.heroSubheadline ?? null,
           heroImageUrl: settings.heroImageUrl ?? null,
+          footerCreditsEnabled: settings.footerCreditsEnabled ?? true,
+          footerCreditsText: settings.footerCreditsText ?? null,
+          sponsors: settings.sponsors ?? [],
         }),
 
       // Wishlist is a list of product IDs, synced with the `wishlists`

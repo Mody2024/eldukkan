@@ -3,6 +3,8 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  sale_price?: number | null;
+  sale_ends_at?: string | null;
   image_url: string;
   images?: string[];
   category?: string;
@@ -10,10 +12,17 @@ export interface Product {
   vendor_name?: string;
   rating?: number;
   review_count?: number;
+  vote_score?: number;
   is_active?: boolean;
   featured?: boolean;
   featured_order?: number;
   created_at?: string;
+}
+
+export interface Sponsor {
+  name: string;
+  logo_url: string;
+  url?: string;
 }
 
 export interface Review {

@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import type { Product, Review } from '../types';
-import { ShoppingBag, ArrowLeft, ShieldCheck, Star, Heart, Minus, Plus, Store, MessageSquare } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Star, Heart, Minus, Plus, Store, MessageSquare, ArrowUp, ArrowDown } from 'lucide-react';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -20,11 +20,13 @@ export default function ProductDetails() {
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [myVote, setMyVote] = useState<1 | -1 | null>(null);
 
   useEffect(() => {
     fetchProduct();
     fetchReviews();
     checkReviewEligibility();
+    fetchMyVote();
     setActiveImage(0);
     setQuantity(1);
     window.scrollTo(0, 0);
@@ -104,13 +106,39 @@ export default function ProductDetails() {
     fetchProduct(); // pick up the recalculated rating/review_count
   };
 
+  const fetchMyVote = async () => {
+    setMyVote(null);
+    if (!userId || !id) return;
+    const { data } = await supabase.from('product_votes').select('vote').eq('product_id', id).eq('customer_id', userId).maybeSingle();
+    if (data) setMyVote(data.vote as 1 | -1);
+  };
+
+  const handleVote = async (vote: 1 | -1) => {
+    if (!id) return;
+    if (!userId) {
+      showToast('Sign in to vote on products.');
+      return;
+    }
+    if (myVote === vote) {
+      // Clicking the same vote again removes it.
+      await supabase.from('product_votes').delete().eq('product_id', id).eq('customer_id', userId);
+      setMyVote(null);
+    } else {
+      await supabase.from('product_votes').upsert([{ product_id: id, customer_id: userId, vote }]);
+      setMyVote(vote);
+    }
+    fetchProduct(); // pick up the recalculated vote_score
+  };
+
   const outOfStock = product?.stock !== undefined && product.stock <= 0;
+  const isOnSale = !!(product?.sale_price && (!product.sale_ends_at || new Date(product.sale_ends_at) > new Date()));
   const isWishlisted = product ? wishlist.includes(product.id) : false;
   const gallery = product ? [product.image_url, ...(product.images ?? [])].filter(Boolean) : [];
 
   const handleAddToCart = () => {
     if (!product || outOfStock) return;
-    for (let i = 0; i < quantity; i++) addToCart(product);
+    const effectiveProduct = isOnSale ? { ...product, price: product.sale_price! } : product;
+    for (let i = 0; i < quantity; i++) addToCart(effectiveProduct);
     showToast(`Added ${quantity}x ${product.name} to cart`);
   };
 
@@ -198,7 +226,17 @@ export default function ProductDetails() {
               </p>
             )}
 
-            <p className="text-2xl font-black text-brand-500">EGP {product.price}</p>
+            <p className="text-2xl font-black text-brand-500 flex items-center gap-2">
+              {isOnSale ? (
+                <>
+                  EGP {product.sale_price}
+                  <span className="text-base font-bold text-stone-400 line-through">EGP {product.price}</span>
+                  <span className="text-xs font-black uppercase bg-red-500 text-white px-2 py-0.5 rounded-lg">Sale</span>
+                </>
+              ) : (
+                `EGP ${product.price}`
+              )}
+            </p>
             <p className="text-stone-600 dark:text-stone-400 text-sm leading-relaxed">{product.description}</p>
 
             {product.stock !== undefined && (
@@ -209,8 +247,19 @@ export default function ProductDetails() {
           </div>
 
           <div className="space-y-4 pt-6 border-t border-stone-100 dark:border-stone-800">
-            <div className="flex items-center gap-2 text-emerald-500 text-xs font-bold">
-              <ShieldCheck size={16} /> Verified Supabase Catalog Item
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleVote(1)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold text-sm transition ${myVote === 1 ? 'bg-emerald-500 text-white' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-emerald-500/10 hover:text-emerald-500'}`}
+              >
+                <ArrowUp size={16} /> Helpful
+              </button>
+              <button
+                onClick={() => handleVote(-1)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold text-sm transition ${myVote === -1 ? 'bg-red-500 text-white' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-red-500/10 hover:text-red-500'}`}
+              >
+                <ArrowDown size={16} /> Not helpful
+              </button>
             </div>
 
             {!outOfStock && (
