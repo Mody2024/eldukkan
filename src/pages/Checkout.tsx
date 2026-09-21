@@ -158,17 +158,21 @@ export default function Checkout() {
       // failure never cancels the order.
       const confirmationEmail = formData.email.trim() || userEmail;
       if (confirmationEmail) {
-        sendOrderConfirmationEmail({
-          to_email: confirmationEmail,
-          to_name: formData.name,
-          order_id: data.id,
-          order_total: verifiedTotal,
-          order_items_summary: verifiedItems.map((i) => `${i.name} x${i.quantity}`).join(', '),
-          tracking_url: `${window.location.origin}/tracking/${data.id}`,
-        }).catch((emailError) => {
+        try {
+          await sendOrderConfirmationEmail({
+            to_email: confirmationEmail,
+            to_name: formData.name,
+            order_id: data.id,
+            order_total: verifiedTotal,
+            order_items_summary: verifiedItems.map((i) => `${i.name} x${i.quantity}`).join(', '),
+            tracking_url: `${window.location.origin}/tracking/${data.id}`,
+          });
+        } catch (emailError) {
           console.error('Order confirmation email failed:', emailError);
-          showToast('Order placed, but the confirmation email could not be sent.');
-        });
+          showToast('Order placed, but the confirmation email could not be sent. Check EmailJS configuration.');
+        }
+      } else {
+        console.warn('Order confirmation email skipped: no customer email was provided.');
       }
 
       if (formData.paymentMethod === 'cod') {
