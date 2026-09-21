@@ -13,6 +13,7 @@ export default function Checkout() {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
+    email: userEmail ?? '',
     phone: '',
     address: '',
     notes: '',
@@ -51,6 +52,7 @@ export default function Checkout() {
             name: data.customer_name || prev.name,
             phone: data.customer_phone || prev.phone,
             address: data.address || prev.address,
+            email: userEmail || prev.email,
           }));
         }
         setPrefilling(false);
@@ -135,7 +137,7 @@ export default function Checkout() {
       const { data, error } = await supabase.from('orders').insert([
         {
           customer_name: formData.name,
-          customer_email: userEmail ?? null,
+          customer_email: formData.email.trim() || userEmail || null,
           customer_phone: formData.phone,
           address: formData.address,
           notes: formData.notes,
@@ -151,14 +153,13 @@ export default function Checkout() {
 
       if (error) throw error;
 
-      // Fire-and-forget confirmation email — never blocks or fails the
-      // order itself if the email provider has a hiccup.
-      // Fire-and-forget confirmation email via EmailJS (client-side, no
-      // domain or backend function needed) — never blocks or fails the
-      // order itself if email sending has a hiccup.
-      if (userEmail) {
+      // Send the confirmation to the email entered at checkout (or the
+      // signed-in account email). The order is already saved, so an email
+      // failure never cancels the order.
+      const confirmationEmail = formData.email.trim() || userEmail;
+      if (confirmationEmail) {
         sendOrderConfirmationEmail({
-          to_email: userEmail,
+          to_email: confirmationEmail,
           to_name: formData.name,
           order_id: data.id,
           order_total: verifiedTotal,
@@ -240,6 +241,11 @@ export default function Checkout() {
             <div>
               <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">{t('full_name')}</label>
               <input required type="text" placeholder="Full name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Email address</label>
+              <input required type="email" placeholder="you@example.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
             </div>
 
             <div>
