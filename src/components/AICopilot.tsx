@@ -79,8 +79,27 @@ export default function AICopilot() {
       }
 
       setMessages((prev) => [...prev, { role: 'model', content: data.reply, products: data.products }]);
-    } catch {
-      setMessages((prev) => [...prev, { role: 'model', content: 'Sorry, I ran into an issue connecting just now — try again in a moment.' }]);
+    } catch (err) {
+      console.error('Eldukkan Assistant error:', err);
+
+      let detail = err instanceof Error ? err.message : 'Unknown assistant error';
+      const context = (err as { context?: Response })?.context;
+      if (context) {
+        try {
+          const body = await context.json();
+          detail = body?.error || body?.message || detail;
+        } catch {
+          // Keep the original error message if the response body is not JSON.
+        }
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'model',
+          content: `Sorry, the assistant couldn't complete that request. ${detail}`,
+        },
+      ]);
     } finally {
       setLoading(false);
     }
