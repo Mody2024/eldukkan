@@ -48,8 +48,8 @@ export default function CustomerLogin() {
   };
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 rounded-3xl shadow-sm space-y-5">
+    <div className="min-h-[70vh] flex items-center justify-center py-6 sm:py-10">
+      <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-sm space-y-5">
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="w-12 h-12 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center">
             <User size={22} />
