@@ -130,6 +130,12 @@ export default function ProductDetails() {
   const isOnSale = !!(product?.sale_price && (!product.sale_ends_at || new Date(product.sale_ends_at) > new Date()));
   const isWishlisted = product ? wishlist.includes(product.id) : false;
   const gallery = product ? [product.image_url, ...(product.images ?? [])].filter(Boolean) : [];
+  const reviewCount = reviews.length;
+  const reviewAverage = reviewCount > 0 ? reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviewCount : 0;
+  const reviewBreakdown = [5, 4, 3, 2, 1].map((star) => ({
+    star,
+    count: reviews.filter((review) => Number(review.rating) === star).length,
+  }));
 
   const handleAddToCart = () => {
     if (!product || outOfStock) return;
@@ -177,11 +183,11 @@ export default function ProductDetails() {
       '@type': 'Brand',
       name: product.vendor_name,
     } : undefined,
-    ...(product.rating !== undefined && product.review_count !== undefined && product.review_count > 0 ? {
+    ...(reviewCount > 0 ? {
       aggregateRating: {
         '@type': 'AggregateRating',
-        ratingValue: product.rating,
-        reviewCount: product.review_count,
+        ratingValue: Number(reviewAverage.toFixed(2)),
+        reviewCount,
         bestRating: 5,
         worstRating: 1,
       },
@@ -243,15 +249,15 @@ export default function ProductDetails() {
               </button>
             </div>
 
-            {product.rating !== undefined && (
+            {reviewCount > 0 && (
               <div className="flex items-center gap-2 text-sm">
                 <div className="flex items-center gap-0.5">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} size={16} className={star <= Math.round(product.rating ?? 0) ? 'fill-brand-500 text-brand-500' : 'text-stone-300 dark:text-stone-700'} />
+                    <Star key={star} size={16} className={star <= Math.round(reviewAverage) ? 'fill-brand-500 text-brand-500' : 'text-stone-300 dark:text-stone-700'} />
                   ))}
                 </div>
-                <span className="font-bold dark:text-stone-300">{product.rating.toFixed(1)}</span>
-                {product.review_count !== undefined && <span className="text-stone-500">({product.review_count} reviews)</span>}
+                <span className="font-bold dark:text-stone-300">{reviewAverage.toFixed(1)}</span>
+                <span className="text-stone-500">({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})</span>
               </div>
             )}
 
@@ -346,9 +352,37 @@ export default function ProductDetails() {
       )}
 
       <div className="space-y-6">
-        <h2 className="text-2xl font-black dark:text-white tracking-tight flex items-center gap-2">
-          <MessageSquare size={22} className="text-brand-500" /> Reviews {reviews.length > 0 && `(${reviews.length})`}
-        </h2>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <h2 className="text-2xl font-black dark:text-white tracking-tight flex items-center gap-2">
+            <MessageSquare size={22} className="text-brand-500" /> Reviews {reviewCount > 0 && `(${reviewCount})`}
+          </h2>
+          {reviewCount > 0 && <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Verified customer reviews</span>}
+        </div>
+
+        {reviewCount > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-5">
+            <div className="text-center sm:text-left">
+              <div className="text-4xl font-black dark:text-white">{reviewAverage.toFixed(1)}</div>
+              <div className="flex justify-center sm:justify-start gap-0.5 mt-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star key={star} size={16} className={star <= Math.round(reviewAverage) ? 'fill-brand-500 text-brand-500' : 'text-stone-300 dark:text-stone-700'} />
+                ))}
+              </div>
+              <p className="text-xs text-stone-500 mt-1">{reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</p>
+            </div>
+            <div className="space-y-2">
+              {reviewBreakdown.map(({ star, count }) => (
+                <div key={star} className="flex items-center gap-2 text-xs">
+                  <span className="w-10 font-bold text-stone-500">{star} star</span>
+                  <div className="h-2 flex-1 rounded-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
+                    <div className="h-full bg-brand-500 rounded-full" style={{ width: `${(count / reviewCount) * 100}%` }} />
+                  </div>
+                  <span className="w-6 text-right text-stone-500">{count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {eligibleOrderId && (
           <div className="bg-white dark:bg-stone-900 border border-brand-500/30 rounded-2xl p-6 space-y-3">
@@ -382,12 +416,15 @@ export default function ProductDetails() {
           <div className="space-y-4">
             {reviews.map((review) => (
               <div key={review.id} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-5 space-y-2">
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} size={14} className={star <= review.rating ? 'fill-brand-500 text-brand-500' : 'text-stone-300 dark:text-stone-700'} />
-                  ))}
-                  <span className="text-xs text-stone-400 ml-2">{new Date(review.created_at).toLocaleDateString()}</span>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star key={star} size={14} className={star <= review.rating ? 'fill-brand-500 text-brand-500' : 'text-stone-300 dark:text-stone-700'} />
+                    ))}
+                  </div>
+                  <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">Verified purchase</span>
                 </div>
+                <span className="text-xs text-stone-400">{new Date(review.created_at).toLocaleDateString()}</span>
                 {review.comment && <p className="text-sm text-stone-600 dark:text-stone-400">{review.comment}</p>}
               </div>
             ))}
