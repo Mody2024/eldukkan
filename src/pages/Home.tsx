@@ -5,6 +5,7 @@ import { useStore } from '../store';
 import { useTranslation } from '../lib/i18n';
 import type { Product } from '../types';
 import { ShoppingBag, Sparkles, Star, Heart } from 'lucide-react';
+import SEO from '../components/SEO';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'trending';
 
