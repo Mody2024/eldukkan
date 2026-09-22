@@ -224,7 +224,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-300">
+    <div className="max-w-5xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300">
       <div className="flex items-center gap-4">
         <button onClick={() => navigate('/cart')} className="p-3 bg-stone-100 dark:bg-stone-800 rounded-xl hover:scale-105 transition dark:text-white">
           <ArrowLeft size={20} />
@@ -237,8 +237,8 @@ export default function Checkout() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <form onSubmit={handleSubmitOrder} className="md:col-span-2 space-y-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 rounded-3xl shadow-sm">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
+        <form onSubmit={handleSubmitOrder} className="lg:col-span-2 space-y-5 sm:space-y-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-sm">
           <h2 className="text-xl font-black dark:text-white mb-4">{t('shipping_info')}</h2>
 
           <div className="space-y-4">
@@ -299,7 +299,7 @@ export default function Checkout() {
 
             <div>
               <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">{t('payment_method')}</label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <button type="button" onClick={() => setFormData({ ...formData, paymentMethod: 'cod' })} className={`p-4 rounded-xl border font-bold text-sm flex items-center justify-center gap-2 transition ${formData.paymentMethod === 'cod' ? 'border-brand-500 bg-brand-500/10 text-brand-500' : 'border-stone-200 dark:border-stone-700 text-stone-500'}`}>
                   <CheckCircle2 size={18} /> {t('cash_on_delivery')}
                 </button>
@@ -313,7 +313,7 @@ export default function Checkout() {
             </div>
           </div>
 
-          <button disabled={loading} type="submit" className="w-full py-4 bg-brand-500 hover:bg-brand-600 text-white font-black text-lg rounded-xl transition shadow-lg shadow-brand-500/20 disabled:opacity-50">
+          <button disabled={loading} type="submit" className="w-full py-4 min-h-14 bg-brand-500 hover:bg-brand-600 text-white font-black text-lg rounded-xl transition shadow-lg shadow-brand-500/20 disabled:opacity-50">
             {loading
               ? 'Processing...'
               : formData.paymentMethod === 'cod'
@@ -322,7 +322,7 @@ export default function Checkout() {
           </button>
         </form>
 
-        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 rounded-3xl shadow-sm h-fit space-y-4">
+        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm h-fit space-y-4 lg:sticky lg:top-28">
           <h2 className="text-xl font-black dark:text-white">{t('order_summary')}</h2>
           <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
             {cart.map((item) => (
