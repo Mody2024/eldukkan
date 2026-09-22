@@ -47,8 +47,8 @@ export default function Layout() {
         </div>
       </div>
 
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border-b border-stone-200 dark:border-stone-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center gap-4 sm:gap-8">
+      <header className="sticky top-0 z-40 bg-white/98 dark:bg-stone-900/98 backdrop-blur-md border-b border-stone-200 dark:border-stone-800">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center gap-2 sm:gap-5">
           <Link to="/" className="flex items-center gap-2 group shrink-0">
             {logoUrl ? (
               <img src={logoUrl} alt={storeName} className="w-10 h-10 rounded-2xl object-cover shadow-lg group-hover:scale-105 transition" />
@@ -71,7 +71,7 @@ export default function Layout() {
                 value={headerSearch}
                 onChange={(e) => setHeaderSearch(e.target.value)}
                 placeholder={t('search_placeholder')}
-                className="w-full pl-11 pr-4 py-3 bg-stone-100 dark:bg-stone-800 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-stone-900 rounded-full font-semibold text-sm outline-none dark:text-white transition"
+                className="w-full pl-11 pr-4 py-3.5 bg-stone-100 dark:bg-stone-800 border border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-stone-900 rounded-full font-semibold text-sm outline-none dark:text-white transition"
               />
             </div>
           </form>
@@ -142,9 +142,10 @@ export default function Layout() {
         {/* Secondary nav strip */}
         <div className="hidden md:block border-t border-stone-100 dark:border-stone-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center gap-6 font-bold text-sm text-stone-600 dark:text-stone-400">
-            <Link to="/" className="hover:text-brand-500 transition">{t('all_products')}</Link>
-            <Link to="/tracking" className="hover:text-brand-500 transition">{t('track_order')}</Link>
-            <Link to="/wishlist" className="hover:text-brand-500 transition">{t('wishlist')}</Link>
+            <Link to="/" className="hover:text-brand-500 transition">Home</Link>
+            <Link to="/" className="hover:text-brand-500 transition">Shop</Link>
+            <Link to="/tracking" className="hover:text-brand-500 transition">Track order</Link>
+            <Link to="/wishlist" className="hover:text-brand-500 transition">Wishlist</Link>
           </div>
         </div>
 
@@ -186,13 +187,13 @@ export default function Layout() {
             <p className="text-stone-500 max-w-sm">{storeName} is undergoing scheduled maintenance. Please check back shortly.</p>
           </div>
         ) : (
-          <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8">
             <Outlet />
           </div>
         )}
       </main>
 
-      <footer className="bg-stone-900 dark:bg-black text-stone-400 mt-auto">
+      <footer className="bg-stone-950 dark:bg-black text-stone-400 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1 space-y-3">
             <span className="text-lg font-black text-white">{storeName}</span>
