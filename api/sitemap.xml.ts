@@ -4,6 +4,7 @@ const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
 
 type SitemapProduct = {
   id: string;
+  updated_at?: string | null;
   created_at?: string | null;
 };
 
@@ -23,7 +24,7 @@ export default async function handler(req: Request): Promise<Response> {
   if (SUPABASE_URL && SUPABASE_ANON_KEY) {
     try {
       const endpoint = new URL('/rest/v1/products', SUPABASE_URL);
-      endpoint.searchParams.set('select', 'id,created_at');
+      endpoint.searchParams.set('select', 'id,updated_at,created_at');
       endpoint.searchParams.set('is_active', 'eq.true');
       endpoint.searchParams.set('order', 'created_at.desc');
       endpoint.searchParams.set('limit', '5000');
@@ -41,7 +42,7 @@ export default async function handler(req: Request): Promise<Response> {
           if (!product.id) continue;
           urls.push({
             loc: `${SITE_URL}/product/${encodeURIComponent(product.id)}`,
-            lastmod: product.created_at ? new Date(product.created_at).toISOString() : undefined,
+            lastmod: product.updated_at ? new Date(product.updated_at).toISOString() : (product.created_at ? new Date(product.created_at).toISOString() : undefined),
           });
         }
       }
