@@ -48,7 +48,7 @@ export default function OrderTracking() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-300">
+    <div className="max-w-3xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300">
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-black dark:text-white tracking-tight">Order Tracking</h1>
         <p className="text-stone-500 text-sm">Enter your order ID to check real-time fulfillment status.</p>
@@ -97,7 +97,7 @@ export default function OrderTracking() {
           )}
 
           {history.length > 0 && (
-            <div className="flex items-center gap-1 pb-2">
+            <div className="flex items-start gap-1 pb-2 overflow-x-auto">
               {STATUS_STEPS.map((step, idx) => {
                 const reached = history.some((h) => h.status === step);
                 const isLast = idx === STATUS_STEPS.length - 1;
