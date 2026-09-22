@@ -45,7 +45,7 @@ export default function Wishlist() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-300">
+    <div className="max-w-5xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300">
       <h1 className="text-3xl font-black dark:text-white tracking-tight flex items-center gap-3">
         <Heart className="text-red-500" /> My Wishlist
       </h1>
@@ -61,15 +61,15 @@ export default function Wishlist() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {products.map((product) => (
             <div key={product.id} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl overflow-hidden shadow-sm flex flex-col">
-              <Link to={`/product/${product.id}`} className="h-48 bg-stone-100 dark:bg-stone-800 block">
+              <Link to={`/product/${product.id}`} className="h-36 sm:h-48 bg-stone-100 dark:bg-stone-800 block">
                 <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
               </Link>
-              <div className="p-5 flex-1 flex flex-col justify-between gap-3">
+              <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between gap-3">
                 <div>
-                  <h3 className="font-black dark:text-white">{product.name}</h3>
+                  <h3 className="font-black text-sm sm:text-base dark:text-white line-clamp-2">{product.name}</h3>
                   <p className="text-brand-500 font-black">EGP {product.price}</p>
                 </div>
                 <div className="flex items-center gap-2">
