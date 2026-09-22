@@ -22,9 +22,6 @@ export default function Home() {
   useEffect(() => {
     fetchProducts();
 
-    // Real Supabase Realtime subscription: any insert/update/delete on the
-    // products table (e.g. from the admin dashboard) reflects live here
-    // without a manual refresh.
     const channel = supabase
       .channel('products-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
@@ -45,9 +42,7 @@ export default function Home() {
     } catch {
       showToast('Could not reach the store catalog. Showing a preview instead.');
       setProducts([
-        { id: '1', name: 'Eldukkan Custom Hoodie', price: 650, image_url: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80', description: 'Premium heavyweight cotton streetwear hoodie.', category: 'Streetwear', rating: 4.6, review_count: 128, stock: 14 },
-        { id: '2', name: 'Cyberpunk Desk Mat', price: 350, image_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80', description: 'Anti-slip waterproof gaming mat with RGB aesthetic.', category: 'Tech & Gadgets', rating: 4.2, review_count: 54, stock: 30 },
-        { id: '3', name: 'Minimalist Mechanical Keyboard', price: 1450, image_url: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80', description: 'Hot-swappable wireless mechanical keyboard.', category: 'Tech & Gadgets', rating: 4.8, review_count: 210, stock: 6 },
+        { id: 'preview-1', name: 'Catalog preview', price: 0, image_url: '/favicon.svg', description: 'The live catalog is temporarily unavailable.', category: 'Preview', stock: 0 },
       ]);
     } finally {
       setLoading(false);
@@ -223,11 +218,11 @@ export default function Home() {
                   <div className="p-3 sm:p-6 flex-1 flex flex-col justify-between space-y-3 sm:space-y-4">
                     <div className="space-y-1">
                       <h3 className="font-black text-sm sm:text-lg dark:text-white line-clamp-2">{product.name}</h3>
-                      {product.rating !== undefined && (
+                      {product.rating !== undefined && product.review_count !== undefined && product.review_count > 0 && (
                         <div className="flex items-center gap-1 text-xs">
                           <Star size={13} className="fill-brand-500 text-brand-500" />
                           <span className="font-bold dark:text-stone-300">{product.rating.toFixed(1)}</span>
-                          {product.review_count !== undefined && <span className="text-stone-500">({product.review_count})</span>}
+                          <span className="text-stone-500">({product.review_count})</span>
                         </div>
                       )}
                       <p className="text-stone-500 text-xs line-clamp-2">{product.description}</p>
