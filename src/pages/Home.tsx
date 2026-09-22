@@ -194,6 +194,12 @@ export default function Home() {
               const isWishlisted = wishlist.includes(product.id);
 
               return (
+    <>
+      <SEO
+        title={searchQuery ? 'Search results for "' + searchQuery + '" | ElDukkan' : 'ElDukkan | Shop Online in Egypt'}
+        description={searchQuery ? 'Browse ElDukkan products matching "' + searchQuery + '".' : 'Shop products online in Egypt with ElDukkan.'}
+        canonical="/"
+      />
                 <div key={product.id} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col">
                   <div className="relative h-44 sm:h-60 overflow-hidden bg-stone-100 dark:bg-stone-800">
                     <Link to={`/product/${product.id}`}>
@@ -259,5 +265,6 @@ export default function Home() {
         )}
       </div>
     </div>
+    </>
   );
 }
