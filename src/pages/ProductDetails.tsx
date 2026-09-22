@@ -64,10 +64,6 @@ export default function ProductDetails() {
     setReviews(data ?? []);
   };
 
-  // A customer can review this product only if they have a delivered order
-  // containing it, and haven't already reviewed it — mirrors the RLS
-  // policy exactly, so this is a UX convenience, not the real gate (the DB
-  // enforces it regardless of what this check finds).
   const checkReviewEligibility = async () => {
     setEligibleOrderId(null);
     if (!userId || !id) return;
@@ -104,7 +100,7 @@ export default function ProductDetails() {
     setEligibleOrderId(null);
     showToast('Thanks for your review!');
     fetchReviews();
-    fetchProduct(); // pick up the recalculated rating/review_count
+    fetchProduct();
   };
 
   const fetchMyVote = async () => {
@@ -121,14 +117,13 @@ export default function ProductDetails() {
       return;
     }
     if (myVote === vote) {
-      // Clicking the same vote again removes it.
       await supabase.from('product_votes').delete().eq('product_id', id).eq('customer_id', userId);
       setMyVote(null);
     } else {
       await supabase.from('product_votes').upsert([{ product_id: id, customer_id: userId, vote }]);
       setMyVote(vote);
     }
-    fetchProduct(); // pick up the recalculated vote_score
+    fetchProduct();
   };
 
   const outOfStock = product?.stock !== undefined && product.stock <= 0;
@@ -178,13 +173,27 @@ export default function ProductDetails() {
     description: product.description || product.name,
     image: gallery,
     sku: product.id,
+    brand: product.vendor_name ? {
+      '@type': 'Brand',
+      name: product.vendor_name,
+    } : undefined,
+    ...(product.rating !== undefined && product.review_count !== undefined && product.review_count > 0 ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: product.rating,
+        reviewCount: product.review_count,
+        bestRating: 5,
+        worstRating: 1,
+      },
+    } : {}),
     offers: {
       '@type': 'Offer',
-      url: `https://eldukkan.vercel.app/product/${product.id}`,
+      url: `https://eldukkan.vercel.app/product/${encodeURIComponent(product.id)}`,
       priceCurrency: 'EGP',
       price: isOnSale ? product.sale_price : product.price,
-      availability: outOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock'
-    }
+      availability: outOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+      itemCondition: 'https://schema.org/NewCondition',
+    },
   };
 
   return (
