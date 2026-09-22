@@ -34,6 +34,7 @@ function upsertLink(rel: string, href: string) {
 
 export default function SEO({ title, description, canonical, image, type = 'website', jsonLd }: SEOProps) {
   useEffect(() => {
+    const absoluteImage = image ? (image.startsWith('http') ? image : `${SITE_URL}${image}`) : `${SITE_URL}${DEFAULT_IMAGE}`;
     const absoluteCanonical = canonical
       ? (canonical.startsWith('http') ? canonical : `${SITE_URL}${canonical}`)
       : window.location.href.split('?')[0];
@@ -44,10 +45,12 @@ export default function SEO({ title, description, canonical, image, type = 'webs
     upsertMeta('meta[property="og:description"]', { property: 'og:description' }, description);
     upsertMeta('meta[property="og:type"]', { property: 'og:type' }, type);
     upsertMeta('meta[property="og:url"]', { property: 'og:url' }, absoluteCanonical);
-    upsertMeta('meta[property="og:image"]', { property: 'og:image' }, image || `${SITE_URL}${DEFAULT_IMAGE}`);
+    upsertMeta('meta[property="og:image"]', { property: 'og:image' }, absoluteImage);
+    upsertMeta('meta[property="og:site_name"]', { property: 'og:site_name' }, 'ElDukkan');
     upsertMeta('meta[name="twitter:card"]', { name: 'twitter:card' }, 'summary_large_image');
     upsertMeta('meta[name="twitter:title"]', { name: 'twitter:title' }, title);
     upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description' }, description);
+    upsertMeta('meta[name="twitter:image"]', { name: 'twitter:image' }, absoluteImage);
     upsertLink('canonical', absoluteCanonical);
 
     const old = document.head.querySelectorAll('script[data-eldukkan-jsonld]');
