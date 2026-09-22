@@ -94,7 +94,7 @@ export default function Home() {
 
   return (
     <div className="space-y-12 animate-in fade-in duration-500">
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-500/20 via-brand-500/5 to-transparent border border-brand-500/20 p-8 sm:p-12 flex flex-col md:flex-row items-center gap-8">
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 sm:p-10 lg:p-12 flex flex-col md:flex-row items-center gap-8 shadow-sm">
         <div className="flex flex-col items-start gap-4 flex-1">
           <div className="inline-flex items-center gap-2 bg-brand-500/10 text-brand-500 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
             <Sparkles size={14} /> {storeName}
@@ -142,12 +142,12 @@ export default function Home() {
       )}
 
       {categories.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="flex gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
-              className={`p-5 rounded-2xl border text-left transition ${activeCategory === cat ? 'border-brand-500 bg-brand-500/10' : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:border-brand-500/50'}`}
+              className={`min-w-[150px] sm:min-w-0 p-5 rounded-2xl border text-left transition ${activeCategory === cat ? 'border-brand-500 bg-brand-500/10' : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:border-brand-500/50'}`}
             >
               <p className="font-black dark:text-white">{cat}</p>
               <p className="text-xs text-stone-500">{products.filter((p) => p.category === cat).length} items</p>
@@ -186,7 +186,7 @@ export default function Home() {
         ) : filteredProducts.length === 0 ? (
           <p className="text-stone-500 text-center py-20 font-bold">No products match your search query.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {filteredProducts.map((product) => {
               const outOfStock = product.stock !== undefined && product.stock <= 0;
               const lowStock = product.stock !== undefined && product.stock > 0 && product.stock <= 5;
@@ -194,8 +194,8 @@ export default function Home() {
               const isWishlisted = wishlist.includes(product.id);
 
               return (
-                <div key={product.id} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col">
-                  <div className="relative h-60 overflow-hidden bg-stone-100 dark:bg-stone-800">
+                <div key={product.id} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col">
+                  <div className="relative h-44 sm:h-60 overflow-hidden bg-stone-100 dark:bg-stone-800">
                     <Link to={`/product/${product.id}`}>
                       <img src={product.image_url} alt={product.name} className={`w-full h-full object-cover group-hover:scale-105 transition duration-500 ${outOfStock ? 'grayscale opacity-60' : ''}`} />
                     </Link>
@@ -215,9 +215,9 @@ export default function Home() {
                       <span className="absolute bottom-3 left-3 bg-red-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg">{t('only_left', { n: product.stock ?? 0 })}</span>
                     )}
                   </div>
-                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="p-3 sm:p-6 flex-1 flex flex-col justify-between space-y-3 sm:space-y-4">
                     <div className="space-y-1">
-                      <h3 className="font-black text-lg dark:text-white">{product.name}</h3>
+                      <h3 className="font-black text-sm sm:text-lg dark:text-white line-clamp-2">{product.name}</h3>
                       {product.rating !== undefined && (
                         <div className="flex items-center gap-1 text-xs">
                           <Star size={13} className="fill-brand-500 text-brand-500" />
@@ -228,7 +228,7 @@ export default function Home() {
                       <p className="text-stone-500 text-xs line-clamp-2">{product.description}</p>
                     </div>
                     <div className="flex items-center justify-between pt-4 border-t border-stone-100 dark:border-stone-800">
-                      <span className="text-xl font-black text-brand-500 flex items-center gap-1.5">
+                      <span className="text-base sm:text-xl font-black text-brand-500 flex items-center gap-1.5">
                         {isOnSale ? (
                           <>
                             EGP {product.sale_price}
