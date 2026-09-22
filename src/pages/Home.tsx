@@ -93,13 +93,12 @@ export default function Home() {
     .sort((a, b) => (a.featured_order ?? 0) - (b.featured_order ?? 0));
 
   return (
-    <>
+    <div className="space-y-12 animate-in fade-in duration-500">
       <SEO
         title={searchQuery ? 'Search results for "' + searchQuery + '" | ElDukkan' : 'ElDukkan | Shop Online in Egypt'}
         description={searchQuery ? 'Browse ElDukkan products matching "' + searchQuery + '".' : 'Shop products online in Egypt with ElDukkan.'}
         canonical="/"
       />
-      <div className="space-y-12 animate-in fade-in duration-500">
       <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 sm:p-10 lg:p-12 flex flex-col md:flex-row items-center gap-8 shadow-sm">
         <div className="flex flex-col items-start gap-4 flex-1">
           <div className="inline-flex items-center gap-2 bg-brand-500/10 text-brand-500 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
@@ -271,6 +270,5 @@ export default function Home() {
         )}
       </div>
     </div>
-    </>
   );
 }
