@@ -3,7 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import type { Product, Review } from '../types';
-import { ShoppingBag, ArrowLeft, Star, Heart, Minus, Plus, Store, MessageSquare, ArrowUp, ArrowDown } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Star, Heart, Minus, Plus, Store, MessageSquare, ArrowUp, ArrowDown, Truck, ShieldCheck } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -176,9 +177,9 @@ export default function ProductDetails() {
         <ArrowLeft size={18} /> Back
       </button>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 rounded-3xl shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 rounded-3xl shadow-sm">
         <div className="space-y-3">
-          <div className="rounded-2xl overflow-hidden bg-stone-100 dark:bg-stone-800 h-80 md:h-[400px] relative">
+          <div className="rounded-2xl overflow-hidden bg-stone-100 dark:bg-stone-800 h-[340px] sm:h-[400px] md:h-[500px] relative">
             <img src={gallery[activeImage]} alt={product.name} className={`w-full h-full object-cover ${outOfStock ? 'grayscale opacity-60' : ''}`} />
             {outOfStock && (
               <span className="absolute top-4 left-4 bg-stone-900/90 text-white text-xs font-black uppercase px-3 py-1.5 rounded-lg">Out of Stock</span>
@@ -246,7 +247,13 @@ export default function ProductDetails() {
             )}
           </div>
 
-          <div className="space-y-4 pt-6 border-t border-stone-100 dark:border-stone-800">
+          <div className="grid grid-cols-3 gap-2 py-3 border-y border-stone-100 dark:border-stone-800">
+            <div className="flex flex-col items-center text-center gap-1 text-[10px] sm:text-xs font-bold text-stone-500"><Truck size={18} className="text-brand-500" /> Delivery</div>
+            <div className="flex flex-col items-center text-center gap-1 text-[10px] sm:text-xs font-bold text-stone-500"><ShieldCheck size={18} className="text-brand-500" /> Secure checkout</div>
+            <div className="flex flex-col items-center text-center gap-1 text-[10px] sm:text-xs font-bold text-stone-500"><Store size={18} className="text-brand-500" /> Trusted shop</div>
+          </div>
+
+          <div className="space-y-4 pt-2">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => handleVote(1)}
