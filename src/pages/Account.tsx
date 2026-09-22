@@ -95,8 +95,8 @@ export default function Account() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-300">
-      <div className="flex items-center justify-between">
+    <div className="max-w-4xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black dark:text-white tracking-tight">My Account</h1>
           <p className="text-stone-500 text-sm">{userEmail}</p>
@@ -128,13 +128,13 @@ export default function Account() {
               <Link
                 key={order.id}
                 to={`/tracking/${order.id}`}
-                className="flex items-center justify-between bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-5 rounded-2xl hover:border-brand-500/50 transition"
+                className="flex items-center justify-between bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-4 sm:p-5 rounded-2xl hover:border-brand-500/50 transition"
               >
                 <div>
                   <p className="font-black dark:text-white">#{order.id.slice(0, 8).toUpperCase()}</p>
                   <p className="text-xs text-stone-500">{new Date(order.created_at).toLocaleDateString()}</p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                   <span className="text-xs uppercase font-bold px-2.5 py-1 bg-brand-500/10 text-brand-500 rounded-lg">{order.status}</span>
                   <span className="font-black text-brand-500">EGP {order.total}</span>
                 </div>
