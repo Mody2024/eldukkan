@@ -22,6 +22,9 @@ export default async function handler(req: Request): Promise<Response> {
   const urls: { loc: string; lastmod?: string }[] = [{ loc: SITE_URL + '/' }];
 
   if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+
     try {
       const endpoint = new URL('/rest/v1/products', SUPABASE_URL);
       endpoint.searchParams.set('select', 'id,updated_at,created_at');
@@ -34,6 +37,7 @@ export default async function handler(req: Request): Promise<Response> {
           apikey: SUPABASE_ANON_KEY,
           Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         },
+        signal: controller.signal,
       });
 
       if (response.ok) {
@@ -42,12 +46,18 @@ export default async function handler(req: Request): Promise<Response> {
           if (!product.id) continue;
           urls.push({
             loc: `${SITE_URL}/product/${encodeURIComponent(product.id)}`,
-            lastmod: product.updated_at ? new Date(product.updated_at).toISOString() : (product.created_at ? new Date(product.created_at).toISOString() : undefined),
+            lastmod: product.updated_at
+              ? new Date(product.updated_at).toISOString()
+              : product.created_at
+                ? new Date(product.created_at).toISOString()
+                : undefined,
           });
         }
       }
     } catch {
-      // Keep the homepage in the sitemap if the catalog is temporarily unavailable.
+      // Return a valid homepage-only sitemap if the catalog is unavailable.
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
