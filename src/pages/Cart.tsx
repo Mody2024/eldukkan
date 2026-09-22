@@ -25,18 +25,18 @@ export default function Cart() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-300">
+    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 animate-in fade-in duration-300">
       <h1 className="text-3xl font-black dark:text-white tracking-tight">{t('your_cart')}</h1>
 
       <div className="space-y-4">
         {cart.map((item) => (
-          <div key={item.id} className="flex items-center gap-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-4 rounded-2xl">
-            <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded-xl border border-stone-200 dark:border-stone-700 shrink-0" />
+          <div key={item.id} className="flex items-center gap-3 sm:gap-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-4 rounded-2xl">
+            <img src={item.image_url} alt={item.name} className="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-xl border border-stone-200 dark:border-stone-700 shrink-0" />
             <div className="flex-1 min-w-0">
               <h3 className="font-bold dark:text-white truncate">{item.name}</h3>
               <p className="text-brand-500 font-black text-sm">EGP {item.price}</p>
             </div>
-            <div className="flex items-center gap-2 bg-stone-100 dark:bg-stone-800 rounded-xl p-1">
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-stone-100 dark:bg-stone-800 rounded-xl p-1">
               <button
                 onClick={() => updateQuantity(item.id, item.quantity - 1)}
                 className="p-2 rounded-lg hover:bg-white dark:hover:bg-stone-700 transition dark:text-white"
@@ -64,7 +64,7 @@ export default function Cart() {
         ))}
       </div>
 
-      <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 rounded-3xl flex items-center justify-between">
+      <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between sticky bottom-3 z-20 shadow-xl">
         <div>
           <p className="text-stone-500 text-xs font-bold uppercase">{t('total')}</p>
           <p className="text-2xl font-black text-brand-500">EGP {total}</p>
