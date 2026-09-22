@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /login
+Disallow: /wishlist
+Disallow: /tracking
+Disallow: /ops-console-7f2k9x
+
+Sitemap: https://eldukkan.vercel.app/sitemap.xml
