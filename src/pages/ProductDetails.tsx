@@ -171,8 +171,33 @@ export default function ProductDetails() {
     );
   }
 
+  const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description || product.name,
+    image: gallery,
+    sku: product.id,
+    offers: {
+      '@type': 'Offer',
+      url: `https://eldukkan.vercel.app/product/${product.id}`,
+      priceCurrency: 'EGP',
+      price: isOnSale ? product.sale_price : product.price,
+      availability: outOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock'
+    }
+  };
+
   return (
-    <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in duration-300">
+    <>
+      <SEO
+        title={`${product.name} | ElDukkan`}
+        description={(product.description || `Shop ${product.name} online at ElDukkan.`).slice(0, 155)}
+        canonical={`/product/${product.id}`}
+        image={product.image_url}
+        type="product"
+        jsonLd={productSchema}
+      />
+      <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12 animate-in fade-in duration-300">
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 p-3 bg-stone-100 dark:bg-stone-800 rounded-xl hover:scale-105 transition dark:text-white w-fit font-bold text-sm">
         <ArrowLeft size={18} /> Back
       </button>
@@ -361,5 +386,7 @@ export default function ProductDetails() {
         )}
       </div>
     </div>
+      </div>
+    </>
   );
 }
