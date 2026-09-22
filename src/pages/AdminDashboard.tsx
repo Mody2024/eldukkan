@@ -279,18 +279,18 @@ export default function AdminDashboard() {
       return;
     }
 
-    setSiteSettings((prev) => ({
-      ...prev,
-      sponsors: [...prev.sponsors, { name, logo_url, ...(url ? { url } : {}) }],
-    }));
+    setSiteSettings({
+      ...siteSettings,
+      sponsors: [...siteSettings.sponsors, { name, logo_url, ...(url ? { url } : {}) }],
+    });
     setNewSponsor({ name: '', logo_url: '', url: '' });
   };
 
   const handleRemoveSponsor = (index: number) => {
-    setSiteSettings((prev) => ({
-      ...prev,
-      sponsors: prev.sponsors.filter((_, i) => i !== index),
-    }));
+    setSiteSettings({
+      ...siteSettings,
+      sponsors: siteSettings.sponsors.filter((_, i) => i !== index),
+    });
   };
 
   const handleSaveSettings = async () => {
