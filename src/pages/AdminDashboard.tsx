@@ -54,7 +54,10 @@ export default function AdminDashboard() {
   const [siteSettings, setSiteSettings] = useState({
     announcement_banner: '', maintenance_mode: false, store_name: '', logo_url: '',
     hero_headline: '', hero_subheadline: '', hero_image_url: '',
+    footer_credits_enabled: true, footer_credits_text: '',
+    sponsors: [] as { name: string; logo_url: string; url?: string }[],
   });
+  const [newSponsor, setNewSponsor] = useState({ name: '', logo_url: '', url: '' });
 
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [newAdminRole, setNewAdminRole] = useState<'admin' | 'staff' | 'owner'>('admin');
@@ -99,6 +102,9 @@ export default function AdminDashboard() {
         hero_headline: data.hero_headline || '',
         hero_subheadline: data.hero_subheadline || '',
         hero_image_url: data.hero_image_url || '',
+        footer_credits_enabled: data.footer_credits_enabled ?? true,
+        footer_credits_text: data.footer_credits_text || '',
+        sponsors: Array.isArray(data.sponsors) ? data.sponsors : [],
       });
     } else if (activeTab === 'audit') {
       const { data } = await supabase.from('admin_activity_log').select('*').order('created_at', { ascending: false }).limit(100);
@@ -263,6 +269,30 @@ export default function AdminDashboard() {
     showToast('Permissions updated.');
   };
 
+  const handleAddSponsor = () => {
+    const name = newSponsor.name.trim();
+    const logo_url = newSponsor.logo_url.trim();
+    const url = newSponsor.url.trim();
+
+    if (!name || !logo_url) {
+      showToast('Sponsor name and logo URL are required.');
+      return;
+    }
+
+    setSiteSettings((prev) => ({
+      ...prev,
+      sponsors: [...prev.sponsors, { name, logo_url, ...(url ? { url } : {}) }],
+    }));
+    setNewSponsor({ name: '', logo_url: '', url: '' });
+  };
+
+  const handleRemoveSponsor = (index: number) => {
+    setSiteSettings((prev) => ({
+      ...prev,
+      sponsors: prev.sponsors.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleSaveSettings = async () => {
     const { error } = await supabase
       .from('site_settings')
@@ -274,6 +304,9 @@ export default function AdminDashboard() {
         hero_headline: siteSettings.hero_headline || null,
         hero_subheadline: siteSettings.hero_subheadline || null,
         hero_image_url: siteSettings.hero_image_url || null,
+        footer_credits_enabled: siteSettings.footer_credits_enabled,
+        footer_credits_text: siteSettings.footer_credits_text.trim() || null,
+        sponsors: siteSettings.sponsors,
         updated_at: new Date().toISOString(),
       })
       .eq('id', true);
@@ -688,100 +721,134 @@ export default function AdminDashboard() {
       )}
 
       {activeTab === 'settings' && hasPermission('manage_settings') && (
-        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-8 shadow-sm max-w-2xl mx-auto space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-brand-500/10 text-brand-500 rounded-2xl">
-              <SettingsIcon size={24} />
-            </div>
-            <div>
-              <h2 className="text-2xl font-black dark:text-white">Site Settings</h2>
-              <p className="text-stone-500 text-sm">Changes here go live on the storefront immediately.</p>
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-8 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-brand-500/10 text-brand-500 rounded-2xl">
+                <SettingsIcon size={24} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-black dark:text-white">Store Settings</h2>
+                <p className="text-stone-500 text-sm">Control the storefront without editing code.</p>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-4 pt-4 border-t border-stone-100 dark:border-stone-800">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="font-bold text-sm text-stone-700 dark:text-stone-300">Store Name</label>
-                <input
-                  type="text"
-                  placeholder="Eldukkan"
-                  value={siteSettings.store_name}
-                  onChange={(e) => setSiteSettings({ ...siteSettings, store_name: e.target.value })}
-                  className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="font-bold text-sm text-stone-700 dark:text-stone-300">Logo URL</label>
-                <input
-                  type="url"
-                  placeholder="https://... (leave empty for default)"
-                  value={siteSettings.logo_url}
-                  onChange={(e) => setSiteSettings({ ...siteSettings, logo_url: e.target.value })}
-                  className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none"
-                />
-              </div>
-            </div>
-            {siteSettings.logo_url && (
-              <div className="flex items-center gap-3 p-3 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200 dark:border-stone-800 w-fit">
-                <img src={siteSettings.logo_url} alt="Logo preview" className="w-10 h-10 rounded-xl object-cover" />
-                <span className="text-xs text-stone-500 font-bold">Logo preview</span>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <label className="font-bold text-sm text-stone-700 dark:text-stone-300">Announcement Banner</label>
-              <textarea
-                placeholder="e.g. Free delivery this weekend on orders over EGP 500"
-                value={siteSettings.announcement_banner}
-                onChange={(e) => setSiteSettings({ ...siteSettings, announcement_banner: e.target.value })}
-                className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none min-h-[80px]"
-              />
-              <p className="text-xs text-stone-500">Leave empty to hide the banner.</p>
-            </div>
-
-            <label className="flex items-center justify-between p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl cursor-pointer">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 shadow-sm space-y-5">
               <div>
-                <p className="font-bold dark:text-white">Maintenance Mode</p>
-                <p className="text-xs text-stone-500">Shows a maintenance page to everyone except signed-in admins.</p>
+                <h3 className="text-lg font-black dark:text-white">Branding</h3>
+                <p className="text-xs text-stone-500 mt-1">The name and logo customers see across the store.</p>
               </div>
-              <input
-                type="checkbox"
-                checked={siteSettings.maintenance_mode}
-                onChange={(e) => setSiteSettings({ ...siteSettings, maintenance_mode: e.target.checked })}
-                className="w-5 h-5 accent-brand-500"
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-stone-700 dark:text-stone-300">Store Name</label>
+                  <input type="text" placeholder="Eldukkan" value={siteSettings.store_name} onChange={(e) => setSiteSettings({ ...siteSettings, store_name: e.target.value })} className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+                </div>
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-stone-700 dark:text-stone-300">Logo URL</label>
+                  <input type="url" placeholder="https://..." value={siteSettings.logo_url} onChange={(e) => setSiteSettings({ ...siteSettings, logo_url: e.target.value })} className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+                </div>
+              </div>
+              {siteSettings.logo_url && (
+                <div className="flex items-center gap-3 p-3 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200 dark:border-stone-800 w-fit">
+                  <img src={siteSettings.logo_url} alt="Logo preview" className="w-10 h-10 rounded-xl object-cover" />
+                  <span className="text-xs text-stone-500 font-bold">Logo preview</span>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 shadow-sm space-y-5">
+              <div>
+                <h3 className="text-lg font-black dark:text-white">Storefront Controls</h3>
+                <p className="text-xs text-stone-500 mt-1">Announcements and temporary maintenance mode.</p>
+              </div>
+              <div className="space-y-2">
+                <label className="font-bold text-sm text-stone-700 dark:text-stone-300">Announcement Banner</label>
+                <textarea placeholder="e.g. Free delivery this weekend on orders over EGP 500" value={siteSettings.announcement_banner} onChange={(e) => setSiteSettings({ ...siteSettings, announcement_banner: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none min-h-[90px] focus:border-brand-500" />
+                <p className="text-xs text-stone-500">Leave empty to hide the banner.</p>
+              </div>
+              <label className="flex items-center justify-between p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl cursor-pointer">
+                <div>
+                  <p className="font-bold dark:text-white">Maintenance Mode</p>
+                  <p className="text-xs text-stone-500">Shows a maintenance page to visitors while admins can still access the store.</p>
+                </div>
+                <input type="checkbox" checked={siteSettings.maintenance_mode} onChange={(e) => setSiteSettings({ ...siteSettings, maintenance_mode: e.target.checked })} className="w-5 h-5 accent-brand-500" />
+              </label>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 shadow-sm space-y-5">
+            <div>
+              <h3 className="text-lg font-black dark:text-white">Homepage Hero</h3>
+              <p className="text-xs text-stone-500 mt-1">Customize the main storefront headline and image.</p>
+            </div>
+            <input type="text" placeholder="Custom headline" value={siteSettings.hero_headline} onChange={(e) => setSiteSettings({ ...siteSettings, hero_headline: e.target.value })} className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+            <input type="text" placeholder="Custom subheadline" value={siteSettings.hero_subheadline} onChange={(e) => setSiteSettings({ ...siteSettings, hero_subheadline: e.target.value })} className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+            <input type="url" placeholder="Hero image URL (optional)" value={siteSettings.hero_image_url} onChange={(e) => setSiteSettings({ ...siteSettings, hero_image_url: e.target.value })} className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+            {siteSettings.hero_image_url && <img src={siteSettings.hero_image_url} alt="Hero preview" className="w-full h-40 object-cover rounded-2xl border border-stone-200 dark:border-stone-800" />}
+          </div>
+
+          <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 shadow-sm space-y-6">
+            <div>
+              <h3 className="text-lg font-black dark:text-white">Footer Editor</h3>
+              <p className="text-xs text-stone-500 mt-1">This is the missing footer control. Changes publish to the live storefront.</p>
+            </div>
+
+            <label className="flex items-center justify-between gap-4 p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-2xl cursor-pointer">
+              <div>
+                <p className="font-bold dark:text-white">Show footer credit</p>
+                <p className="text-xs text-stone-500">Controls the small “Built by…” credit at the bottom of the site.</p>
+              </div>
+              <input type="checkbox" checked={siteSettings.footer_credits_enabled} onChange={(e) => setSiteSettings({ ...siteSettings, footer_credits_enabled: e.target.checked })} className="w-5 h-5 accent-brand-500" />
             </label>
 
-            <div className="pt-4 border-t border-stone-100 dark:border-stone-800 space-y-4">
-              <p className="font-bold text-sm dark:text-white">Homepage Hero (leave blank to use defaults)</p>
-              <input
-                type="text"
-                placeholder="Custom headline"
-                value={siteSettings.hero_headline}
-                onChange={(e) => setSiteSettings({ ...siteSettings, hero_headline: e.target.value })}
-                className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none"
-              />
-              <input
-                type="text"
-                placeholder="Custom subheadline"
-                value={siteSettings.hero_subheadline}
-                onChange={(e) => setSiteSettings({ ...siteSettings, hero_subheadline: e.target.value })}
-                className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none"
-              />
-              <input
-                type="url"
-                placeholder="Hero image URL (optional)"
-                value={siteSettings.hero_image_url}
-                onChange={(e) => setSiteSettings({ ...siteSettings, hero_image_url: e.target.value })}
-                className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none"
-              />
+            <div className="space-y-2">
+              <label className="font-bold text-sm text-stone-700 dark:text-stone-300">Footer Credit Text</label>
+              <input type="text" placeholder="Built by AlyEldeen Alaa & Almuddaththir Mahmoud" value={siteSettings.footer_credits_text} onChange={(e) => setSiteSettings({ ...siteSettings, footer_credits_text: e.target.value })} className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
             </div>
 
-            <button onClick={handleSaveSettings} className="w-full py-4 bg-brand-500 hover:bg-brand-600 text-white font-black text-lg rounded-xl transition shadow-lg shadow-brand-500/20">
-              Save & Publish
-            </button>
+            <div className="pt-5 border-t border-stone-100 dark:border-stone-800 space-y-4">
+              <div>
+                <h4 className="font-black dark:text-white">Sponsors / Partners</h4>
+                <p className="text-xs text-stone-500 mt-1">Add a logo and optional clickable website. Sponsors appear above the copyright row.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <input type="text" placeholder="Sponsor name" value={newSponsor.name} onChange={(e) => setNewSponsor({ ...newSponsor, name: e.target.value })} className="p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+                <input type="url" placeholder="Logo URL" value={newSponsor.logo_url} onChange={(e) => setNewSponsor({ ...newSponsor, logo_url: e.target.value })} className="p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+                <div className="flex gap-2">
+                  <input type="url" placeholder="Website (optional)" value={newSponsor.url} onChange={(e) => setNewSponsor({ ...newSponsor, url: e.target.value })} className="min-w-0 flex-1 p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+                  <button type="button" onClick={handleAddSponsor} className="px-4 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition"><Plus size={18} /></button>
+                </div>
+              </div>
+
+              {siteSettings.sponsors.length > 0 ? (
+                <div className="space-y-2">
+                  {siteSettings.sponsors.map((sponsor, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl">
+                      <img src={sponsor.logo_url} alt={sponsor.name} className="w-16 h-10 object-contain rounded-lg bg-white" />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold dark:text-white truncate">{sponsor.name}</p>
+                        <p className="text-xs text-stone-500 truncate">{sponsor.url || 'No website link'}</p>
+                      </div>
+                      <button type="button" onClick={() => handleRemoveSponsor(index)} className="p-2.5 text-red-500 hover:bg-red-500/10 rounded-xl transition" title="Remove sponsor"><Trash2 size={16} /></button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-stone-50 dark:bg-stone-950 text-sm text-stone-500 text-center">No sponsors configured.</div>
+              )}
+            </div>
+
+            <div className="p-4 rounded-2xl bg-brand-500/5 border border-brand-500/20 text-sm dark:text-stone-300">
+              <span className="font-black text-brand-500">Live footer:</span> Save & Publish applies the footer credit and sponsor changes to the storefront immediately.
+            </div>
           </div>
+
+          <button onClick={handleSaveSettings} className="w-full py-4 bg-brand-500 hover:bg-brand-600 text-white font-black text-lg rounded-xl transition shadow-lg shadow-brand-500/20">
+            Save & Publish All Settings
+          </button>
         </div>
       )}
 
