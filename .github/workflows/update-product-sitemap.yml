@@ -20,8 +20,8 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          node <<'NODE'
-          const fs = require('fs');
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
 
           const siteUrl = 'https://eldukkan.vercel.app';
           const supabaseUrl = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
