@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>ElDukkan product updates</title>
+    <link>https://eldukkan.vercel.app/</link>
+    <description>Recent ElDukkan product pages.</description>
+    <lastBuildDate>Wed, 23 Sep 2026 17:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Mafia cards game</title>
+      <link>https://eldukkan.vercel.app/product/3be0d332-618d-4c46-a7e8-1886b2ef2557</link>
+      <guid isPermaLink="true">https://eldukkan.vercel.app/product/3be0d332-618d-4c46-a7e8-1886b2ef2557</guid>
+      <pubDate>Tue, 22 Sep 2026 21:09:12 GMT</pubDate>
+      <description>play with ur friends and get lot of fun</description>
+    </item>
+    <item>
+      <title>Camera</title>
+      <link>https://eldukkan.vercel.app/product/d06b867c-0158-4c11-a77f-767648aec6bb</link>
+      <guid isPermaLink="true">https://eldukkan.vercel.app/product/d06b867c-0158-4c11-a77f-767648aec6bb</guid>
+      <pubDate>Wed, 23 Sep 2026 11:27:25 GMT</pubDate>
+      <description>Compact camera for everyday photography and video.</description>
+    </item>
+    <item>
+      <title>Wireless Headphones</title>
+      <link>https://eldukkan.vercel.app/product/23e346f3-a76a-458f-b745-9017b35da6e5</link>
+      <guid isPermaLink="true">https://eldukkan.vercel.app/product/23e346f3-a76a-458f-b745-9017b35da6e5</guid>
+      <pubDate>Tue, 22 Sep 2026 21:16:45 GMT</pubDate>
+      <description>High quality sound with active noise control.</description>
+    </item>
+  </channel>
+</rss>
