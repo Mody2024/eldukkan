@@ -7,6 +7,7 @@ import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
+import Category from './pages/Category';
 import Cart from './pages/Cart';
 import OrderTracking from './pages/OrderTracking';
 import Checkout from './pages/Checkout';
@@ -110,6 +111,7 @@ export function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="product/:id" element={<ProductDetails />} />
+            <Route path="category/:slug" element={<Category />} />
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
             <Route path="tracking" element={<OrderTracking />} />
