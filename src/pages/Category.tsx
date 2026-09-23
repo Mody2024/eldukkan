@@ -58,7 +58,6 @@ export default function Category() {
           ? `Browse ${products.length ? products.length + ' ' : ''}${category} products available on ElDukkan in Egypt.`
           : 'Browse products by category on ElDukkan.'}
         canonical={canonical}
-        robots={category && (loading || products.length > 0) ? 'index, follow, max-image-preview:large' : 'noindex, follow'}
         jsonLd={category ? [
           {
             '@context': 'https://schema.org',
