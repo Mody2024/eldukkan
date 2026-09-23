@@ -166,18 +166,57 @@ jobs:
           ].join('\n');
 
           fs.writeFileSync('public/google-products.xml', feed);
+
+          const recentProducts = [...products]
+            .filter((product) => product && product.id && product.name)
+            .sort((a, b) => {
+              const da = new Date(a.updated_at || a.created_at || 0).getTime();
+              const db = new Date(b.updated_at || b.created_at || 0).getTime();
+              return db - da;
+            })
+            .slice(0, 50);
+
+          const rssItems = recentProducts.map((product) => {
+            const productUrl = siteUrl + '/product/' + encodeURIComponent(product.id);
+            const stamp = product.updated_at || product.created_at || new Date().toISOString();
+            return [
+              '    <item>',
+              '      <title>' + escapeXml(product.name) + '</title>',
+              '      <link>' + escapeXml(productUrl) + '</link>',
+              '      <guid isPermaLink="true">' + escapeXml(productUrl) + '</guid>',
+              '      <pubDate>' + new Date(stamp).toUTCString() + '</pubDate>',
+              '      <description>' + escapeXml(product.description || product.name) + '</description>',
+              '    </item>',
+            ].join('\n');
+          }).join('\n');
+
+          const rss = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<rss version="2.0">',
+            '  <channel>',
+            '    <title>ElDukkan product updates</title>',
+            '    <link>' + siteUrl + '/</link>',
+            '    <description>Recent ElDukkan product pages.</description>',
+            '    <lastBuildDate>' + new Date().toUTCString() + '</lastBuildDate>',
+            rssItems,
+            '  </channel>',
+            '</rss>',
+            '',
+          ].join('\n');
+
+          fs.writeFileSync('public/feed.xml', rss);
           console.log('Generated sitemap with ' + urls.length + ' URLs and Google product feed with ' + products.length + ' products.');
           NODE
 
       - name: Commit sitemap if changed
         run: |
-          if git diff --quiet -- public/sitemap.xml public/google-products.xml; then
+          if git diff --quiet -- public/sitemap.xml public/google-products.xml public/feed.xml; then
             echo "Sitemap unchanged."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/sitemap.xml public/google-products.xml
+          git add public/sitemap.xml public/google-products.xml public/feed.xml
           git commit -m "chore: update product sitemap [skip ci]"
           git push
