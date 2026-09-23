@@ -83,7 +83,10 @@ for (const product of products) {
   if (!product?.id || !product?.name) continue;
 
   const productUrl = `${siteUrl}/product/${encodeURIComponent(product.id)}`;
-  const description = String(product.description || `Shop ${product.name} online at ElDukkan.`).slice(0, 155);
+  const seoTitle = product.category
+    ? `${product.name} | ${product.category} | ElDukkan`
+    : `${product.name} | ElDukkan`;
+  const description = `Shop ${product.name} online in Egypt at ElDukkan. ${String(product.description || '').trim()}`.slice(0, 155);
   const gallery = [product.image_url, ...(Array.isArray(product.images) ? product.images : [])].filter(Boolean);
   const isOnSale =
     !!product.sale_price &&
@@ -104,10 +107,6 @@ for (const product of products) {
     sku: product.id,
     url: productUrl,
     ...(product.category ? { category: product.category } : {}),
-    brand: {
-      '@type': 'Brand',
-      name: product.vendor_name || 'ElDukkan',
-    },
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': productUrl,
@@ -170,12 +169,12 @@ for (const product of products) {
   };
 
   const head = [
-    `<title>${escapeHtml(product.name)} | ElDukkan</title>`,
+    `<title>${escapeHtml(seoTitle)}</title>`,
     `<meta name="description" content="${escapeHtml(description)}" />`,
     `<meta name="robots" content="index, follow, max-image-preview:large" />`,
     `<link rel="canonical" href="${escapeHtml(productUrl)}" />`,
     `<meta property="og:site_name" content="ElDukkan" />`,
-    `<meta property="og:title" content="${escapeHtml(product.name)} | ElDukkan" />`,
+    `<meta property="og:title" content="${escapeHtml(seoTitle)}" />`,
     `<meta property="og:description" content="${escapeHtml(description)}" />`,
     `<meta property="og:type" content="product" />`,
     `<meta property="og:url" content="${escapeHtml(productUrl)}" />`,
@@ -184,7 +183,7 @@ for (const product of products) {
       `<meta property="og:image:alt" content="${escapeHtml(product.name)}" />`,
     ] : []),
     `<meta name="twitter:card" content="summary_large_image" />`,
-    `<meta name="twitter:title" content="${escapeHtml(product.name)} | ElDukkan" />`,
+    `<meta name="twitter:title" content="${escapeHtml(seoTitle)}" />`,
     `<meta name="twitter:description" content="${escapeHtml(description)}" />`,
     ...(gallery[0] ? [
       `<meta name="twitter:image" content="${escapeHtml(gallery[0])}" />`,
