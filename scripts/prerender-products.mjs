@@ -104,9 +104,9 @@ for (const product of products) {
     sku: product.id,
     url: productUrl,
     ...(product.category ? { category: product.category } : {}),
-    brand: {
-      '@type': 'Brand',
-      name: product.vendor_name || 'ElDukkan',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id: productUrl,
     },
     ...(reviewCount > 0
       ? {
@@ -128,6 +128,11 @@ for (const product of products) {
         ? 'https://schema.org/OutOfStock'
         : 'https://schema.org/InStock',
       itemCondition: 'https://schema.org/NewCondition',
+      seller: {
+        '@type': 'Organization',
+        name: product.vendor_name || 'ElDukkan',
+      },
+      ...(product.sale_ends_at && isOnSale ? { priceValidUntil: product.sale_ends_at.split('T')[0] } : {}),
     },
   };
 
@@ -170,11 +175,17 @@ for (const product of products) {
     `<meta property="og:description" content="${escapeHtml(description)}" />`,
     `<meta property="og:type" content="product" />`,
     `<meta property="og:url" content="${escapeHtml(productUrl)}" />`,
-    ...(gallery[0] ? [`<meta property="og:image" content="${escapeHtml(gallery[0])}" />`] : []),
+    ...(gallery[0] ? [
+      `<meta property="og:image" content="${escapeHtml(gallery[0])}" />`,
+      `<meta property="og:image:alt" content="${escapeHtml(product.name)}" />`,
+    ] : []),
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${escapeHtml(product.name)} | ElDukkan" />`,
     `<meta name="twitter:description" content="${escapeHtml(description)}" />`,
-    ...(gallery[0] ? [`<meta name="twitter:image" content="${escapeHtml(gallery[0])}" />`] : []),
+    ...(gallery[0] ? [
+      `<meta name="twitter:image" content="${escapeHtml(gallery[0])}" />`,
+      `<meta name="twitter:image:alt" content="${escapeHtml(product.name)}" />`,
+    ] : []),
     `<script type="application/ld+json">${safeJson(schema)}</script>`,
     `<script type="application/ld+json">${safeJson(breadcrumb)}</script>`,
   ].join('\n    ');
