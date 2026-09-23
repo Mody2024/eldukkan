@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/prerender-products.mjs",
+    "build": "tsc -b && vite build && node scripts/prerender-products.mjs && node scripts/prerender-categories.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },
