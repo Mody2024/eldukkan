@@ -55,7 +55,7 @@ export default function SEO({ title, description, canonical, image, type = 'webs
     upsertMeta('meta[name="twitter:image"]', { name: 'twitter:image' }, absoluteImage);
     upsertLink('canonical', absoluteCanonical);
 
-    const old = document.head.querySelectorAll('script[data-eldukkan-jsonld]');
+    const old = document.head.querySelectorAll('script[data-eldukkan-jsonld], script[data-eldukkan-prerender-jsonld]');
     old.forEach((node) => node.remove());
 
     if (jsonLd) {
