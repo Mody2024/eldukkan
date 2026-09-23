@@ -1,0 +1,97 @@
+name: Update product sitemap
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate sitemap from Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+
+          const siteUrl = 'https://eldukkan.vercel.app';
+          const supabaseUrl = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
+          const anonKey = process.env.SUPABASE_ANON_KEY || '';
+
+          if (!supabaseUrl || !anonKey) {
+            throw new Error('Missing SUPABASE_URL or SUPABASE_ANON_KEY GitHub secrets.');
+          }
+
+          const endpoint = new URL('/rest/v1/products', supabaseUrl);
+          endpoint.searchParams.set('select', 'id,updated_at,created_at');
+          endpoint.searchParams.set('is_active', 'eq.true');
+          endpoint.searchParams.set('order', 'created_at.desc');
+          endpoint.searchParams.set('limit', '5000');
+
+          const response = await fetch(endpoint, {
+            headers: {
+              apikey: anonKey,
+              Authorization: `Bearer ${anonKey}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`Supabase returned HTTP ${response.status}`);
+          }
+
+          const products = await response.json();
+
+          const escapeXml = (value) =>
+            String(value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&apos;');
+
+          const urls = [
+            { loc: siteUrl + '/' },
+            ...products
+              .filter((product) => product && product.id)
+              .map((product) => ({
+                loc: `${siteUrl}/product/${encodeURIComponent(product.id)}`,
+                lastmod: product.updated_at || product.created_at || undefined,
+              })),
+          ];
+
+          const xml = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+            ...urls.map(({ loc, lastmod }) =>
+              `  <url><loc>${escapeXml(loc)}</loc>${lastmod ? `<lastmod>${new Date(lastmod).toISOString()}</lastmod>` : ''}</url>`
+            ),
+            '</urlset>',
+            '',
+          ].join('\n');
+
+          fs.mkdirSync('public', { recursive: true });
+          fs.writeFileSync('public/sitemap.xml', xml);
+          console.log(`Generated sitemap with ${urls.length} URLs.`);
+          NODE
+
+      - name: Commit sitemap if changed
+        run: |
+          if git diff --quiet -- public/sitemap.xml; then
+            echo "Sitemap unchanged."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/sitemap.xml
+          git commit -m "chore: update product sitemap [skip ci]"
+          git push
