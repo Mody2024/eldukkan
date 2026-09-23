@@ -32,7 +32,7 @@ jobs:
           }
 
           const endpoint = new URL('/rest/v1/products', supabaseUrl);
-          endpoint.searchParams.set('select', 'id,updated_at,created_at');
+          endpoint.searchParams.set('select', 'id,category,updated_at,created_at');
           endpoint.searchParams.set('is_active', 'eq.true');
           endpoint.searchParams.set('order', 'created_at.desc');
           endpoint.searchParams.set('limit', '5000');
@@ -58,8 +58,27 @@ jobs:
               .replace(/"/g, '&quot;')
               .replace(/'/g, '&apos;');
 
+          const categoryLastMods = new Map();
+
+          for (const product of products) {
+            if (!product?.category) continue;
+            const current = categoryLastMods.get(product.category);
+            const candidate = product.updated_at || product.created_at || undefined;
+            if (!current || (candidate && new Date(candidate) > new Date(current))) {
+              categoryLastMods.set(product.category, candidate);
+            }
+          }
+
+          const categoryUrls = [...categoryLastMods.entries()]
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([category, lastmod]) => ({
+              loc: `${siteUrl}/category/${encodeURIComponent(category)}`,
+              lastmod,
+            }));
+
           const urls = [
             { loc: siteUrl + '/' },
+            ...categoryUrls,
             ...products
               .filter((product) => product && product.id)
               .map((product) => ({
@@ -80,7 +99,7 @@ jobs:
 
           fs.mkdirSync('public', { recursive: true });
           fs.writeFileSync('public/sitemap.xml', xml);
-          console.log(`Generated sitemap with ${urls.length} URLs.`);
+          console.log(`Generated sitemap with ${urls.length} URLs (${categoryUrls.length} categories, ${products.length} products).`);
           NODE
 
       - name: Commit sitemap if changed
