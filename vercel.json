@@ -5,14 +5,6 @@
       "destination": "/api/site-icon"
     },
     {
-      "source": "/product/:id",
-      "destination": "/product/:id/index.html"
-    },
-    {
-      "source": "/category/:slug",
-      "destination": "/category/:slug/index.html"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
