@@ -164,14 +164,14 @@ export default function Home() {
       {categories.length > 0 && (
         <div className="flex gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
           {categories.map((cat) => (
-            <button
+            <Link
               key={cat}
-              onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
-              className={`min-w-[150px] sm:min-w-0 p-5 rounded-2xl border text-left transition ${activeCategory === cat ? 'border-brand-500 bg-brand-500/10' : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:border-brand-500/50'}`}
+              to={`/category/${encodeURIComponent(cat)}`}
+              className="min-w-[150px] sm:min-w-0 p-5 rounded-2xl border text-left transition border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:border-brand-500/50 hover:shadow-sm"
             >
               <p className="font-black dark:text-white">{cat}</p>
               <p className="text-xs text-stone-500">{products.filter((p) => p.category === cat).length} items</p>
-            </button>
+            </Link>
           ))}
         </div>
       )}
