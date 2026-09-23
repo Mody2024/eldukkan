@@ -245,7 +245,7 @@ export default function ProductDetails() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 rounded-3xl shadow-sm">
         <div className="space-y-3">
           <div className="rounded-2xl overflow-hidden bg-stone-100 dark:bg-stone-800 h-[340px] sm:h-[400px] md:h-[500px] relative">
-            <img src={gallery[activeImage]} alt={product.name} className={`w-full h-full object-cover ${outOfStock ? 'grayscale opacity-60' : ''}`} />
+            <img src={gallery[activeImage]} alt={product.name} loading="eager" fetchPriority="high" decoding="async" className={`w-full h-full object-cover ${outOfStock ? 'grayscale opacity-60' : ''}`} />
             {outOfStock && (
               <span className="absolute top-4 left-4 bg-stone-900/90 text-white text-xs font-black uppercase px-3 py-1.5 rounded-lg">Out of Stock</span>
             )}
@@ -258,7 +258,7 @@ export default function ProductDetails() {
                   onClick={() => setActiveImage(idx)}
                   className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition ${activeImage === idx ? 'border-brand-500' : 'border-transparent opacity-70'}`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img src={img} alt="Product thumbnail" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
