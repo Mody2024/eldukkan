@@ -111,7 +111,7 @@ export default function Home() {
             '@type': 'Organization',
             name: storeName || 'ElDukkan',
             url: 'https://eldukkan.vercel.app/',
-            logo: logoUrl || 'https://eldukkan.vercel.app/favicon.svg',
+            logo: logoUrl || 'https://eldukkan.vercel.app/favicon',
           },
         ]}
       />
