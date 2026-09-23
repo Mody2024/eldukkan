@@ -181,9 +181,9 @@ export default function ProductDetails() {
     sku: product.id,
     url: `https://eldukkan.vercel.app/product/${encodeURIComponent(product.id)}`,
     category: product.category || undefined,
-    brand: {
-      '@type': 'Brand',
-      name: product.vendor_name || 'ElDukkan',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://eldukkan.vercel.app/product/${encodeURIComponent(product.id)}`,
     },
     ...(reviewCount > 0 ? {
       aggregateRating: {
@@ -201,6 +201,11 @@ export default function ProductDetails() {
       price: isOnSale ? product.sale_price : product.price,
       availability: outOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
       itemCondition: 'https://schema.org/NewCondition',
+      seller: {
+        '@type': 'Organization',
+        name: product.vendor_name || 'ElDukkan',
+      },
+      ...(product.sale_ends_at && isOnSale ? { priceValidUntil: product.sale_ends_at.split('T')[0] } : {}),
     },
   };
 
