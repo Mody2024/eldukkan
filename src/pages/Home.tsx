@@ -129,7 +129,7 @@ export default function Home() {
         </div>
         {heroImageUrl && (
           <div className="w-full md:w-64 h-48 md:h-64 rounded-3xl overflow-hidden shrink-0">
-            <img src={heroImageUrl} alt="" className="w-full h-full object-cover" />
+            <img src={heroImageUrl} alt="" loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
           </div>
         )}
       </div>
@@ -141,7 +141,7 @@ export default function Home() {
             {featuredProducts.map((product) => (
               <Link key={product.id} to={`/product/${product.id}`} className="shrink-0 w-56 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition group">
                 <div className="h-40 bg-stone-100 dark:bg-stone-800 overflow-hidden">
-                  <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                  <img src={product.image_url} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
                 </div>
                 <div className="p-3">
                   <h4 className="font-bold text-sm dark:text-white line-clamp-1">{product.name}</h4>
@@ -218,7 +218,7 @@ export default function Home() {
                 <div key={product.id} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col">
                   <div className="relative h-44 sm:h-60 overflow-hidden bg-stone-100 dark:bg-stone-800">
                     <Link to={`/product/${product.id}`}>
-                      <img src={product.image_url} alt={product.name} className={`w-full h-full object-cover group-hover:scale-105 transition duration-500 ${outOfStock ? 'grayscale opacity-60' : ''}`} />
+                      <img src={product.image_url} alt={product.name} loading="lazy" decoding="async" className={`w-full h-full object-cover group-hover:scale-105 transition duration-500 ${outOfStock ? 'grayscale opacity-60' : ''}`} />
                     </Link>
                     <button
                       onClick={() => handleToggleWishlist(product)}
