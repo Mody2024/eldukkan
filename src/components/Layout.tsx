@@ -27,6 +27,17 @@ export default function Layout() {
     document.documentElement.lang = language;
   }, [language]);
 
+  // Keep the browser tab/app icon synchronized with the logo configured in
+  // Admin > Settings. /favicon is a stable URL so Google can use the same
+  // site icon while the actual destination can follow the current branding.
+  useEffect(() => {
+    const iconHref = logoUrl || '/favicon';
+    const icon = document.head.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
+    if (icon) icon.href = iconHref;
+    const appleIcon = document.head.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement | null;
+    if (appleIcon) appleIcon.href = iconHref;
+  }, [logoUrl]);
+
   // Maintenance mode blocks the storefront for everyone except a confirmed
   // signed-in admin.
   const showMaintenance = maintenanceMode && !isAuthorizedAdmin;
