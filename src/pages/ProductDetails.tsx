@@ -170,7 +170,6 @@ export default function ProductDetails() {
           title="Product not found | ElDukkan"
           description="The requested ElDukkan product could not be found."
           canonical="/"
-          robots="noindex, follow"
         />
         <div className="text-center py-20 space-y-4">
           <h2 className="text-2xl font-black dark:text-white">Product not found</h2>
