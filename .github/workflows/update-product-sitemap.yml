@@ -50,6 +50,31 @@ jobs:
 
           const products = await response.json();
 
+          const latestReviewByProduct = new Map();
+          const reviewEndpoint = new URL('/rest/v1/reviews', supabaseUrl);
+          reviewEndpoint.searchParams.set('select', 'product_id,created_at');
+          reviewEndpoint.searchParams.set('limit', '10000');
+
+          const reviewResponse = await fetch(reviewEndpoint, {
+            headers: {
+              apikey: anonKey,
+              Authorization: `Bearer \${anonKey}`,
+            },
+          });
+
+          if (reviewResponse.ok) {
+            const reviews = await reviewResponse.json();
+            for (const review of reviews) {
+              if (!review?.product_id || !review?.created_at) continue;
+              const current = latestReviewByProduct.get(review.product_id);
+              if (!current || new Date(review.created_at) > new Date(current)) {
+                latestReviewByProduct.set(review.product_id, review.created_at);
+              }
+            }
+          } else {
+            console.warn(`Reviews request returned HTTP \${reviewResponse.status}; continuing with product timestamps only.`);
+          }
+
           const escapeXml = (value) =>
             String(value)
               .replace(/&/g, '&amp;')
@@ -83,7 +108,9 @@ jobs:
               .filter((product) => product && product.id)
               .map((product) => ({
                 loc: `${siteUrl}/product/${encodeURIComponent(product.id)}`,
-                lastmod: product.updated_at || product.created_at || undefined,
+                lastmod: [product.updated_at || product.created_at, latestReviewByProduct.get(product.id)]
+                  .filter(Boolean)
+                  .sort((a, b) => new Date(b) - new Date(a))[0] || undefined,
               })),
           ];
 
