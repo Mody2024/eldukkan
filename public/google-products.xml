@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+    <title>ElDukkan Product Feed</title>
+    <link>https://eldukkan.vercel.app/</link>
+    <description>ElDukkan products available online in Egypt.</description>
+    <item>
+      <g:id>3be0d332-618d-4c46-a7e8-1886b2ef2557</g:id>
+      <g:title>Mafia cards game</g:title>
+      <g:description>play with ur friends and get lot of fun</g:description>
+      <g:link>https://eldukkan.vercel.app/product/3be0d332-618d-4c46-a7e8-1886b2ef2557</g:link>
+      <g:image_link>https://ifhueikiavvjlpjomgxe.supabase.co/storage/v1/object/public/product-images/1789820241772-Logo.png</g:image_link>
+      <g:availability>in_stock</g:availability>
+      <g:condition>new</g:condition>
+      <g:price>120.00 EGP</g:price>
+      <g:sale_price>100.00 EGP</g:sale_price>
+      <g:product_type>Minigames</g:product_type>
+    </item>
+    <item>
+      <g:id>d06b867c-0158-4c11-a77f-767648aec6bb</g:id>
+      <g:title>Camera</g:title>
+      <g:description>Compact camera for everyday photography and video.</g:description>
+      <g:link>https://eldukkan.vercel.app/product/d06b867c-0158-4c11-a77f-767648aec6bb</g:link>
+      <g:image_link>https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&amp;fit=crop&amp;q=80&amp;w=400</g:image_link>
+      <g:availability>out_of_stock</g:availability>
+      <g:condition>new</g:condition>
+      <g:price>5.00 EGP</g:price>
+      <g:product_type>Electronics</g:product_type>
+    </item>
+    <item>
+      <g:id>23e346f3-a76a-458f-b745-9017b35da6e5</g:id>
+      <g:title>Wireless Headphones</g:title>
+      <g:description>High quality sound with active noise control.</g:description>
+      <g:link>https://eldukkan.vercel.app/product/23e346f3-a76a-458f-b745-9017b35da6e5</g:link>
+      <g:image_link>https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&amp;fit=crop&amp;w=600&amp;q=80</g:image_link>
+      <g:availability>in_stock</g:availability>
+      <g:condition>new</g:condition>
+      <g:price>149.99 EGP</g:price>
+      <g:product_type>Electronics</g:product_type>
+    </item>
+  </channel>
+</rss>
