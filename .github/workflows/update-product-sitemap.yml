@@ -50,6 +50,18 @@ jobs:
 
           const products = await response.json();
 
+          const settingsEndpoint = new URL('/rest/v1/site_settings', supabaseUrl);
+          settingsEndpoint.searchParams.set('select', 'updated_at');
+          settingsEndpoint.searchParams.set('limit', '1');
+          const settingsResponse = await fetch(settingsEndpoint, {
+            headers: {
+              apikey: anonKey,
+              Authorization: `Bearer ${anonKey}`,
+            },
+          });
+          const settingsRows = settingsResponse.ok ? await settingsResponse.json() : [];
+          const siteLastMod = settingsRows?.[0]?.updated_at || undefined;
+
           const latestReviewByProduct = new Map();
           const reviewEndpoint = new URL('/rest/v1/reviews', supabaseUrl);
           reviewEndpoint.searchParams.set('select', 'product_id,created_at');
@@ -88,7 +100,8 @@ jobs:
           for (const product of products) {
             if (!product?.category) continue;
             const current = categoryLastMods.get(product.category);
-            const candidate = product.updated_at || product.created_at || undefined;
+            const candidateTimes = [product.updated_at || product.created_at, latestReviewByProduct.get(product.id)].filter(Boolean);
+            const candidate = candidateTimes.sort((a, b) => new Date(b) - new Date(a))[0] || undefined;
             if (!current || (candidate && new Date(candidate) > new Date(current))) {
               categoryLastMods.set(product.category, candidate);
             }
@@ -101,8 +114,14 @@ jobs:
               lastmod,
             }));
 
+          const homepageTimes = [
+            siteLastMod,
+            ...products.flatMap((product) => [product.updated_at || product.created_at, latestReviewByProduct.get(product.id)]),
+          ].filter(Boolean);
+          const homepageLastMod = homepageTimes.sort((a, b) => new Date(b) - new Date(a))[0] || undefined;
+
           const urls = [
-            { loc: siteUrl + '/' },
+            { loc: siteUrl + '/', lastmod: homepageLastMod },
             ...categoryUrls,
             ...products
               .filter((product) => product && product.id)
@@ -176,9 +195,16 @@ jobs:
             })
             .slice(0, 50);
 
+          const rssBuildTimes = recentProducts
+            .map((product) => product.updated_at || product.created_at)
+            .filter(Boolean);
+          const rssBuildDate = rssBuildTimes.length
+            ? new Date(rssBuildTimes.sort((a, b) => new Date(b) - new Date(a))[0]).toUTCString()
+            : (siteLastMod ? new Date(siteLastMod).toUTCString() : undefined);
+
           const rssItems = recentProducts.map((product) => {
             const productUrl = siteUrl + '/product/' + encodeURIComponent(product.id);
-            const stamp = product.updated_at || product.created_at || new Date().toISOString();
+            const stamp = product.updated_at || product.created_at || siteLastMod || new Date().toISOString();
             return [
               '    <item>',
               '      <title>' + escapeXml(product.name) + '</title>',
@@ -197,7 +223,7 @@ jobs:
             '    <title>ElDukkan product updates</title>',
             '    <link>' + siteUrl + '/</link>',
             '    <description>Recent ElDukkan product pages.</description>',
-            '    <lastBuildDate>' + new Date().toUTCString() + '</lastBuildDate>',
+            ...(rssBuildDate ? ['    <lastBuildDate>' + rssBuildDate + '</lastBuildDate>'] : []),
             rssItems,
             '  </channel>',
             '</rss>',
