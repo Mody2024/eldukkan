@@ -89,9 +89,9 @@ for (const [category, items] of categories.entries()) {
     '<meta name="twitter:card" content="summary_large_image" />',
     '<meta name="twitter:title" content="' + escapeHtml(category) + ' Products | ElDukkan" />',
     '<meta name="twitter:description" content="' + escapeHtml(description) + '" />',
-    '<script type="application/ld+json">' + safeJson(pageSchema) + '</script>',
-    '<script type="application/ld+json">' + safeJson(breadcrumb) + '</script>',
-    '<script type="application/ld+json">' + safeJson(itemList) + '</script>',
+    '<script type="application/ld+json" data-eldukkan-prerender-jsonld="true">' + safeJson(pageSchema) + '</script>',
+    '<script type="application/ld+json" data-eldukkan-prerender-jsonld="true">' + safeJson(breadcrumb) + '</script>',
+    '<script type="application/ld+json" data-eldukkan-prerender-jsonld="true">' + safeJson(itemList) + '</script>',
   ].join('\n    ');
   const body = '<main class="seo-prerender" aria-label="' + escapeHtml(category) + '">' +
     '<nav aria-label="Breadcrumb"><a href="' + siteUrl + '/">Home</a> / <span>' + escapeHtml(category) + '</span></nav>' +
