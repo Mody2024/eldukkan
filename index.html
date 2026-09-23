@@ -8,6 +8,11 @@
     <meta name="theme-color" content="#c96a2e" />
     <meta name="description" content="ElDukkan is an online marketplace in Egypt for shopping products, deals and everyday essentials." />
     <meta name="robots" content="index, follow, max-image-preview:large" />
+    <script>
+      if (new URLSearchParams(window.location.search).has("q")) {
+        document.querySelector('meta[name="robots"]')?.setAttribute("content", "noindex, follow");
+      }
+    </script>
     <link rel="canonical" href="https://eldukkan.vercel.app/" />
     <meta name="google-site-verification" content="vhwLnu6YFlpx73LgGZL9G-IGN-id13IAI2DeIorE0JU" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
