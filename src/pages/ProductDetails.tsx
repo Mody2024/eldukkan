@@ -224,8 +224,8 @@ export default function ProductDetails() {
   return (
     <>
       <SEO
-        title={`${product.name} | ElDukkan`}
-        description={(product.description || `Shop ${product.name} online at ElDukkan.`).slice(0, 155)}
+        title={seoTitle}
+        description={seoDescription}
         canonical={`/product/${encodeURIComponent(product.id)}`}
         image={product.image_url}
         type="product"
