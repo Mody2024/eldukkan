@@ -78,6 +78,18 @@ export default function Category() {
               { '@type': 'ListItem', position: 2, name: category, item: `https://eldukkan.vercel.app${canonical}` },
             ],
           },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            name: `${category} Products`,
+            numberOfItems: products.length,
+            itemListElement: products.map((product, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              url: `https://eldukkan.vercel.app/product/${encodeURIComponent(product.id)}`,
+              name: product.name,
+            })),
+          },
         ] : undefined}
       />
 
