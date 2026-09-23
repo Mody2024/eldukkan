@@ -181,10 +181,10 @@ export default function ProductDetails() {
     sku: product.id,
     url: `https://eldukkan.vercel.app/product/${encodeURIComponent(product.id)}`,
     category: product.category || undefined,
-    brand: product.vendor_name ? {
+    brand: {
       '@type': 'Brand',
-      name: product.vendor_name,
-    } : undefined,
+      name: product.vendor_name || 'ElDukkan',
+    },
     ...(reviewCount > 0 ? {
       aggregateRating: {
         '@type': 'AggregateRating',
