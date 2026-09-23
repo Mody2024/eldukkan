@@ -7,6 +7,7 @@ interface SEOProps {
   image?: string | null;
   type?: 'website' | 'product';
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  robots?: string;
 }
 
 const SITE_URL = 'https://eldukkan.vercel.app';
@@ -32,7 +33,7 @@ function upsertLink(rel: string, href: string) {
   element.href = href;
 }
 
-export default function SEO({ title, description, canonical, image, type = 'website', jsonLd }: SEOProps) {
+export default function SEO({ title, description, canonical, image, type = 'website', jsonLd, robots = 'index, follow, max-image-preview:large' }: SEOProps) {
   useEffect(() => {
     const absoluteImage = image ? (image.startsWith('http') ? image : `${SITE_URL}${image}`) : `${SITE_URL}${DEFAULT_IMAGE}`;
     const absoluteCanonical = canonical
@@ -41,6 +42,7 @@ export default function SEO({ title, description, canonical, image, type = 'webs
 
     document.title = title;
     upsertMeta('meta[name="description"]', { name: 'description' }, description);
+    upsertMeta('meta[name="robots"]', { name: 'robots' }, robots);
     upsertMeta('meta[property="og:title"]', { property: 'og:title' }, title);
     upsertMeta('meta[property="og:description"]', { property: 'og:description' }, description);
     upsertMeta('meta[property="og:type"]', { property: 'og:type' }, type);
@@ -70,7 +72,7 @@ export default function SEO({ title, description, canonical, image, type = 'webs
     return () => {
       document.head.querySelectorAll('script[data-eldukkan-jsonld]').forEach((node) => node.remove());
     };
-  }, [title, description, canonical, image, type, jsonLd]);
+  }, [title, description, canonical, image, type, jsonLd, robots]);
 
   return null;
 }
