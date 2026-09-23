@@ -90,9 +90,29 @@ export default function Home() {
   return (
     <div className="space-y-12 animate-in fade-in duration-500">
       <SEO
-        title={searchQuery ? 'Search results for "' + searchQuery + '" | ElDukkan' : 'ElDukkan | Shop Online in Egypt'}
-        description={searchQuery ? 'Browse ElDukkan products matching "' + searchQuery + '".' : 'Shop products online in Egypt with ElDukkan.'}
+        title={searchQuery ? 'Search results for "' + searchQuery + '" | ElDukkan' : 'ElDukkan | Online Marketplace in Egypt'}
+        description={searchQuery ? 'Browse ElDukkan products matching "' + searchQuery + '".' : 'Shop products, deals and everyday essentials online with ElDukkan.'}
         canonical="/"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'ElDukkan',
+            url: 'https://eldukkan.vercel.app/',
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: 'https://eldukkan.vercel.app/?q={search_term_string}',
+              'query-input': 'required name=search_term_string',
+            },
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'ElDukkan',
+            url: 'https://eldukkan.vercel.app/',
+            logo: 'https://eldukkan.vercel.app/favicon.svg',
+          },
+        ]}
       />
       <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 sm:p-10 lg:p-12 flex flex-col md:flex-row items-center gap-8 shadow-sm">
         <div className="flex flex-col items-start gap-4 flex-1">
