@@ -738,7 +738,7 @@ export default function AdminDashboard() {
             <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 shadow-sm space-y-5">
               <div>
                 <h3 className="text-lg font-black dark:text-white">Branding</h3>
-                <p className="text-xs text-stone-500 mt-1">The name and logo customers see across the store.</p>
+                <p className="text-xs text-stone-500 mt-1">The name and logo customers see across the store, browser tab, and Google Search when Google recrawls the site.</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
