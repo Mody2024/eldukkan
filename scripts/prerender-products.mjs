@@ -180,13 +180,13 @@ for (const product of products) {
   ].join('\n    ');
 
   const html = template
-    .replace(/<title>[\\s\\S]*?<\\/title>/i, '')
-    .replace(/<meta name="description"[^>]*\\/>/i, '')
-    .replace(/<meta name="robots"[^>]*\\/>/i, '')
-    .replace(/<link rel="canonical"[^>]*\\/>/i, '')
-    .replace(/<meta property="og:[^"]+"[^>]*\\/>/gi, '')
-    .replace(/<meta name="twitter:[^"]+"[^>]*\\/>/gi, '')
-    .replace(/<\\/head>/i, `    ${head}\\n  </head>`);
+    .replace(/<title>[\s\S]*?<\/title>/i, '')
+    .replace(/<meta name="description"[^>]*\/>/i, '')
+    .replace(/<meta name="robots"[^>]*\/>/i, '')
+    .replace(/<link rel="canonical"[^>]*\/>/i, '')
+    .replace(/<meta property="og:[^"]+"[^>]*\/>/gi, '')
+    .replace(/<meta name="twitter:[^"]+"[^>]*\/>/gi, '')
+    .replace(/<\/head>/i, `    ${head}\n  </head>`);
 
   const outputDir = path.join('dist', 'product', product.id);
   fs.mkdirSync(outputDir, { recursive: true });
