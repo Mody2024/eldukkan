@@ -26,11 +26,22 @@ export default async function handler(_req: any, res: any) {
     const rows = await response.json();
     const logoUrl = rows?.[0]?.logo_url;
 
-    if (typeof logoUrl === 'string' && /^https?:\/\//i.test(logoUrl)) {
-      return res.redirect(302, logoUrl);
+    if (typeof logoUrl !== 'string' || !/^https?:\/\//i.test(logoUrl)) {
+      return res.redirect(302, DEFAULT_ICON);
     }
 
-    return res.redirect(302, DEFAULT_ICON);
+    const imageResponse = await fetch(logoUrl);
+    if (!imageResponse.ok) return res.redirect(302, DEFAULT_ICON);
+
+    const contentType = imageResponse.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().startsWith('image/')) {
+      return res.redirect(302, DEFAULT_ICON);
+    }
+
+    const bytes = await imageResponse.arrayBuffer();
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+    return res.status(200).send(Buffer.from(bytes));
   } catch {
     return res.redirect(302, DEFAULT_ICON);
   }
