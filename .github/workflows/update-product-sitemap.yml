@@ -58,7 +58,7 @@ jobs:
           const reviewResponse = await fetch(reviewEndpoint, {
             headers: {
               apikey: anonKey,
-              Authorization: `Bearer \${anonKey}`,
+              Authorization: `Bearer ${anonKey}`,
             },
           });
 
@@ -72,7 +72,7 @@ jobs:
               }
             }
           } else {
-            console.warn(`Reviews request returned HTTP \${reviewResponse.status}; continuing with product timestamps only.`);
+            console.warn(`Reviews request returned HTTP ${reviewResponse.status}; continuing with product timestamps only.`);
           }
 
           const escapeXml = (value) =>
@@ -109,9 +109,9 @@ jobs:
               .map((product) => ({
                 loc: `${siteUrl}/product/${encodeURIComponent(product.id)}`,
                 lastmod: [product.updated_at || product.created_at, latestReviewByProduct.get(product.id)]
-                  .filter(Boolean)                image: product.image_url || undefined,
-
+                  .filter(Boolean)
                   .sort((a, b) => new Date(b) - new Date(a))[0] || undefined,
+                image: product.image_url || undefined,
               })),
           ];
 
