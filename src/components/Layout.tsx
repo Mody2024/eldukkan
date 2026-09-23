@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { ShoppingBag, ShieldCheck, Sun, Moon, Menu, X, Megaphone, Wrench, Heart, User, Search, Truck, Headset, Languages } from 'lucide-react';
-import AICopilot from './AICopilot';
+const AICopilot = lazy(() => import('./AICopilot'));
 import ShopIntro from './ShopIntro';
 import { useStore } from '../store';
 import { useTranslation } from '../lib/i18n';
@@ -259,13 +259,16 @@ export default function Layout() {
         </div>
       </footer>
 
+      <Suspense fallback={null}>
+        <AICopilot />
+      </Suspense>
+
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-bold text-sm px-5 py-3 rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-200">
           {toast}
         </div>
       )}
 
-      <AICopilot />
     </div>
   );
 }
