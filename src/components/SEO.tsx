@@ -47,6 +47,8 @@ export default function SEO({ title, description, canonical, image, type = 'webs
     upsertMeta('meta[property="og:url"]', { property: 'og:url' }, absoluteCanonical);
     upsertMeta('meta[property="og:image"]', { property: 'og:image' }, absoluteImage);
     upsertMeta('meta[property="og:site_name"]', { property: 'og:site_name' }, 'ElDukkan');
+    upsertMeta('meta[property="og:locale"]', { property: 'og:locale' }, document.documentElement.lang === 'ar' ? 'ar_EG' : 'en_EG');
+    upsertMeta('meta[property="og:locale:alternate"]', { property: 'og:locale:alternate' }, document.documentElement.lang === 'ar' ? 'en_EG' : 'ar_EG');
     upsertMeta('meta[name="twitter:card"]', { name: 'twitter:card' }, 'summary_large_image');
     upsertMeta('meta[name="twitter:title"]', { name: 'twitter:title' }, title);
     upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description' }, description);
