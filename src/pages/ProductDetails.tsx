@@ -179,6 +179,8 @@ export default function ProductDetails() {
     description: product.description || product.name,
     image: gallery,
     sku: product.id,
+    url: `https://eldukkan.vercel.app/product/${encodeURIComponent(product.id)}`,
+    category: product.category || undefined,
     brand: product.vendor_name ? {
       '@type': 'Brand',
       name: product.vendor_name,
@@ -210,7 +212,17 @@ export default function ProductDetails() {
         canonical={`/product/${encodeURIComponent(product.id)}`}
         image={product.image_url}
         type="product"
-        jsonLd={productSchema}
+        jsonLd={[
+          productSchema,
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://eldukkan.vercel.app/' },
+              { '@type': 'ListItem', position: 2, name: product.name, item: `https://eldukkan.vercel.app/product/${encodeURIComponent(product.id)}` },
+            ],
+          },
+        ]}
       />
       <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12 animate-in fade-in duration-300">
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 p-3 bg-stone-100 dark:bg-stone-800 rounded-xl hover:scale-105 transition dark:text-white w-fit font-bold text-sm">
