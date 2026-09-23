@@ -16,7 +16,7 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const [loading, setLoading] = useState(true);
-  const { addToCart, showToast, userId, wishlist, toggleWishlistId, storeName, heroHeadline, heroSubheadline, heroImageUrl } = useStore();
+  const { addToCart, showToast, userId, wishlist, toggleWishlistId, storeName, logoUrl, heroHeadline, heroSubheadline, heroImageUrl } = useStore();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -97,7 +97,7 @@ export default function Home() {
           {
             '@context': 'https://schema.org',
             '@type': 'WebSite',
-            name: 'ElDukkan',
+            name: storeName || 'ElDukkan',
             url: 'https://eldukkan.vercel.app/',
             potentialAction: {
               '@type': 'SearchAction',
@@ -108,9 +108,9 @@ export default function Home() {
           {
             '@context': 'https://schema.org',
             '@type': 'Organization',
-            name: 'ElDukkan',
+            name: storeName || 'ElDukkan',
             url: 'https://eldukkan.vercel.app/',
-            logo: 'https://eldukkan.vercel.app/favicon.svg',
+            logo: logoUrl || 'https://eldukkan.vercel.app/favicon.svg',
           },
         ]}
       />
