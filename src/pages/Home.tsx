@@ -93,6 +93,7 @@ export default function Home() {
         title={searchQuery ? 'Search results for "' + searchQuery + '" | ElDukkan' : 'ElDukkan | Online Marketplace in Egypt'}
         description={searchQuery ? 'Browse ElDukkan products matching "' + searchQuery + '".' : 'Shop products, deals and everyday essentials online with ElDukkan.'}
         canonical="/"
+        robots={searchQuery ? 'noindex, follow, max-image-preview:large' : 'index, follow, max-image-preview:large'}
         jsonLd={[
           {
             '@context': 'https://schema.org',
