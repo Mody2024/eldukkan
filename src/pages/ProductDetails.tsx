@@ -179,6 +179,11 @@ export default function ProductDetails() {
     );
   }
 
+  const seoTitle = product.category
+    ? `${product.name} | ${product.category} | ElDukkan`
+    : `${product.name} | ElDukkan`;
+  const seoDescription = `Shop ${product.name} online in Egypt at ElDukkan. ${String(product.description || '').trim()}`.slice(0, 155);
+
   const productSchema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
