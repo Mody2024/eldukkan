@@ -7,9 +7,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#c96a2e" />
     <meta name="description" content="ElDukkan is an online marketplace in Egypt for shopping products, deals and everyday essentials." />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <script>
-      if (new URLSearchParams(window.location.search).has("q")) {
+      const path = window.location.pathname;
+      const hasSearch = new URLSearchParams(window.location.search).has("q");
+      const noindexPrefixes = [
+        "/cart",
+        "/checkout",
+        "/account",
+        "/login",
+        "/wishlist",
+        "/tracking",
+        "/ops-console-7f2k9x"
+      ];
+      if (hasSearch || noindexPrefixes.some((prefix) => path === prefix || path.startsWith(prefix + "/"))) {
         document.querySelector('meta[name="robots"]')?.setAttribute("content", "noindex, follow");
       }
     </script>
