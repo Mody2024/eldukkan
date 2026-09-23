@@ -179,6 +179,24 @@ for (const product of products) {
     `<script type="application/ld+json">${safeJson(breadcrumb)}</script>`,
   ].join('\n    ');
 
+  const bodyInsert = `
+        <main class="seo-prerender" aria-label="\${escapeHtml(product.name)}">
+          <nav aria-label="Breadcrumb">
+            <a href="\${siteUrl}/">Home</a>
+            \${product.category ? ` / <a href="\${siteUrl}/category/\${encodeURIComponent(product.category)}">\${escapeHtml(product.category)}</a>` : ''}
+            / <span>\${escapeHtml(product.name)}</span>
+          </nav>
+          <article>
+            <h1>\${escapeHtml(product.name)}</h1>
+            \${gallery[0] ? `<img src="\${escapeHtml(gallery[0])}" alt="\${escapeHtml(product.name)}" width="800" height="800" />` : ''}
+            <p>\${escapeHtml(product.description || product.name)}</p>
+            <p>Price: EGP \${escapeHtml(isOnSale ? product.sale_price : product.price)}</p>
+            <p>\${outOfStock ? 'Out of stock' : 'In stock'}</p>
+            <a href="\${productUrl}">View \${escapeHtml(product.name)} at ElDukkan</a>
+          </article>
+        </main>
+`;
+
   const html = template
     .replace(/<title>[\s\S]*?<\/title>/i, '')
     .replace(/<meta name="description"[^>]*\/>/i, '')
@@ -186,7 +204,8 @@ for (const product of products) {
     .replace(/<link rel="canonical"[^>]*\/>/i, '')
     .replace(/<meta property="og:[^"]+"[^>]*\/>/gi, '')
     .replace(/<meta name="twitter:[^"]+"[^>]*\/>/gi, '')
-    .replace(/<\/head>/i, `    ${head}\n  </head>`);
+    .replace(/<\/head>/i, `    ${head}\n  </head>`)
+    .replace(/<div id="root"><\/div>/i, `<div id="root">${bodyInsert}</div>`);
 
   const outputDir = path.join('dist', 'product', product.id);
   fs.mkdirSync(outputDir, { recursive: true });
