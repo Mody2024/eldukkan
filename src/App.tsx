@@ -1,19 +1,19 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import { useStore } from './store';
 import Layout from './components/Layout';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 
-import Home from './pages/Home';
-import ProductDetails from './pages/ProductDetails';
-import Category from './pages/Category';
-import Cart from './pages/Cart';
-import OrderTracking from './pages/OrderTracking';
-import Checkout from './pages/Checkout';
-import CustomerLogin from './pages/CustomerLogin';
-import Account from './pages/Account';
-import Wishlist from './pages/Wishlist';
+const Home = lazy(() => import('./pages/Home'));
+const ProductDetails = lazy(() => import('./pages/ProductDetails'));
+const Category = lazy(() => import('./pages/Category'));
+const Cart = lazy(() => import('./pages/Cart'));
+const OrderTracking = lazy(() => import('./pages/OrderTracking'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const CustomerLogin = lazy(() => import('./pages/CustomerLogin'));
+const Account = lazy(() => import('./pages/Account'));
+const Wishlist = lazy(() => import('./pages/Wishlist'));
 
 // The admin dashboard lives at a private, unguessable path instead of the
 // old public "/admin". Set VITE_ADMIN_PATH in your environment (Vercel +
@@ -106,7 +106,8 @@ export function App() {
   return (
     <div className="min-h-screen transition-colors duration-300 bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100">
       <BrowserRouter>
-        <Routes>
+        <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-stone-500 font-bold">Loading ElDukkan…</div>}>
+          <Routes>
           {/* Public Storefront Routes wrapped in Layout */}
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
@@ -127,7 +128,8 @@ export function App() {
           {/* Catch-all redirect — including the old /admin path, which now
              404s into the storefront like any other unknown URL. */}
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </div>
   );
