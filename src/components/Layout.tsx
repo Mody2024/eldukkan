@@ -62,7 +62,7 @@ export default function Layout() {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center gap-2 sm:gap-5">
           <Link to="/" className="flex items-center gap-2 group shrink-0">
             {logoUrl ? (
-              <img src={logoUrl} alt={storeName} className="w-10 h-10 rounded-2xl object-cover shadow-lg group-hover:scale-105 transition" />
+              <img src={logoUrl} alt={storeName} width="40" height="40" loading="eager" fetchPriority="high" decoding="async" className="w-10 h-10 rounded-2xl object-cover shadow-lg group-hover:scale-105 transition" />
             ) : (
               <div className="w-10 h-10 bg-brand-500 rounded-2xl flex items-center justify-center font-black text-white text-xl shadow-lg shadow-brand-500/20 group-hover:scale-105 transition">
                 {storeName.charAt(0).toUpperCase()}
@@ -238,10 +238,10 @@ export default function Layout() {
                 {sponsors.map((sponsor, idx) => (
                   sponsor.url ? (
                     <a key={idx} href={sponsor.url} target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition">
-                      <img src={sponsor.logo_url} alt={sponsor.name} className="h-8 object-contain" />
+                      <img src={sponsor.logo_url} alt={sponsor.name} loading="lazy" decoding="async" className="h-8 object-contain" />
                     </a>
                   ) : (
-                    <img key={idx} src={sponsor.logo_url} alt={sponsor.name} className="h-8 object-contain opacity-70" />
+                    <img key={idx} src={sponsor.logo_url} alt={sponsor.name} loading="lazy" decoding="async" className="h-8 object-contain opacity-70" />
                   )
                 ))}
               </div>
