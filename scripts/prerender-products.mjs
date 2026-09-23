@@ -186,8 +186,8 @@ for (const product of products) {
       `<meta name="twitter:image" content="${escapeHtml(gallery[0])}" />`,
       `<meta name="twitter:image:alt" content="${escapeHtml(product.name)}" />`,
     ] : []),
-    `<script type="application/ld+json">${safeJson(schema)}</script>`,
-    `<script type="application/ld+json">${safeJson(breadcrumb)}</script>`,
+    `<script type="application/ld+json" data-eldukkan-prerender-jsonld="true">${safeJson(schema)}</script>`,
+    `<script type="application/ld+json" data-eldukkan-prerender-jsonld="true">${safeJson(breadcrumb)}</script>`,
   ].join('\n    ');
 
   const bodyInsert = `
