@@ -11,7 +11,7 @@ interface SEOProps {
 }
 
 const SITE_URL = 'https://eldukkan.vercel.app';
-const DEFAULT_IMAGE = '/favicon.svg';
+const DEFAULT_IMAGE = '/favicon';
 
 function upsertMeta(selector: string, attributes: Record<string, string>, content: string) {
   let element = document.head.querySelector(selector) as HTMLMetaElement | null;
