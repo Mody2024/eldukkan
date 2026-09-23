@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url><loc>https://eldukkan.vercel.app/</loc></url>
   <url><loc>https://eldukkan.vercel.app/category/Electronics</loc><lastmod>2026-09-23T11:27:25.653Z</lastmod></url>
   <url><loc>https://eldukkan.vercel.app/category/Minigames</loc><lastmod>2026-09-22T21:09:12.477Z</lastmod></url>
-  <url><loc>https://eldukkan.vercel.app/product/3be0d332-618d-4c46-a7e8-1886b2ef2557</loc><lastmod>2026-09-22T21:09:12.477Z</lastmod></url>
-  <url><loc>https://eldukkan.vercel.app/product/d06b867c-0158-4c11-a77f-767648aec6bb</loc><lastmod>2026-09-23T11:27:25.653Z</lastmod></url>
-  <url><loc>https://eldukkan.vercel.app/product/23e346f3-a76a-458f-b745-9017b35da6e5</loc><lastmod>2026-09-22T21:16:45.031Z</lastmod></url>
+  <url><loc>https://eldukkan.vercel.app/product/3be0d332-618d-4c46-a7e8-1886b2ef2557</loc><lastmod>2026-09-22T21:09:12.477Z</lastmod><image:image><image:loc>https://ifhueikiavvjlpjomgxe.supabase.co/storage/v1/object/public/product-images/1789820241772-Logo.png</image:loc></image:image></url>
+  <url><loc>https://eldukkan.vercel.app/product/d06b867c-0158-4c11-a77f-767648aec6bb</loc><lastmod>2026-09-23T11:27:25.653Z</lastmod><image:image><image:loc>https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&amp;fit=crop&amp;q=80&amp;w=400</image:loc></image:image></url>
+  <url><loc>https://eldukkan.vercel.app/product/23e346f3-a76a-458f-b745-9017b35da6e5</loc><lastmod>2026-09-22T21:16:45.031Z</lastmod><image:image><image:loc>https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&amp;fit=crop&amp;w=600&amp;q=80</image:loc></image:image></url>
 </urlset>
