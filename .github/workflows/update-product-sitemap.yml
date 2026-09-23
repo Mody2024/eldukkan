@@ -109,16 +109,17 @@ jobs:
               .map((product) => ({
                 loc: `${siteUrl}/product/${encodeURIComponent(product.id)}`,
                 lastmod: [product.updated_at || product.created_at, latestReviewByProduct.get(product.id)]
-                  .filter(Boolean)
+                  .filter(Boolean)                image: product.image_url || undefined,
+
                   .sort((a, b) => new Date(b) - new Date(a))[0] || undefined,
               })),
           ];
 
           const xml = [
             '<?xml version="1.0" encoding="UTF-8"?>',
-            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-            ...urls.map(({ loc, lastmod }) =>
-              `  <url><loc>${escapeXml(loc)}</loc>${lastmod ? `<lastmod>${new Date(lastmod).toISOString()}</lastmod>` : ''}</url>`
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">',
+            ...urls.map(({ loc, lastmod, image }) =>
+              `  <url><loc>${escapeXml(loc)}</loc>${lastmod ? `<lastmod>${new Date(lastmod).toISOString()}</lastmod>` : ''}${image ? `<image:image><image:loc>${escapeXml(image)}</image:loc></image:image>` : ''}</url>`
             ),
             '</urlset>',
             '',
