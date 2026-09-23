@@ -746,8 +746,9 @@ export default function AdminDashboard() {
                   <input type="text" placeholder="Eldukkan" value={siteSettings.store_name} onChange={(e) => setSiteSettings({ ...siteSettings, store_name: e.target.value })} className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
                 </div>
                 <div className="space-y-2">
-                  <label className="font-bold text-sm text-stone-700 dark:text-stone-300">Logo URL</label>
-                  <input type="url" placeholder="https://..." value={siteSettings.logo_url} onChange={(e) => setSiteSettings({ ...siteSettings, logo_url: e.target.value })} className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+                  <label className="font-bold text-sm text-stone-700 dark:text-stone-300">Logo / Site Icon URL</label>
+                  <input type="url" placeholder="https://.../logo.png" value={siteSettings.logo_url} onChange={(e) => setSiteSettings({ ...siteSettings, logo_url: e.target.value })} className="w-full p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+                  <p className="text-[11px] text-stone-500">Use a square PNG, JPG, or ICO image, ideally 48×48 or larger. This controls the storefront icon and the stable Google favicon endpoint.</p>
                 </div>
               </div>
               {siteSettings.logo_url && (
