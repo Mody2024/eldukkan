@@ -32,7 +32,7 @@ jobs:
           }
 
           const endpoint = new URL('/rest/v1/products', supabaseUrl);
-          endpoint.searchParams.set('select', 'id,category,updated_at,created_at');
+          endpoint.searchParams.set('select', 'id,name,description,category,price,sale_price,stock,image_url,updated_at,created_at');
           endpoint.searchParams.set('is_active', 'eq.true');
           endpoint.searchParams.set('order', 'created_at.desc');
           endpoint.searchParams.set('limit', '5000');
@@ -99,18 +99,57 @@ jobs:
 
           fs.mkdirSync('public', { recursive: true });
           fs.writeFileSync('public/sitemap.xml', xml);
-          console.log(`Generated sitemap with ${urls.length} URLs (${categoryUrls.length} categories, ${products.length} products).`);
+
+          const feedItems = products
+            .filter((product) => product && product.id && product.name && product.image_url)
+            .map((product) => {
+              const regularPrice = Number(product.price);
+              const currentPrice = Number(product.sale_price || product.price);
+              const availability = Number(product.stock ?? 1) <= 0 ? 'out_of_stock' : 'in_stock';
+              const productUrl = siteUrl + '/product/' + encodeURIComponent(product.id);
+              return [
+                '    <item>',
+                '      <g:id>' + escapeXml(product.id) + '</g:id>',
+                '      <g:title>' + escapeXml(product.name) + '</g:title>',
+                '      <g:description>' + escapeXml(product.description || product.name) + '</g:description>',
+                '      <g:link>' + escapeXml(productUrl) + '</g:link>',
+                '      <g:image_link>' + escapeXml(product.image_url) + '</g:image_link>',
+                '      <g:availability>' + availability + '</g:availability>',
+                '      <g:condition>new</g:condition>',
+                '      <g:price>' + regularPrice.toFixed(2) + ' EGP</g:price>',
+                ...(product.sale_price && currentPrice < regularPrice ? ['      <g:sale_price>' + currentPrice.toFixed(2) + ' EGP</g:sale_price>'] : []),
+                ...(product.category ? ['      <g:product_type>' + escapeXml(product.category) + '</g:product_type>'] : []),
+                '    </item>',
+              ].join('\n');
+            })
+            .join('\n');
+
+          const feed = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">',
+            '  <channel>',
+            '    <title>ElDukkan Product Feed</title>',
+            '    <link>' + siteUrl + '/</link>',
+            '    <description>ElDukkan products available online in Egypt.</description>',
+            feedItems,
+            '  </channel>',
+            '</rss>',
+            '',
+          ].join('\n');
+
+          fs.writeFileSync('public/google-products.xml', feed);
+          console.log('Generated sitemap with ' + urls.length + ' URLs and Google product feed with ' + products.length + ' products.');
           NODE
 
       - name: Commit sitemap if changed
         run: |
-          if git diff --quiet -- public/sitemap.xml; then
+          if git diff --quiet -- public/sitemap.xml public/google-products.xml; then
             echo "Sitemap unchanged."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/sitemap.xml
+          git add public/sitemap.xml public/google-products.xml
           git commit -m "chore: update product sitemap [skip ci]"
           git push
