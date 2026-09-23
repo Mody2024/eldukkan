@@ -104,9 +104,13 @@ for (const product of products) {
     sku: product.id,
     url: productUrl,
     ...(product.category ? { category: product.category } : {}),
+    brand: {
+      '@type': 'Brand',
+      name: product.vendor_name || 'ElDukkan',
+    },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id: productUrl,
+      '@id': productUrl,
     },
     ...(reviewCount > 0
       ? {
