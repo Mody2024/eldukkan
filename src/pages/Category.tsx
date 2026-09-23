@@ -119,7 +119,7 @@ export default function Category() {
               <article key={product.id} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition">
                 <Link to={`/product/${product.id}`} className="block">
                   <div className="h-44 sm:h-60 bg-stone-100 dark:bg-stone-800 overflow-hidden">
-                    <img src={product.image_url} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition duration-300" />
+                    <img src={product.image_url} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-105 transition duration-300" />
                   </div>
                   <div className="p-4 sm:p-5 space-y-2">
                     <h2 className="font-black text-sm sm:text-lg dark:text-white line-clamp-2">{product.name}</h2>
