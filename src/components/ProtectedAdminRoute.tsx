@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { useStore } from '../store';
 import AdminLogin from '../pages/AdminLogin';
-import AdminDashboard from '../pages/AdminDashboard';
+import AdminDashboard from '../pages/AdminDashboardV2';
 
 /**
  * Gate for the admin dashboard.
