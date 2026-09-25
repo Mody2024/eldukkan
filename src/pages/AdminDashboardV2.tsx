@@ -28,7 +28,7 @@ interface AuditLogRow {
   created_at: string;
 }
 
-type Tab = 'overview' | 'orders' | 'products' | 'discounts' | 'team' | 'settings' | 'audit';
+type Tab = 'overview' | 'orders' | 'products' | 'customers' | 'analytics' | 'discounts' | 'team' | 'settings' | 'system' | 'audit';
 type AdminTheme = 'light' | 'dark' | 'paper';
 type AdminDensity = 'comfortable' | 'compact';
 
@@ -124,9 +124,12 @@ export default function AdminDashboardV2() {
     { id: 'overview', label: 'Overview', icon: LayoutDashboard, visible: true, group: 'Command', description: 'Live store health and quick actions' },
     { id: 'orders', label: 'Orders', icon: ClipboardList, visible: hasPermission('manage_orders'), group: 'Commerce', description: 'Process customer orders' },
     { id: 'products', label: 'Products', icon: ShoppingBag, visible: hasPermission('manage_products'), group: 'Commerce', description: 'Catalog and inventory' },
+    { id: 'customers', label: 'Customers', icon: Users, visible: hasPermission('manage_orders') || hasPermission('view_analytics'), group: 'Commerce', description: 'Customer profiles from orders' },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3, visible: hasPermission('view_analytics'), group: 'Growth', description: 'Sales and order performance' },
     { id: 'discounts', label: 'Discounts', icon: Tag, visible: hasPermission('manage_discounts'), group: 'Growth', description: 'Promotions and codes' },
     { id: 'team', label: 'Team', icon: Users, visible: true, group: 'Control', description: 'Roles and permissions' },
     { id: 'settings', label: 'Storefront', icon: Store, visible: hasPermission('manage_settings'), group: 'Control', description: 'Branding and live site controls' },
+    { id: 'system', label: 'System', icon: Settings, visible: isOwner || hasPermission('manage_settings'), group: 'System', description: 'Health, feeds and admin workspace' },
     { id: 'audit', label: 'Audit Log', icon: Activity, visible: isOwner || hasPermission('view_audit_log'), group: 'System', description: 'Admin activity trail' },
   ];
 
@@ -143,6 +146,52 @@ export default function AdminDashboardV2() {
   const outOfStockProducts = useMemo(() => products.filter((product) => Number(product.stock ?? 0) <= 0), [products]);
   const lowStockProducts = useMemo(() => products.filter((product) => Number(product.stock ?? 0) > 0 && Number(product.stock ?? 0) <= 5), [products]);
   const activeDiscounts = useMemo(() => discounts.filter((discount) => discount.active && (!discount.expires_at || new Date(discount.expires_at) > new Date())).length, [discounts]);
+
+  const customerRows = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; phone: string; email: string; orders: number; spend: number; lastOrder: string }>();
+    for (const order of orders) {
+      const key = order.customer_id || order.customer_email || order.customer_phone || order.customer_name;
+      const current = map.get(key) || {
+        id: key,
+        name: order.customer_name || 'Customer',
+        phone: order.customer_phone || '',
+        email: order.customer_email || '',
+        orders: 0,
+        spend: 0,
+        lastOrder: order.created_at,
+      };
+      current.orders += 1;
+      current.spend += Number(order.total || 0);
+      if (new Date(order.created_at) > new Date(current.lastOrder)) current.lastOrder = order.created_at;
+      if (!current.email && order.customer_email) current.email = order.customer_email;
+      map.set(key, current);
+    }
+    return Array.from(map.values()).sort((a, b) => b.spend - a.spend);
+  }, [orders]);
+
+  const analyticsDays = useMemo(() => {
+    const result: { label: string; revenue: number; orders: number }[] = [];
+    const now = new Date();
+    for (let offset = 6; offset >= 0; offset -= 1) {
+      const day = new Date(now);
+      day.setHours(0, 0, 0, 0);
+      day.setDate(day.getDate() - offset);
+      const next = new Date(day);
+      next.setDate(next.getDate() + 1);
+      const dayOrders = orders.filter((order) => {
+        const time = new Date(order.created_at).getTime();
+        return time >= day.getTime() && time < next.getTime();
+      });
+      result.push({
+        label: day.toLocaleDateString('en-EG', { weekday: 'short' }),
+        revenue: dayOrders.reduce((sum, order) => sum + Number(order.total || 0), 0),
+        orders: dayOrders.length,
+      });
+    }
+    return result;
+  }, [orders]);
+
+  const maxDailyRevenue = Math.max(1, ...analyticsDays.map((day) => day.revenue));
 
   const filteredProducts = useMemo(() => {
     const q = productSearch.trim().toLowerCase();
@@ -713,6 +762,76 @@ export default function AdminDashboardV2() {
             </section>
           )}
 
+          {activeTab === 'customers' && (
+            <section className="space-y-5">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className={cardClass + ' p-4'}><p className="text-[11px] font-black uppercase text-stone-400">Customers</p><p className="text-2xl font-black mt-1 dark:text-white">{customerRows.length}</p></div>
+                <div className={cardClass + ' p-4'}><p className="text-[11px] font-black uppercase text-stone-400">Orders</p><p className="text-2xl font-black mt-1 dark:text-white">{orders.length}</p></div>
+                <div className={cardClass + ' p-4'}><p className="text-[11px] font-black uppercase text-stone-400">Avg spend</p><p className="text-xl font-black mt-1 dark:text-white">{formatCurrency(customerRows.length ? totalRevenue / customerRows.length : 0)}</p></div>
+                <div className={cardClass + ' p-4'}><p className="text-[11px] font-black uppercase text-stone-400">Repeat</p><p className="text-2xl font-black mt-1 dark:text-white">{customerRows.filter((customer) => customer.orders > 1).length}</p></div>
+              </div>
+              <div className={cardClass + ' overflow-hidden'}>
+                <div className="p-5 border-b border-stone-200 dark:border-stone-800"><h2 className="text-lg font-black dark:text-white">Customer directory</h2><p className="text-xs text-stone-500 mt-1">Derived from real store orders.</p></div>
+                <div className="divide-y divide-stone-200 dark:divide-stone-800">
+                  {customerRows.map((customer) => (
+                    <article key={customer.id} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center"><Users size={18} /></div>
+                      <div className="min-w-0 flex-1"><p className="font-black dark:text-white truncate">{customer.name}</p><p className="text-xs text-stone-500 truncate">{customer.phone}{customer.email ? ' · ' + customer.email : ''}</p></div>
+                      <div className="flex items-center gap-5 text-right"><div><p className="text-[10px] uppercase font-black text-stone-400">Orders</p><p className="font-black dark:text-white">{customer.orders}</p></div><div><p className="text-[10px] uppercase font-black text-stone-400">Spend</p><p className="font-black text-brand-500">{formatCurrency(customer.spend)}</p></div><div className="hidden lg:block"><p className="text-[10px] uppercase font-black text-stone-400">Last order</p><p className="text-xs font-bold dark:text-stone-300">{new Date(customer.lastOrder).toLocaleDateString()}</p></div></div>
+                    </article>
+                  ))}
+                  {!customerRows.length && <p className="text-center py-12 text-stone-500">Customers appear here after the first order.</p>}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {activeTab === 'analytics' && hasPermission('view_analytics') && (
+            <section className="space-y-6">
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+                <div className={cardClass + ' p-4'}><p className="text-[11px] uppercase font-black text-stone-400">Revenue</p><p className="mt-2 text-xl font-black dark:text-white">{formatCurrency(totalRevenue)}</p></div>
+                <div className={cardClass + ' p-4'}><p className="text-[11px] uppercase font-black text-stone-400">Avg order</p><p className="mt-2 text-xl font-black dark:text-white">{formatCurrency(orders.length ? totalRevenue / orders.length : 0)}</p></div>
+                <div className={cardClass + ' p-4'}><p className="text-[11px] uppercase font-black text-stone-400">Paid orders</p><p className="mt-2 text-xl font-black dark:text-white">{paidOrders}</p></div>
+                <div className={cardClass + ' p-4'}><p className="text-[11px] uppercase font-black text-stone-400">Customers</p><p className="mt-2 text-xl font-black dark:text-white">{customerRows.length}</p></div>
+              </div>
+              <div className={cardClass + ' p-5 sm:p-6'}>
+                <div><h2 className="text-lg font-black dark:text-white">Last 7 days</h2><p className="text-xs text-stone-500 mt-1">Revenue from recorded store orders.</p></div>
+                <div className="mt-6 grid grid-cols-7 gap-2 sm:gap-4 items-end h-56">
+                  {analyticsDays.map((day) => (
+                    <div key={day.label} className="h-full flex flex-col justify-end gap-2 text-center">
+                      <span className="text-[10px] font-black text-stone-500">{formatCurrency(day.revenue).replace('EGP ', '')}</span>
+                      <div className="h-40 w-full rounded-xl bg-brand-500/10 flex items-end overflow-hidden"><div className="w-full rounded-xl bg-brand-500" style={{ height: Math.max(day.revenue ? 8 : 2, (day.revenue / maxDailyRevenue) * 160) + 'px' }} /></div>
+                      <span className="text-[10px] font-black text-stone-400">{day.label}</span>
+                      <span className="text-[10px] text-stone-500">{day.orders} orders</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {activeTab === 'system' && (isOwner || hasPermission('manage_settings')) && (
+            <section className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+                <a href={window.location.origin + '/sitemap.xml'} target="_blank" rel="noopener noreferrer" className={cardClass + ' p-5 hover:border-brand-500/50 transition'}><CheckCircle2 size={20} className="text-emerald-500" /><p className="mt-3 font-black dark:text-white">Sitemap</p><p className="text-xs text-stone-500 mt-1">Open live sitemap.</p></a>
+                <a href={window.location.origin + '/google-products.xml'} target="_blank" rel="noopener noreferrer" className={cardClass + ' p-5 hover:border-brand-500/50 transition'}><CheckCircle2 size={20} className="text-emerald-500" /><p className="mt-3 font-black dark:text-white">Merchant feed</p><p className="text-xs text-stone-500 mt-1">Open product feed.</p></a>
+                <a href={window.location.origin + '/feed.xml'} target="_blank" rel="noopener noreferrer" className={cardClass + ' p-5 hover:border-brand-500/50 transition'}><CheckCircle2 size={20} className="text-emerald-500" /><p className="mt-3 font-black dark:text-white">Product RSS</p><p className="text-xs text-stone-500 mt-1">Open recent product feed.</p></a>
+                <a href={window.location.origin} target="_blank" rel="noopener noreferrer" className={cardClass + ' p-5 hover:border-brand-500/50 transition'}><Eye size={20} className="text-brand-500" /><p className="mt-3 font-black dark:text-white">Live store</p><p className="text-xs text-stone-500 mt-1">Open storefront.</p></a>
+              </div>
+              <div className={cardClass + ' p-5 sm:p-6'}>
+                <div className="flex items-center gap-3"><Palette size={19} className="text-brand-500" /><div><h2 className="text-lg font-black dark:text-white">Admin workspace</h2><p className="text-xs text-stone-500">Personal appearance and density controls.</p></div></div>
+                <div className="grid sm:grid-cols-3 gap-3 mt-5">
+                  {(['light', 'dark', 'paper'] as AdminTheme[]).map((theme) => <button key={theme} onClick={() => setAdminTheme(theme)} className={'p-4 rounded-2xl text-left font-black border ' + (adminTheme === theme ? 'bg-brand-500 text-white border-brand-500' : 'bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800 dark:text-white')}>{theme.charAt(0).toUpperCase() + theme.slice(1)}<span className="block text-[11px] mt-1 opacity-75">{theme === 'paper' ? 'Warm paper workspace' : theme === 'dark' ? 'Low-light workspace' : 'Clean default workspace'}</span></button>)}
+                </div>
+                <button onClick={() => setAdminDensity(adminDensity === 'compact' ? 'comfortable' : 'compact')} className="mt-4 px-4 py-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 font-black text-xs dark:text-white"><SlidersHorizontal size={14} className="inline mr-1" /> {adminDensity === 'compact' ? 'Compact density' : 'Comfortable density'}</button>
+              </div>
+              <div className={cardClass + ' p-5 sm:p-6'}>
+                <div className="flex items-center gap-3"><Activity size={19} className="text-emerald-500" /><div><h2 className="text-lg font-black dark:text-white">Operational summary</h2><p className="text-xs text-stone-500">Current live data loaded into this workspace.</p></div></div>
+                <div className="grid sm:grid-cols-3 gap-3 mt-5"><div className={softClass + ' p-4 rounded-2xl'}><p className="font-black dark:text-white">Products</p><p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{products.length} loaded</p></div><div className={softClass + ' p-4 rounded-2xl'}><p className="font-black dark:text-white">Orders</p><p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{orders.length} loaded</p></div><div className={softClass + ' p-4 rounded-2xl'}><p className="font-black dark:text-white">Team</p><p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{admins.length} loaded</p></div></div>
+              </div>
+            </section>
+          )}
+
           {activeTab === 'discounts' && hasPermission('manage_discounts') && (
             <section className="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-6">
               <form onSubmit={handleAddDiscount} className={cardClass + ' p-5 sm:p-6 h-fit space-y-4'}>
@@ -815,7 +934,7 @@ export default function AdminDashboardV2() {
             </section>
           )}
 
-          {activeTab !== 'overview' && activeTab !== 'orders' && activeTab !== 'products' && activeTab !== 'discounts' && activeTab !== 'team' && activeTab !== 'settings' && activeTab !== 'audit' && (
+          {!['overview', 'orders', 'products', 'customers', 'analytics', 'discounts', 'team', 'settings', 'system', 'audit'].includes(activeTab) && (
             <div className={cardClass + ' p-10 text-center text-stone-500'}>This section is not available.</div>
           )}
 
