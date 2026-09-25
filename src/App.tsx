@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import { useStore } from './store';
 import Layout from './components/Layout';
@@ -14,6 +14,7 @@ const Checkout = lazy(() => import('./pages/Checkout'));
 const CustomerLogin = lazy(() => import('./pages/CustomerLogin'));
 const Account = lazy(() => import('./pages/Account'));
 const Wishlist = lazy(() => import('./pages/Wishlist'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 // The admin dashboard lives at a private, unguessable path instead of the
 // old public "/admin". Set VITE_ADMIN_PATH in your environment (Vercel +
@@ -125,9 +126,8 @@ export function App() {
           {/* Admin dashboard: private path, gated by auth + admin_users + RLS */}
           <Route path={`/${ADMIN_PATH}`} element={<ProtectedAdminRoute />} />
 
-          {/* Catch-all redirect — including the old /admin path, which now
-             404s into the storefront like any other unknown URL. */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Unknown URLs get a real 404-style page instead of silently redirecting to the homepage. */}
+          <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </BrowserRouter>
