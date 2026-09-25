@@ -20,7 +20,11 @@
         "/tracking",
         "/ops-console-7f2k9x"
       ];
-      if (hasSearch || noindexPrefixes.some((prefix) => path === prefix || path.startsWith(prefix + "/"))) {
+      const isPublicIndexableRoute =
+        path === "/" ||
+        /^\/product\/[^/]+\/?$/.test(path) ||
+        /^\/category\/[^/]+\/?$/.test(path);
+      if (hasSearch || !isPublicIndexableRoute || noindexPrefixes.some((prefix) => path === prefix || path.startsWith(prefix + "/"))) {
         document.querySelector('meta[name="robots"]')?.setAttribute("content", "noindex, follow");
       }
     </script>
