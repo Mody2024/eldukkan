@@ -3,7 +3,7 @@ import type { ChangeEvent, FormEvent } from 'react';
 import Papa from 'papaparse';
 import {
   Activity, AlertTriangle, BarChart3, Boxes, CheckCircle2, ChevronRight, ClipboardList,
-  Clock3, DollarSign, Eye, FileDown, FileUp, LayoutDashboard, LogOut, Menu, Minus,
+  Clock3, DollarSign, Eye, FileDown, LayoutDashboard, LogOut, Menu, Minus,
   Package, Palette, Plus, RefreshCw, Search, Settings, Shield, ShoppingBag, SlidersHorizontal,
   Store, Tag, Trash2, TrendingUp, Upload, UserCog, Users, X, Zap,
 } from 'lucide-react';
