@@ -71,6 +71,7 @@ const dict = {
     sort: 'Sort',
     category: 'Category',
     done: 'Done',
+    close: 'Close',
     dark_mode: 'Dark',
   },
   ar: {
@@ -141,6 +142,7 @@ const dict = {
     sort: 'ترتيب',
     category: 'الفئة',
     done: 'تم',
+    close: 'إغلاق',
     dark_mode: 'داكن',
   },
 } as const;
