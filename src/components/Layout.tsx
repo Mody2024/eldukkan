@@ -105,18 +105,18 @@ export default function Layout() {
           <div className="flex items-center gap-2 sm:gap-3 ml-auto">
             <button
               onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
-              className="p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:scale-105 transition flex items-center gap-1.5 font-bold text-xs"
+              className="hidden sm:flex p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:scale-105 transition flex items-center gap-1.5 font-bold text-xs"
               title="Language / اللغة"
               aria-label="Language / اللغة"
             >
               <Languages size={16} /> {language === 'en' ? 'AR' : 'EN'}
             </button>
 
-            <ExperiencePicker />
+            <div className="hidden sm:block"><ExperiencePicker /></div>
 
             <button
               onClick={toggleTheme}
-              className="p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:scale-105 transition"
+              className="hidden sm:flex p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:scale-105 transition"
               title="Toggle Theme"
               aria-label="Toggle Theme"
             >
@@ -196,6 +196,15 @@ export default function Layout() {
             <Link to={userId ? '/account' : '/login'} onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-xl font-bold hover:bg-stone-100 dark:hover:bg-stone-800">
               {userId ? t('my_account') : t('sign_in')}
             </Link>
+            <div className="border-t border-stone-100 dark:border-stone-800 pt-3 mt-1 grid grid-cols-3 gap-2">
+              <button type="button" onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')} className="min-h-12 rounded-xl bg-stone-100 dark:bg-stone-800 font-black text-xs dark:text-stone-200">
+                {language === 'en' ? 'العربية' : 'English'}
+              </button>
+              <button type="button" onClick={toggleTheme} className="min-h-12 rounded-xl bg-stone-100 dark:bg-stone-800 font-black text-xs dark:text-stone-200">
+                {theme === 'dark' ? '☀️ ' + t('light_mode') : '🌙 ' + t('dark_mode')}
+              </button>
+              <div className="min-w-0"><ExperiencePicker /></div>
+            </div>
           </div>
         )}
       </header>
