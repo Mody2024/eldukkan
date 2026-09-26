@@ -65,6 +65,8 @@ const dict = {
     experience_heritage_desc: 'Warm, traditional shop feel with a printed-catalog touch.',
     experience_easy: 'Easy Mode',
     experience_easy_desc: 'Larger controls, clearer hierarchy, and fewer distractions.',
+    light_mode: 'Light',
+    dark_mode: 'Dark',
   },
   ar: {
     all_products: 'كل المنتجات',
@@ -128,6 +130,8 @@ const dict = {
     experience_heritage_desc: 'إحساس دافئ وتقليدي بلمسة متجر ورقي قديم.',
     experience_easy: 'الوضع السهل',
     experience_easy_desc: 'أزرار ونصوص أكبر وترتيب أوضح وتشتيت أقل.',
+    light_mode: 'فاتح',
+    dark_mode: 'داكن',
   },
 } as const;
 
