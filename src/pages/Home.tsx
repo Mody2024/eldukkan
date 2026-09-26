@@ -18,7 +18,7 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const [filterOpen, setFilterOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { addToCart, showToast, userId, wishlist, toggleWishlistId, storeName, logoUrl, heroHeadline, heroSubheadline, heroImageUrl } = useStore();
+  const { addToCart, showToast, userId, wishlist, toggleWishlistId, storeName, logoUrl, heroHeadline, heroSubheadline, heroImageUrl, experience } = useStore();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -135,7 +135,7 @@ export default function Home() {
         )}
       </div>
 
-      {featuredProducts.length > 0 && (
+      {experience !== 'easy' && featuredProducts.length > 0 && (
         <div className="space-y-6">
           <h2 className="text-2xl font-black dark:text-white tracking-tight">{t('featured')}</h2>
           <div className="flex gap-4 sm:gap-5 overflow-x-auto pb-2 -mx-1 px-1">
