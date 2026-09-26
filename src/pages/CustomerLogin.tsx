@@ -63,7 +63,7 @@ export default function CustomerLogin() {
         </div>
 
         {error && (
-          <p className="text-red-500 text-xs font-bold bg-red-500/10 p-3 rounded-xl text-center">{error}</p>
+          <p role="alert" className="storefront-alert storefront-alert-error text-center">{error}</p>
         )}
 
         <div className="space-y-3">
