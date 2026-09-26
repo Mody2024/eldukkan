@@ -5,6 +5,7 @@ import { useStore } from '../store';
 import type { Order } from '../types';
 import { LogOut, Package } from 'lucide-react';
 import AIMemoryCard from '../components/AIMemoryCard';
+import AICreditsCard from '../components/AICreditsCard';
 
 export default function Account() {
   const { userId, userEmail, setUserId, setUserEmail, setAdminStatus } = useStore();
@@ -109,6 +110,8 @@ export default function Account() {
           <LogOut size={16} /> Sign Out
         </button>
       </div>
+
+      <AICreditsCard userId={userId} />
 
       <AIMemoryCard userId={userId} />
 
