@@ -449,7 +449,7 @@ Deno.serve(async (req) => {
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
     const user = await identifyUser(supabaseAdmin, req);
     const body = await req.json() as {
-      mode?: 'chat' | 'status' | 'playground' | 'confirm_action' | 'remember_event';
+      mode?: 'chat' | 'status' | 'playground' | 'confirm_action' | 'remember_event' | 'admin_users';
       message?: string;
       history?: ChatMessage[];
       identifier?: string;
@@ -462,6 +462,59 @@ Deno.serve(async (req) => {
     const mode = body.mode || 'chat';
     const settings = await getGlobalSettings(supabaseAdmin);
     const identifier = user ? `user:${user.id}` : String(body.identifier || '');
+
+    if (mode === 'admin_users') {
+      const adminRow = user
+        ? await supabaseAdmin
+          .from('admin_users')
+          .select('role, permissions')
+          .eq('email', (user.email || '').toLowerCase())
+          .maybeSingle()
+        : { data: null };
+      const adminPermissions = Array.isArray(adminRow.data?.permissions) ? adminRow.data?.permissions as string[] : [];
+      if (!user || (!adminRow.data) || (adminRow.data.role !== 'owner' && !adminPermissions.includes('manage_ai'))) {
+        return json({ error: 'AI management permission required.' }, 403);
+      }
+
+      const { data: authUsers, error: usersError } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+      if (usersError) return json({ error: 'Could not load customer directory: ' + usersError.message }, 500);
+
+      const [{ data: overrides }, { data: wallets }] = await Promise.all([
+        supabaseAdmin.from('ai_user_settings').select('*').limit(1000),
+        supabaseAdmin.from('ai_user_wallets').select('*').limit(1000),
+      ]);
+      const overrideMap = new Map((overrides ?? []).map((row: Record<string, unknown>) => [String(row.user_id), row]));
+      const walletMap = new Map((wallets ?? []).map((row: Record<string, unknown>) => [String(row.user_id), row]));
+
+      const rows = (authUsers.users ?? []).map((customer) => {
+        const override = overrideMap.get(customer.id) || {
+          user_id: customer.id,
+          email: customer.email || '',
+          daily_credits_override: null,
+          message_cost_override: null,
+          search_cost_override: null,
+          action_cost_override: null,
+          renewal_interval_minutes_override: null,
+          max_balance_override: null,
+          carry_over_override: null,
+          unlimited_override: null,
+          ai_disabled: false,
+          memory_enabled: true,
+          safe_mode_override: null,
+          require_confirmation_override: null,
+        };
+        return {
+          ...override,
+          user_id: customer.id,
+          email: customer.email || String(override.email || ''),
+          wallet: walletMap.get(customer.id) || null,
+          created_at: customer.created_at,
+          last_sign_in_at: customer.last_sign_in_at,
+        };
+      });
+
+      return json({ users: rows });
+    }
 
     if (mode === 'playground') {
       const isAdmin = user ? await supabaseAdmin.from('admin_users').select('role, permissions').eq('email', (user.email || '').toLowerCase()).maybeSingle() : { data: null };
