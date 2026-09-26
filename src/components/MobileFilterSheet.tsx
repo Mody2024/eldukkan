@@ -1,4 +1,5 @@
 import { X, SlidersHorizontal, Check } from 'lucide-react';
+import { useTranslation } from '../lib/i18n';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'trending';
 
@@ -13,14 +14,15 @@ type Props = {
 };
 
 export default function MobileFilterSheet({ open, categories, activeCategory, sortBy, onCategory, onSort, onClose }: Props) {
+  const { t } = useTranslation();
   if (!open) return null;
 
   const sortOptions: { value: SortOption; label: string }[] = [
-    { value: 'featured', label: 'Featured' },
-    { value: 'price-asc', label: 'Price: Low to High' },
-    { value: 'price-desc', label: 'Price: High to Low' },
-    { value: 'rating', label: 'Top Rated' },
-    { value: 'trending', label: 'Trending' },
+    { value: 'featured', label: t('sort_featured') },
+    { value: 'price-asc', label: t('sort_price_asc') },
+    { value: 'price-desc', label: t('sort_price_desc') },
+    { value: 'rating', label: t('sort_rating') },
+    { value: 'trending', label: t('sort_trending') },
   ];
 
   return (
@@ -36,8 +38,8 @@ export default function MobileFilterSheet({ open, categories, activeCategory, so
                 <SlidersHorizontal size={18} />
               </div>
               <div>
-                <p className="font-black dark:text-white">Filter & sort</p>
-                <p className="text-xs text-stone-500">Choose how you want to browse.</p>
+                <p className="font-black dark:text-white">{t('filter_sort')}</p>
+                <p className="text-xs text-stone-500">{t('filter_sort_help')}</p>
               </div>
             </div>
             <button type="button" onClick={onClose} className="p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-500" aria-label="Close filters">
@@ -46,7 +48,7 @@ export default function MobileFilterSheet({ open, categories, activeCategory, so
           </div>
 
           <section className="space-y-2">
-            <h3 className="text-xs font-black uppercase tracking-wide text-stone-500">Sort</h3>
+            <h3 className="text-xs font-black uppercase tracking-wide text-stone-500">{t('sort')}</h3>
             <div className="grid grid-cols-1 gap-1.5">
               {sortOptions.map((option) => (
                 <button
@@ -63,7 +65,7 @@ export default function MobileFilterSheet({ open, categories, activeCategory, so
           </section>
 
           <section className="space-y-2 mt-5">
-            <h3 className="text-xs font-black uppercase tracking-wide text-stone-500">Category</h3>
+            <h3 className="text-xs font-black uppercase tracking-wide text-stone-500">{t('category')}</h3>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
