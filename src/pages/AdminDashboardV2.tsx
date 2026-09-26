@@ -5,12 +5,13 @@ import {
   Activity, AlertTriangle, BarChart3, Boxes, CheckCircle2, ChevronRight, ClipboardList,
   Clock3, DollarSign, Eye, FileDown, LayoutDashboard, LogOut, Menu, Minus,
   Package, Palette, Plus, RefreshCw, Search, Settings, Shield, ShoppingBag, SlidersHorizontal,
-  Store, Tag, Trash2, TrendingUp, Upload, UserCog, Users, X, Zap,
+  Store, Tag, Trash2, TrendingUp, Upload, UserCog, Users, X, Zap, BrainCircuit,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import type { DiscountCode, Order, Product } from '../types';
 import ProductEditModal from '../components/ProductEditModal';
+import AIControlCenter from '../components/AIControlCenter';
 
 interface AdminUserRow {
   id: string;
@@ -28,12 +29,12 @@ interface AuditLogRow {
   created_at: string;
 }
 
-type Tab = 'overview' | 'orders' | 'products' | 'customers' | 'analytics' | 'discounts' | 'team' | 'settings' | 'system' | 'audit';
+type Tab = 'overview' | 'orders' | 'products' | 'customers' | 'analytics' | 'discounts' | 'team' | 'ai' | 'settings' | 'system' | 'audit';
 type AdminTheme = 'light' | 'dark' | 'paper';
 type AdminDensity = 'comfortable' | 'compact';
 
 const ROLE_DEFAULTS: Record<string, string[]> = {
-  admin: ['manage_products', 'manage_orders', 'manage_discounts', 'view_analytics', 'manual_payment_override', 'export_reports'],
+  admin: ['manage_products', 'manage_orders', 'manage_discounts', 'view_analytics', 'manual_payment_override', 'export_reports', 'manage_ai'],
   staff: ['manage_orders'],
   owner: [],
 };
@@ -48,6 +49,7 @@ const ALL_PERMISSIONS: { key: string; label: string; group: string }[] = [
   { key: 'manage_settings', label: 'Manage storefront settings', group: 'Control' },
   { key: 'manage_team', label: 'Manage team', group: 'Control' },
   { key: 'view_audit_log', label: 'View audit log', group: 'System' },
+  { key: 'manage_ai', label: 'Manage AI control center', group: 'AI' },
 ];
 
 export default function AdminDashboardV2() {
@@ -128,6 +130,7 @@ export default function AdminDashboardV2() {
     { id: 'analytics', label: 'Analytics', icon: BarChart3, visible: hasPermission('view_analytics'), group: 'Growth', description: 'Sales and order performance' },
     { id: 'discounts', label: 'Discounts', icon: Tag, visible: hasPermission('manage_discounts'), group: 'Growth', description: 'Promotions and codes' },
     { id: 'team', label: 'Team', icon: Users, visible: true, group: 'Control', description: 'Roles and permissions' },
+    { id: 'ai', label: 'AI Control', icon: BrainCircuit, visible: isOwner || hasPermission('manage_ai'), group: 'AI', description: 'Credits, memory, actions and AI usage' },
     { id: 'settings', label: 'Storefront', icon: Store, visible: hasPermission('manage_settings'), group: 'Control', description: 'Branding and live site controls' },
     { id: 'system', label: 'System', icon: Settings, visible: isOwner || hasPermission('manage_settings'), group: 'System', description: 'Health, feeds and admin workspace' },
     { id: 'audit', label: 'Audit Log', icon: Activity, visible: isOwner || hasPermission('view_audit_log'), group: 'System', description: 'Admin activity trail' },
@@ -889,6 +892,10 @@ export default function AdminDashboardV2() {
                 </div>
               </div>
             </section>
+          )}
+
+          {activeTab === 'ai' && (isOwner || hasPermission('manage_ai')) && (
+            <AIControlCenter userEmail={userEmail} showToast={showToast} />
           )}
 
           {activeTab === 'settings' && hasPermission('manage_settings') && (
