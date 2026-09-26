@@ -361,6 +361,26 @@ export default function ProductDetails() {
         </div>
       </div>
 
+      {/* Mobile-first sticky purchase action: always reachable without
+          forcing the customer to scroll back up on a long product page. */}
+      {!outOfStock && (
+        <div className="md:hidden fixed inset-x-0 bottom-16 z-[35] px-3 pb-2 pointer-events-none">
+          <div className="max-w-6xl mx-auto bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl border border-stone-200 dark:border-stone-700 rounded-2xl shadow-2xl p-2 flex items-center gap-2 pointer-events-auto">
+            <div className="min-w-0 flex-1 px-2">
+              <p className="text-[11px] text-stone-500 font-bold truncate">{product.name}</p>
+              <p className="text-sm font-black text-brand-500">EGP {isOnSale ? product.sale_price : product.price}</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              className="min-h-12 px-5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-black text-sm shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2"
+            >
+              <ShoppingBag size={18} /> {t('add_to_cart')}
+            </button>
+          </div>
+        </div>
+      )}
+
       {related.length > 0 && (
         <div className="space-y-6">
           <h2 className="text-2xl font-black dark:text-white tracking-tight">You Might Also Like</h2>
