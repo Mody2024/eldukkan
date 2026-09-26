@@ -63,7 +63,7 @@ export default function Wishlist() {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {products.map((product) => (
-            <div key={product.id} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl overflow-hidden shadow-sm flex flex-col">
+            <div key={product.id} className="storefront-card overflow-hidden flex flex-col">
               <Link to={`/product/${product.id}`} className="h-36 sm:h-48 bg-stone-100 dark:bg-stone-800 block">
                 <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
               </Link>
@@ -76,7 +76,7 @@ export default function Wishlist() {
                   <button onClick={() => handleAddToCart(product)} className="flex-1 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2">
                     <ShoppingBag size={16} /> Add to Cart
                   </button>
-                  <button onClick={() => handleRemove(product.id)} className="p-2.5 text-red-500 hover:bg-red-500/10 rounded-xl transition">
+                  <button onClick={() => handleRemove(product.id)} className="min-w-11 min-h-11 p-2.5 text-red-500 hover:bg-red-500/10 rounded-xl transition flex items-center justify-center">
                     <Trash2 size={16} />
                   </button>
                 </div>
