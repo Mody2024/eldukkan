@@ -238,7 +238,7 @@ export default function Checkout() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
-        <form onSubmit={handleSubmitOrder} className="lg:col-span-2 space-y-5 sm:space-y-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-sm">
+        <form onSubmit={handleSubmitOrder} id="checkout-form" className="lg:col-span-2 space-y-5 sm:space-y-6 storefront-card p-4 sm:p-8">
           <h2 className="text-xl font-black dark:text-white mb-4">{t('shipping_info')}</h2>
 
           <div className="space-y-4">
@@ -322,7 +322,7 @@ export default function Checkout() {
           </button>
         </form>
 
-        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm h-fit space-y-4 lg:sticky lg:top-28">
+        <div className="storefront-card p-4 sm:p-6 h-fit space-y-4 lg:sticky lg:top-28">
           <h2 className="text-xl font-black dark:text-white">{t('order_summary')}</h2>
           <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
             {cart.map((item) => (
@@ -348,6 +348,23 @@ export default function Checkout() {
               <span className="text-brand-500">EGP {displayTotal}</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="lg:hidden fixed inset-x-0 bottom-16 z-[34] px-3 pb-2 pointer-events-none">
+        <div className="max-w-xl mx-auto storefront-card bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl p-2 flex items-center gap-3 shadow-2xl pointer-events-auto">
+          <div className="min-w-0 flex-1 px-2">
+            <p className="text-[11px] text-stone-500 font-bold">{t('total')}</p>
+            <p className="text-lg font-black text-brand-500">EGP {displayTotal}</p>
+          </div>
+          <button
+            type="submit"
+            form="checkout-form"
+            disabled={loading}
+            className="min-h-12 px-5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-black text-sm disabled:opacity-50"
+          >
+            {loading ? 'Processing…' : formData.paymentMethod === 'cod' ? t('place_order') : t('continue_to_payment')}
+          </button>
         </div>
       </div>
     </div>
