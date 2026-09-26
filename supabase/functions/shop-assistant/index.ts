@@ -389,18 +389,6 @@ async function runAssistant(
   };
 }
 
-async function requireAdmin(
-  supabaseAdmin: ReturnType<typeof createClient>,
-  userId: string | null,
-  email: string | null
-) {
-  if (!userId || !email) throw new Error('Admin authentication required.');
-  const { data } = await supabaseAdmin.from('admin_users').select('role, permissions').eq('email', email.toLowerCase()).maybeSingle();
-  if (!data) throw new Error('Admin access required.');
-  const permissions = Array.isArray(data.permissions) ? data.permissions as string[] : [];
-  if (data.role !== 'owner' && !permissions.includes('manage_ai')) throw new Error('AI management permission required.');
-}
-
 async function runPlayground(
   supabaseAdmin: ReturnType<typeof createClient>,
   apiKey: string,
