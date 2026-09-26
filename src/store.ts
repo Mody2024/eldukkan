@@ -53,6 +53,9 @@ interface StoreState {
 
   language: 'en' | 'ar';
   setLanguage: (lang: 'en' | 'ar') => void;
+
+  experience: 'modern' | 'heritage' | 'easy';
+  setExperience: (experience: 'modern' | 'heritage' | 'easy') => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -147,12 +150,15 @@ export const useStore = create<StoreState>()(
 
       language: 'en',
       setLanguage: (lang) => set({ language: lang }),
+
+      experience: 'modern',
+      setExperience: (experience) => set({ experience }),
     }),
     {
       name: 'eldukkan-storage',
       // Only persist what should survive a refresh; auth/admin status and the
       // toast are runtime-only and must never be cached to localStorage.
-      partialize: (state) => ({ theme: state.theme, cart: state.cart, language: state.language }),
+      partialize: (state) => ({ theme: state.theme, cart: state.cart, language: state.language, experience: state.experience }),
     }
   )
 );
