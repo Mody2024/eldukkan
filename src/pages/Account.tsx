@@ -121,7 +121,7 @@ export default function Account() {
         {loading ? (
           <p className="text-stone-500 text-sm py-8 text-center font-bold">Loading your orders...</p>
         ) : orders.length === 0 ? (
-          <div className="text-center py-16 space-y-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl">
+          <div className="text-center py-16 space-y-4 storefront-card">
             <Package className="mx-auto text-stone-400" size={32} />
             <p className="text-stone-500 text-sm">No orders yet.</p>
             <Link to="/" className="inline-block px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-black text-sm rounded-xl transition">
@@ -134,7 +134,7 @@ export default function Account() {
               <Link
                 key={order.id}
                 to={`/tracking/${order.id}`}
-                className="flex items-center justify-between bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-4 sm:p-5 rounded-2xl hover:border-brand-500/50 transition"
+                className="flex items-center justify-between storefront-card p-4 sm:p-5 hover:border-brand-500/50 transition"
               >
                 <div>
                   <p className="font-black dark:text-white">#{order.id.slice(0, 8).toUpperCase()}</p>
