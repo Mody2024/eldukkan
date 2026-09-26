@@ -68,7 +68,7 @@ export default function OrderTracking() {
       </div>
 
       {notFound && (
-        <p className="text-center text-sm font-bold text-red-500">Order not found. Please check your order ID.</p>
+        <p role="alert" className="storefront-alert storefront-alert-error text-center">Order not found. Please check your order ID.</p>
       )}
 
       {order && (
