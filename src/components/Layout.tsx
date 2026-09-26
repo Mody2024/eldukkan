@@ -10,6 +10,7 @@ import { useTranslation } from '../lib/i18n';
 
 export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [headerSearch, setHeaderSearch] = useState('');
   const navigate = useNavigate();
   const {
@@ -52,10 +53,14 @@ export default function Layout() {
     e.preventDefault();
     navigate(headerSearch.trim() ? `/?q=${encodeURIComponent(headerSearch.trim())}` : '/');
     setMobileMenuOpen(false);
+    setMobileSearchOpen(false);
   };
 
   return (
     <div data-experience={experience} className="storefront-shell min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col font-sans transition-colors duration-300">
+      <a href="#store-content" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-xl focus:bg-stone-900 focus:px-4 focus:py-3 focus:text-sm focus:font-black focus:text-white">
+        Skip to store content
+      </a>
       <ShopIntro />
       {/* Utility bar — the small strip real storefronts use for trust signals */}
       <div className="hidden sm:block bg-stone-900 dark:bg-black text-stone-300 text-xs font-bold">
@@ -201,7 +206,7 @@ export default function Layout() {
         </div>
       )}
 
-      <main className="flex-1 w-full">
+      <main id="store-content" className="flex-1 w-full">
         {showMaintenance ? (
           <div className="min-h-[60vh] flex flex-col items-center justify-center text-center gap-4 max-w-7xl mx-auto px-4">
             <div className="w-16 h-16 bg-brand-500/10 text-brand-500 rounded-3xl flex items-center justify-center">
@@ -276,10 +281,42 @@ export default function Layout() {
         <AICopilot />
       </Suspense>
 
-      <MobileBottomNav onSearch={() => setMobileMenuOpen(true)} />
+      <MobileBottomNav onSearch={() => { setMobileMenuOpen(false); setMobileSearchOpen(true); }} />
+
+      {mobileSearchOpen && (
+        <div className="md:hidden fixed inset-0 z-[80] bg-stone-950/40 backdrop-blur-sm" onClick={() => setMobileSearchOpen(false)}>
+          <div
+            className="absolute inset-x-0 bottom-0 mobile-safe-bottom bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 rounded-t-3xl p-4 shadow-2xl animate-in slide-in-from-bottom duration-200"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="max-w-xl mx-auto space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-black text-lg dark:text-white">{t('search')}</p>
+                  <p className="text-xs text-stone-500">{t('search_placeholder')}</p>
+                </div>
+                <button type="button" onClick={() => setMobileSearchOpen(false)} className="p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-300" aria-label="Close search">
+                  <X size={18} />
+                </button>
+              </div>
+              <form onSubmit={handleHeaderSearch} className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={19} />
+                <input
+                  autoFocus
+                  type="search"
+                  value={headerSearch}
+                  onChange={(e) => setHeaderSearch(e.target.value)}
+                  placeholder={t('search_placeholder')}
+                  className="w-full pl-11 pr-4 py-4 storefront-field bg-stone-50 dark:bg-stone-950"
+                />
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-bold text-sm px-5 py-3 rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-bold text-sm px-5 py-3 rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-200">
           {toast}
         </div>
       )}
