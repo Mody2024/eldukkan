@@ -405,3 +405,72 @@ textarea {
     color: currentColor;
   }
 }
+
+
+/* Shared UI primitives for the storefront layer. */
+.storefront-shell .storefront-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 1.75rem;
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.storefront-shell .storefront-state {
+  border: 1px dashed var(--site-line);
+  background: var(--site-surface);
+  border-radius: var(--site-card-radius);
+  padding: clamp(2.5rem, 7vw, 5rem) 1.5rem;
+  text-align: center;
+}
+
+.storefront-shell .storefront-alert {
+  border-radius: var(--site-control-radius);
+  border: 1px solid var(--site-line);
+  padding: 0.8rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.storefront-shell .storefront-alert-error {
+  border-color: color-mix(in srgb, #ef4444 35%, var(--site-line));
+  background: color-mix(in srgb, #ef4444 7%, var(--site-surface));
+  color: #b91c1c;
+}
+
+.storefront-shell .storefront-alert-success {
+  border-color: color-mix(in srgb, #10b981 32%, var(--site-line));
+  background: color-mix(in srgb, #10b981 7%, var(--site-surface));
+  color: #047857;
+}
+
+.storefront-shell .storefront-modal {
+  border: 1px solid var(--site-line);
+  border-radius: var(--site-card-radius);
+  background: var(--site-surface);
+  box-shadow: 0 24px 70px rgba(26, 20, 16, 0.18);
+}
+
+.storefront-shell .storefront-tab {
+  min-height: 2.75rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--site-control-radius);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.storefront-shell .storefront-tab[aria-selected="true"] {
+  background: color-mix(in srgb, var(--color-brand-500) 12%, var(--site-surface));
+  color: var(--color-brand-600);
+}
+
+.storefront-shell .storefront-toast {
+  border-radius: var(--site-control-radius);
+  border: 1px solid color-mix(in srgb, white 12%, transparent);
+  box-shadow: 0 16px 40px rgba(18, 14, 11, 0.25);
+  max-width: min(92vw, 34rem);
+}
