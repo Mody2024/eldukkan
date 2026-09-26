@@ -78,7 +78,8 @@ export type AdminPermission =
   | 'manage_team'
   | 'view_audit_log'
   | 'manual_payment_override'
-  | 'export_reports';
+  | 'export_reports'
+  | 'manage_ai';
 
 export interface DiscountCode {
   id: string;
