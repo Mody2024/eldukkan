@@ -140,10 +140,11 @@ export default function AIControlCenter({ userEmail, showToast }: Props) {
 
   const load = async () => {
     setLoading(true);
-    const [settingsResult, usersResult, walletsResult, activityResult] = await Promise.all([
+    const [settingsResult, usersInvoke, activityResult] = await Promise.all([
       supabase.from('ai_credit_settings').select('*').eq('id', true).single(),
-      supabase.from('ai_user_settings').select('*').order('updated_at', { ascending: false }).limit(500),
-      supabase.from('ai_user_wallets').select('*').order('last_seen_at', { ascending: false }).limit(500),
+      supabase.functions.invoke('shop-assistant', {
+        body: { mode: 'admin_users' },
+      }),
       supabase.from('ai_activity_log').select('*').order('created_at', { ascending: false }).limit(500),
     ]);
 
@@ -157,8 +158,13 @@ export default function AIControlCenter({ userEmail, showToast }: Props) {
         },
       });
     }
-    if (usersResult.data) setUserSettings(usersResult.data as UserSettings[]);
-    if (walletsResult.data) setWallets(walletsResult.data as Wallet[]);
+
+    if (!usersInvoke.error && Array.isArray(usersInvoke.data?.users)) {
+      const rows = usersInvoke.data.users as (UserSettings & { wallet?: Wallet | null })[];
+      setUserSettings(rows.map(({ wallet: _wallet, ...user }) => user as UserSettings));
+      setWallets(rows.map((row) => row.wallet).filter(Boolean) as Wallet[]);
+    }
+
     if (activityResult.data) setActivity(activityResult.data as ActivityRow[]);
     setLoading(false);
   };
