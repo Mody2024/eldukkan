@@ -6,6 +6,7 @@ import { useTranslation } from '../lib/i18n';
 import type { Product } from '../types';
 import { ShoppingBag, Sparkles, Star, Heart } from 'lucide-react';
 import SEO from '../components/SEO';
+import MobileFilterSheet from '../components/MobileFilterSheet';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'trending';
 
@@ -15,6 +16,7 @@ export default function Home() {
   const searchQuery = searchParams.get('q') || '';
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('featured');
+  const [filterOpen, setFilterOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { addToCart, showToast, userId, wishlist, toggleWishlistId, storeName, logoUrl, heroHeadline, heroSubheadline, heroImageUrl } = useStore();
   const { t } = useTranslation();
@@ -88,7 +90,7 @@ export default function Home() {
     .sort((a, b) => (a.featured_order ?? 0) - (b.featured_order ?? 0));
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-500">
+    <div className="space-y-8 sm:space-y-12 animate-in fade-in duration-500">
       <SEO
         title={searchQuery ? 'Search results for "' + searchQuery + '" | ElDukkan' : 'ElDukkan | Online Marketplace in Egypt'}
         description={searchQuery ? 'Browse ElDukkan products matching "' + searchQuery + '".' : 'Shop products, deals and everyday essentials online with ElDukkan.'}
@@ -136,7 +138,7 @@ export default function Home() {
       {featuredProducts.length > 0 && (
         <div className="space-y-6">
           <h2 className="text-2xl font-black dark:text-white tracking-tight">{t('featured')}</h2>
-          <div className="flex gap-5 overflow-x-auto pb-2">
+          <div className="flex gap-4 sm:gap-5 overflow-x-auto pb-2 -mx-1 px-1">
             {featuredProducts.map((product) => (
               <Link key={product.id} to={`/product/${product.id}`} className="shrink-0 w-56 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition group">
                 <div className="h-40 bg-stone-100 dark:bg-stone-800 overflow-hidden">
@@ -162,7 +164,7 @@ export default function Home() {
       )}
 
       {categories.length > 0 && (
-        <div className="flex gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
+        <div className="flex gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-3 lg:grid-cols-4 sm:gap-4 -mx-1 px-1">
           {categories.map((cat) => (
             <Link
               key={cat}
@@ -182,6 +184,13 @@ export default function Home() {
             {activeCategory ?? t('available_inventory')}
           </h2>
           <div className="flex items-center gap-3 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setFilterOpen(true)}
+              className="md:hidden storefront-action px-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200"
+            >
+              Filter & sort
+            </button>
             {activeCategory && (
               <button onClick={() => setActiveCategory(null)} className="px-4 py-2 rounded-full text-xs font-bold bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
                 Clear filter
@@ -200,6 +209,16 @@ export default function Home() {
             </select>
           </div>
         </div>
+
+        <MobileFilterSheet
+          open={filterOpen}
+          categories={categories}
+          activeCategory={activeCategory}
+          sortBy={sortBy}
+          onCategory={(category) => { setActiveCategory(category); setFilterOpen(false); }}
+          onSort={(sort) => setSortBy(sort)}
+          onClose={() => setFilterOpen(false)}
+        />
 
         {loading ? (
           <p className="text-stone-500 text-center py-20 font-bold">Loading live store catalog...</p>
