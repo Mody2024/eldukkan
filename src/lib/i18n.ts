@@ -66,6 +66,11 @@ const dict = {
     experience_easy: 'Easy Mode',
     experience_easy_desc: 'Larger controls, clearer hierarchy, and fewer distractions.',
     light_mode: 'Light',
+    filter_sort: 'Filter & sort',
+    filter_sort_help: 'Choose how you want to browse.',
+    sort: 'Sort',
+    category: 'Category',
+    done: 'Done',
     dark_mode: 'Dark',
   },
   ar: {
@@ -131,6 +136,11 @@ const dict = {
     experience_easy: 'الوضع السهل',
     experience_easy_desc: 'أزرار ونصوص أكبر وترتيب أوضح وتشتيت أقل.',
     light_mode: 'فاتح',
+    filter_sort: 'تصفية وترتيب',
+    filter_sort_help: 'اختر الطريقة التي تريد تصفح المتجر بها.',
+    sort: 'ترتيب',
+    category: 'الفئة',
+    done: 'تم',
     dark_mode: 'داكن',
   },
 } as const;
