@@ -27,7 +27,7 @@ export default function MobileBottomNav({ onSearch }: Props) {
           aria-label={t('all_products')}
         >
           <Home size={19} />
-          <span>{t('shop')}</span>
+          <span className="mobile-bottom-label">{t('shop')}</span>
         </Link>
 
         <button
@@ -37,7 +37,7 @@ export default function MobileBottomNav({ onSearch }: Props) {
           aria-label={t('search')}
         >
           <Search size={19} />
-          <span>{t('search')}</span>
+          <span className="mobile-bottom-label">{t('search')}</span>
         </button>
 
         <Link
@@ -51,7 +51,7 @@ export default function MobileBottomNav({ onSearch }: Props) {
               {wishlist.length}
             </span>
           )}
-          <span>{t('wishlist')}</span>
+          <span className="mobile-bottom-label">{t('wishlist')}</span>
         </Link>
 
         <Link
@@ -65,7 +65,7 @@ export default function MobileBottomNav({ onSearch }: Props) {
               {cartCount}
             </span>
           )}
-          <span>{t('cart')}</span>
+          <span className="mobile-bottom-label">{t('cart')}</span>
         </Link>
 
         <Link
@@ -74,7 +74,7 @@ export default function MobileBottomNav({ onSearch }: Props) {
           aria-label={userId ? t('my_account') : t('sign_in')}
         >
           <UserRound size={19} />
-          <span>{userId ? t('my_account') : t('sign_in')}</span>
+          <span className="mobile-bottom-label">{userId ? t('my_account') : t('sign_in')}</span>
         </Link>
       </div>
     </nav>
