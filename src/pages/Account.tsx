@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import type { Order } from '../types';
 import { LogOut, Package } from 'lucide-react';
+import AIMemoryCard from '../components/AIMemoryCard';
 
 export default function Account() {
   const { userId, userEmail, setUserId, setUserEmail, setAdminStatus } = useStore();
@@ -108,6 +109,8 @@ export default function Account() {
           <LogOut size={16} /> Sign Out
         </button>
       </div>
+
+      <AIMemoryCard userId={userId} />
 
       <div className="space-y-4">
         <h2 className="text-lg font-black dark:text-white">Order History</h2>
