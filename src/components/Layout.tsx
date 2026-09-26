@@ -325,7 +325,7 @@ export default function Layout() {
       )}
 
       {toast && (
-        <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-bold text-sm px-5 py-3 rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div className="storefront-toast fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-bold text-sm px-5 py-3 rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-200">
           {toast}
         </div>
       )}
