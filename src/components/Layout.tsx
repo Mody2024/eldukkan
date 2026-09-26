@@ -51,6 +51,7 @@ export default function Layout() {
   const handleHeaderSearch = (e: React.FormEvent) => {
     e.preventDefault();
     navigate(headerSearch.trim() ? `/?q=${encodeURIComponent(headerSearch.trim())}` : '/');
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -101,6 +102,7 @@ export default function Layout() {
               onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
               className="p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:scale-105 transition flex items-center gap-1.5 font-bold text-xs"
               title="Language / اللغة"
+              aria-label="Language / اللغة"
             >
               <Languages size={16} /> {language === 'en' ? 'AR' : 'EN'}
             </button>
@@ -111,6 +113,7 @@ export default function Layout() {
               onClick={toggleTheme}
               className="p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:scale-105 transition"
               title="Toggle Theme"
+              aria-label="Toggle Theme"
             >
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
@@ -152,6 +155,8 @@ export default function Layout() {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300"
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
