@@ -13,7 +13,6 @@ interface Product {
   category: string | null;
   stock: number | null;
   rating: number | null;
-  category: string | null;
   image_url: string | null;
 }
 
@@ -156,7 +155,7 @@ export default function AICopilot() {
   const addProductToCart = (product: Product, quantity: number) => {
     const previousQuantity = cart.find((item) => item.id === product.id)?.quantity ?? 0;
     for (let i = 0; i < quantity; i += 1) {
-      addToCart({ ...product, category: product.category ?? undefined, image_url: product.image_url || '', price: product.sale_price ?? product.price });
+      addToCart({ ...product, category: product.category ?? undefined, stock: product.stock ?? undefined, rating: product.rating ?? undefined, image_url: product.image_url || '', price: product.sale_price ?? product.price });
     }
     return previousQuantity;
   };
