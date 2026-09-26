@@ -5,10 +5,12 @@ import { useStore } from '../store';
 import type { Product, Review } from '../types';
 import { ShoppingBag, ArrowLeft, Star, Heart, Minus, Plus, Store, MessageSquare, ArrowUp, ArrowDown, Truck, ShieldCheck } from 'lucide-react';
 import SEO from '../components/SEO';
+import { useTranslation } from '../lib/i18n';
 
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [product, setProduct] = useState<Product | null>(null);
   const [related, setRelated] = useState<Product[]>([]);
   const [activeImage, setActiveImage] = useState(0);
