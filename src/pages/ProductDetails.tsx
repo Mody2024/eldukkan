@@ -257,12 +257,12 @@ export default function ProductDetails() {
             )}
           </div>
           {gallery.length > 1 && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-1 snap-x">
               {gallery.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveImage(idx)}
-                  className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition ${activeImage === idx ? 'border-brand-500' : 'border-transparent opacity-70'}`}
+                  className={`w-16 h-16 min-w-16 rounded-xl overflow-hidden border-2 transition ${activeImage === idx ? 'border-brand-500' : 'border-transparent opacity-70'}`}
                 >
                   <img src={img} alt="Product thumbnail" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </button>
