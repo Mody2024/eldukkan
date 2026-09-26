@@ -42,7 +42,7 @@ export default function MobileFilterSheet({ open, categories, activeCategory, so
                 <p className="text-xs text-stone-500">{t('filter_sort_help')}</p>
               </div>
             </div>
-            <button type="button" onClick={onClose} className="p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-500" aria-label="Close filters">
+            <button type="button" onClick={onClose} className="p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-500" aria-label={t('close')}>
               <X size={18} />
             </button>
           </div>
