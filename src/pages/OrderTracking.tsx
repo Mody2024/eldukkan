@@ -54,7 +54,7 @@ export default function OrderTracking() {
         <p className="text-stone-500 text-sm">Enter your order ID to check real-time fulfillment status.</p>
       </div>
 
-      <div className="flex gap-2 bg-white dark:bg-stone-900 p-3 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-sm">
+      <div className="flex gap-2 storefront-card p-2 sm:p-3">
         <input
           type="text"
           placeholder="Enter Order ID (UUID)..."
@@ -72,7 +72,7 @@ export default function OrderTracking() {
       )}
 
       {order && (
-        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 rounded-3xl shadow-sm space-y-6">
+        <div className="storefront-card p-4 sm:p-8 space-y-6">
           <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-4">
             <div>
               <p className="text-xs text-stone-500 font-bold uppercase">Order Reference</p>
