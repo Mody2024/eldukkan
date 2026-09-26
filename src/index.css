@@ -62,3 +62,158 @@ h1, h2, h3 {
   font-family: "Cairo", ui-sans-serif, system-ui, sans-serif;
   letter-spacing: 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Update 2 — storefront experience layer                                     */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  --site-content-width: 80rem;
+  --site-card-radius: 1rem;
+  --site-control-radius: 0.875rem;
+  --site-control-height: 2.75rem;
+  --site-surface: #ffffff;
+  --site-surface-muted: #f7f5f2;
+  --site-line: #e7e2dc;
+  --site-text-muted: #6f6a64;
+  --site-shadow: 0 8px 30px rgba(43, 33, 25, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.storefront-shell :where(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-brand-500) 42%, transparent);
+  outline-offset: 2px;
+}
+
+.storefront-shell :where(button, a) {
+  touch-action: manipulation;
+}
+
+.storefront-shell :where(input, select, textarea) {
+  min-height: var(--site-control-height);
+}
+
+.storefront-shell [aria-disabled="true"] {
+  pointer-events: none;
+}
+
+.storefront-shell[data-experience="modern"] {
+  --site-card-radius: 1rem;
+  --site-control-radius: 0.875rem;
+}
+
+.storefront-shell[data-experience="heritage"] {
+  --site-card-radius: 0.75rem;
+  --site-control-radius: 0.7rem;
+  --site-surface: #fffdf8;
+  --site-surface-muted: #f6f0e7;
+  --site-line: #ded2c3;
+  --site-shadow: 0 7px 22px rgba(70, 49, 29, 0.09);
+}
+
+.storefront-shell[data-experience="heritage"] main h1,
+.storefront-shell[data-experience="heritage"] main h2,
+.storefront-shell[data-experience="heritage"] main h3 {
+  letter-spacing: -0.025em;
+}
+
+.storefront-shell[data-experience="heritage"] main .bg-white {
+  background-color: var(--site-surface);
+}
+
+.storefront-shell[data-experience="heritage"] main .border-stone-200 {
+  border-color: var(--site-line);
+}
+
+.storefront-shell[data-experience="heritage"] main .shadow-sm {
+  box-shadow: var(--site-shadow);
+}
+
+.storefront-shell[data-experience="easy"] {
+  --site-card-radius: 1rem;
+  --site-control-radius: 1rem;
+  --site-control-height: 3rem;
+}
+
+.storefront-shell[data-experience="easy"] main {
+  font-size: 1.02rem;
+}
+
+.storefront-shell[data-experience="easy"] main :where(button, input, select, textarea) {
+  font-size: 1rem;
+}
+
+.storefront-shell[data-experience="easy"] main :where(button) {
+  min-height: 3rem;
+}
+
+.storefront-shell[data-experience="easy"] main :where(h1) {
+  font-size: clamp(2rem, 5vw, 3.4rem);
+}
+
+.storefront-shell[data-experience="easy"] main :where(h2) {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.storefront-shell .storefront-surface {
+  background: var(--site-surface);
+  border-color: var(--site-line);
+  border-radius: var(--site-card-radius);
+}
+
+.storefront-shell .storefront-control {
+  min-height: var(--site-control-height);
+  border-radius: var(--site-control-radius);
+}
+
+@media (max-width: 767px) {
+  .storefront-shell main {
+    padding-bottom: 5.75rem;
+  }
+
+  .storefront-shell[data-experience="easy"] main {
+    font-size: 1.04rem;
+  }
+
+  .mobile-safe-bottom {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .mobile-safe-top {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .storefront-shell *,
+  .storefront-shell *::before,
+  .storefront-shell *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
