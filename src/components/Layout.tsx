@@ -4,6 +4,8 @@ import { ShoppingBag, ShieldCheck, Sun, Moon, Menu, X, Megaphone, Wrench, Heart,
 const AICopilot = lazy(() => import('./AICopilot'));
 import ShopIntro from './ShopIntro';
 import { useStore } from '../store';
+import ExperiencePicker from './ExperiencePicker';
+import MobileBottomNav from './MobileBottomNav';
 import { useTranslation } from '../lib/i18n';
 
 export default function Layout() {
@@ -13,7 +15,7 @@ export default function Layout() {
   const {
     theme, toggleTheme, cart, toast, userId, announcementBanner, maintenanceMode,
     isAuthorizedAdmin, storeName, logoUrl, wishlist, footerCreditsEnabled, footerCreditsText, sponsors,
-    language, setLanguage,
+    language, setLanguage, experience,
   } = useStore();
   const { t } = useTranslation();
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -21,6 +23,10 @@ export default function Layout() {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
+
+  useEffect(() => {
+    document.documentElement.dataset.experience = experience;
+  }, [experience]);
 
   useEffect(() => {
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
@@ -48,7 +54,7 @@ export default function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col font-sans transition-colors duration-300">
+    <div data-experience={experience} className="storefront-shell min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col font-sans transition-colors duration-300">
       <ShopIntro />
       {/* Utility bar — the small strip real storefronts use for trust signals */}
       <div className="hidden sm:block bg-stone-900 dark:bg-black text-stone-300 text-xs font-bold">
@@ -98,6 +104,8 @@ export default function Layout() {
             >
               <Languages size={16} /> {language === 'en' ? 'AR' : 'EN'}
             </button>
+
+            <ExperiencePicker />
 
             <button
               onClick={toggleTheme}
@@ -204,7 +212,7 @@ export default function Layout() {
         )}
       </main>
 
-      <footer className="bg-stone-950 dark:bg-black text-stone-400 mt-auto">
+      <footer className="bg-stone-950 dark:bg-black text-stone-400 mt-auto pb-16 md:pb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1 space-y-3">
             <span className="text-lg font-black text-white">{storeName}</span>
@@ -262,6 +270,8 @@ export default function Layout() {
       <Suspense fallback={null}>
         <AICopilot />
       </Suspense>
+
+      <MobileBottomNav onSearch={() => setMobileMenuOpen(true)} />
 
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-bold text-sm px-5 py-3 rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-200">
