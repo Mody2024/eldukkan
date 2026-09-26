@@ -51,7 +51,7 @@ export default function Category() {
   const canonical = category ? `/category/${encodeURIComponent(category)}` : '/';
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <SEO
         title={category ? `${category} Products | ElDukkan` : 'Shop by Category | ElDukkan'}
         description={category
@@ -115,7 +115,7 @@ export default function Category() {
             const outOfStock = product.stock !== undefined && product.stock <= 0;
 
             return (
-              <article key={product.id} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition">
+              <article key={product.id} className="storefront-card overflow-hidden hover:shadow-lg transition">
                 <Link to={`/product/${product.id}`} className="block">
                   <div className="h-44 sm:h-60 bg-stone-100 dark:bg-stone-800 overflow-hidden">
                     <img src={product.image_url} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-105 transition duration-300" />
