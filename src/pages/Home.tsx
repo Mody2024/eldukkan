@@ -178,7 +178,7 @@ export default function Home() {
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-6" data-ai-target="products-grid">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <h2 className="text-2xl font-black dark:text-white tracking-tight">
             {activeCategory ?? t('available_inventory')}
