@@ -72,7 +72,9 @@ export default function Cart() {
         <button
           data-guide="checkout"
           data-ai-target="checkout"
+          data-ai-target="checkout"
           onClick={() => navigate('/checkout')}
+
           className="flex items-center gap-2 px-6 py-4 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition shadow-lg shadow-brand-500/20"
         >
           {t('checkout')} <ArrowRight size={18} />
