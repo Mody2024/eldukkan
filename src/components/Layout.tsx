@@ -8,8 +8,6 @@ import ExperiencePicker from './ExperiencePicker';
 import AIOnboarding from './AIOnboarding';
 import GuidedModeOverlay from './GuidedModeOverlay';
 import MobileBottomNav from './MobileBottomNav';
-import Onboarding from './Onboarding';
-import GuideOverlay from './GuideOverlay';
 import { useTranslation } from '../lib/i18n';
 
 export default function Layout() {
@@ -300,8 +298,8 @@ export default function Layout() {
         <AICopilot />
       </Suspense>
 
-      <GuideOverlay />
-      <Onboarding />
+      <GuidedModeOverlay />
+      <AIOnboarding />
 
       <MobileBottomNav onSearch={() => { setMobileMenuOpen(false); setMobileSearchOpen(true); }} />
 
