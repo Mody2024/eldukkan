@@ -5,6 +5,8 @@ const AICopilot = lazy(() => import('./AICopilot'));
 import ShopIntro from './ShopIntro';
 import { useStore } from '../store';
 import ExperiencePicker from './ExperiencePicker';
+import AIOnboarding from './AIOnboarding';
+import GuidedModeOverlay from './GuidedModeOverlay';
 import MobileBottomNav from './MobileBottomNav';
 import Onboarding from './Onboarding';
 import GuideOverlay from './GuideOverlay';
@@ -92,6 +94,7 @@ export default function Layout() {
             <div className="relative w-full">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
               <input
+                data-ai-target="search"
                 type="text"
                 value={headerSearch}
                 onChange={(e) => setHeaderSearch(e.target.value)}
@@ -104,7 +107,7 @@ export default function Layout() {
           {/* No "Admin" link lives in this nav on purpose — the admin
              dashboard is reached only by a private, unguessable URL and
              is further gated behind Supabase auth + RLS. */}
-          <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+          <div className="flex items-center gap-2 sm:gap-3 ml-auto" data-ai-target="mobile-nav">
             <button
               data-guide="language"
               onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
@@ -151,6 +154,7 @@ export default function Layout() {
             <Link
               data-guide="cart"
               to="/cart"
+              data-ai-target="cart"
               className="relative p-3 rounded-xl bg-brand-500/10 text-brand-500 hover:bg-brand-500 hover:text-white transition flex items-center gap-2 font-bold text-sm"
             >
               <ShoppingBag size={18} />
@@ -188,6 +192,7 @@ export default function Layout() {
             <form onSubmit={handleHeaderSearch} className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
               <input
+                data-ai-target="search"
                 type="text"
                 value={headerSearch}
                 onChange={(e) => setHeaderSearch(e.target.value)}
