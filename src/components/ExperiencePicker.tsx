@@ -15,7 +15,7 @@ export default function ExperiencePicker() {
   ];
 
   return (
-    <div className="relative">
+    <div data-guide="experience" className="relative">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
