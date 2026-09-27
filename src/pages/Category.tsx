@@ -109,7 +109,7 @@ export default function Category() {
           <Link to="/" className="inline-block text-brand-500 font-bold hover:underline">Browse all products</Link>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6" data-ai-target="products">
           {products.map((product) => {
             const onSale = !!(product.sale_price && (!product.sale_ends_at || new Date(product.sale_ends_at) > new Date()));
             const outOfStock = product.stock !== undefined && product.stock <= 0;
