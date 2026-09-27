@@ -266,22 +266,18 @@ async function recordMemoryEvent(
 async function callGemini(
   apiKey: string,
   contents: unknown[],
-  options: { allowCart: boolean; memory: Record<string, unknown>; context: Record<string, unknown> }
+  options: { allowCart: boolean; memory: Record<string, unknown>; context: Record<string, unknown>; allowNavigation: boolean }
 ) {
-  const tools = [{ functionDeclarations: [SEARCH_TOOL, ...(options.allowCart ? [CART_TOOL] : []), ...UI_TOOLS] }];
+  const selectedUiTools = options.allowNavigation
+    ? UI_TOOLS
+    : UI_TOOLS.filter((tool) => tool.name !== 'navigate');
+  const tools = [{ functionDeclarations: [SEARCH_TOOL, ...(options.allowCart ? [CART_TOOL] : []), ...selectedUiTools] }];
   const payload = {
     contents,
     tools,
     systemInstruction: {
       parts: [{
-        text: `You are Eldukkan's friendly shopping assistant for an Egyptian online store.
-Be concise, practical, and warm. Never invent products, prices, stock, ids, coupons, or policies.
-Use search_products before recommending a specific catalog product. Only use add_to_cart with an exact id returned by search_products.
-You may control safe storefront navigation and presentation through the UI tools. Never open external URLs or admin/private paths.
-The customer is always the final actor for checkout and irreversible actions; never submit or cancel an order.
-When the customer asks to be guided, use start_guided with a short practical sequence. Use spotlight when one control is enough.
-Current shopping context: ${JSON.stringify(options.context).slice(0, 2500)}
-Remembered shopping preferences: ${JSON.stringify(options.memory).slice(0, 2500)}
+        text: `You are Eldukkan's friendly shopping assistant for an Egyptian online store.\nBe concise, practical, and warm. Never invent products, prices, stock, ids, coupons, policies, or page elements.\nUse search_products before recommending a specific catalog product. Only use add_to_cart with an exact id returned by search_products.\nRead the current page map in shopping context before choosing a guided target. Target names must come from that live page map or a stable target already exposed by the storefront.\nGuided Mode is assistance, not automation: never click, type, submit, buy, or navigate for the customer. When guided mode is active, highlight the next thing the customer should act on, then wait for the customer to act.\nDo not navigate unless the customer explicitly asked you to open, go to, navigate to, or show another page.\nWhen the customer asks to be guided, use start_guided with a continuous sequence of concrete on-page targets. Prefer several small steps over one large step. Do not include navigation paths in guide steps.\nThe customer is always the final actor for checkout and irreversible actions; never submit or cancel an order.\nCurrent shopping context: ${JSON.stringify(options.context).slice(0, 5000)}\nRemembered shopping preferences: ${JSON.stringify(options.memory).slice(0, 2500)}
 `,
       }],
     },
@@ -326,7 +322,9 @@ async function runAssistant(
   ];
 
   const allowCart = status.actionPermissions?.add_to_cart !== false;
-  let response = await callGemini(apiKey, contents, { allowCart, memory, context });
+  const allowGuided = status.actionPermissions?.start_guided_mode !== false;
+  const allowNavigation = context.userAskedToNavigate === true;
+  let response = await callGemini(apiKey, contents, { allowCart, memory, context, allowNavigation });
   let parts = response.candidates?.[0]?.content?.parts ?? [];
   let functionCall = parts.find((p: { functionCall?: unknown }) => p.functionCall)?.functionCall as
     { id?: string; name: string; args: Record<string, unknown> } | undefined;
@@ -338,7 +336,10 @@ async function runAssistant(
   const toolTrace: { tool: string; input?: Record<string, unknown>; resultCount?: number }[] = [];
 
   const uiActions: Record<string, unknown>[] = [];
-  const validTargets = new Set(['search', 'products', 'products-grid', 'cart', 'checkout', 'product-add', 'ai', 'language', 'theme', 'experience']);
+  const stableTargets = new Set(['search', 'products', 'products-grid', 'cart', 'checkout', 'product-add', 'ai', 'language', 'theme', 'experience', 'product-detail', 'cart-items', 'checkout-form', 'place-order', 'wishlist', 'account', 'mobile-nav']);
+  const pageMap = Array.isArray(context.pageMap) ? context.pageMap as { target?: unknown }[] : [];
+  const pageTargets = new Set(pageMap.map((item) => String(item.target || '')).filter((target) => /^[A-Za-z0-9_-]{1,80}$/.test(target)));
+  const validTarget = (target: string) => stableTargets.has(target) || pageTargets.has(target);
   const validPaths = (path: string) => {
     if (!path.startsWith('/') || path.startsWith('/ops-console')) return null;
     return path.slice(0, 220);
@@ -402,6 +403,7 @@ async function runAssistant(
       }
       break;
     } else if (functionCall.name === 'navigate') {
+      if (!allowNavigation) break;
       const path = validPaths(String(functionCall.args.path ?? ''));
       if (path) {
         uiActions.push({ type: 'navigate', path, label: String(functionCall.args.label ?? '').slice(0, 100) });
@@ -430,15 +432,15 @@ async function runAssistant(
         acknowledgeUiTool('set_experience', functionCall.id, { ok: true, experience: value });
       }
     } else if (functionCall.name === 'start_guided') {
+      if (!allowGuided) break;
       const rawSteps = Array.isArray(functionCall.args.steps) ? functionCall.args.steps : [];
       const steps = rawSteps
-        .slice(0, 6)
+        .slice(0, 10)
         .map((step: Record<string, unknown>) => ({
-          label: String(step.label ?? 'Next step').slice(0, 100),
+          label: String(step.label ?? 'Next step').slice(0, 140),
           target: String(step.target ?? ''),
-          ...(typeof step.path === 'string' ? { path: validPaths(step.path) || undefined } : {}),
         }))
-        .filter((step) => validTargets.has(step.target));
+        .filter((step) => validTarget(step.target));
       if (steps.length) {
         uiActions.push({
           type: 'start_guided',
@@ -449,8 +451,9 @@ async function runAssistant(
         acknowledgeUiTool('start_guided', functionCall.id, { ok: true, stepCount: steps.length });
       }
     } else if (functionCall.name === 'spotlight') {
+      if (!allowGuided) break;
       const target = String(functionCall.args.target ?? '');
-      if (validTargets.has(target)) {
+      if (validTarget(target)) {
         uiActions.push({
           type: 'spotlight',
           target,
@@ -464,7 +467,7 @@ async function runAssistant(
       break;
     }
 
-    response = await callGemini(apiKey, contents, { allowCart, memory, context });
+    response = await callGemini(apiKey, contents, { allowCart, memory, context, allowNavigation });
     parts = response.candidates?.[0]?.content?.parts ?? [];
     functionCall = parts.find((p: { functionCall?: unknown }) => p.functionCall)?.functionCall as
       { id?: string; name: string; args: Record<string, unknown> } | undefined;
