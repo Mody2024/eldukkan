@@ -243,7 +243,7 @@ export default function ProductDetails() {
           },
         ]}
       />
-      <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12 animate-in fade-in duration-300">
+      <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12 animate-in fade-in duration-300" data-ai-target="product-detail">
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 p-3 bg-stone-100 dark:bg-stone-800 rounded-xl hover:scale-105 transition dark:text-white w-fit font-bold text-sm">
         <ArrowLeft size={18} /> Back
       </button>
