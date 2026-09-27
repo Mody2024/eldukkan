@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, LocateFixed, X } from 'lucide-react';
 import { useStore } from '../store';
 import { useTranslation } from '../lib/i18n';
@@ -26,6 +26,7 @@ export default function GuidedModeOverlay() {
   const { t } = useTranslation();
   const [rect, setRect] = useState<DOMRect | null>(null);
   const [targetFound, setTargetFound] = useState(false);
+  const lastScrolledTarget = useRef<string | null>(null);
 
   const target = guidedTask?.steps[guidedStepIndex]?.target || '';
   const label = guidedTask?.steps[guidedStepIndex]?.label || t('guided_mode');
@@ -40,9 +41,13 @@ export default function GuidedModeOverlay() {
     if (!node) {
       setRect(null);
       setTargetFound(false);
+      lastScrolledTarget.current = null;
       return;
     }
-    node.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+    if (lastScrolledTarget.current !== target) {
+      node.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+      lastScrolledTarget.current = target;
+    }
     setRect(node.getBoundingClientRect());
     setTargetFound(true);
   };
@@ -108,19 +113,19 @@ export default function GuidedModeOverlay() {
             <div className="min-w-0 flex-1">
               <p className="text-[10px] font-black uppercase tracking-wide text-brand-500">{t('guided_mode')} · {Math.round(progress*100)}%</p>
               <p className="font-black text-sm dark:text-white mt-1">{label}</p>
-              {!targetFound && <p className="text-[11px] text-stone-500 mt-2">Waiting for this part of the page to appear. You can keep using the site — guidance stays active.</p>}
+              {!targetFound && <p className="text-[11px] text-stone-500 mt-2">{t('guided_waiting')}</p>}
             </div>
-            <button type="button" onClick={stopGuidedTask} className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-white" aria-label="Stop guidance"><X size={16} /></button>
+            <button type="button" onClick={stopGuidedTask} className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-white" aria-label={t('stop_guidance')}><X size={16} /></button>
           </div>
 
           <div className="mt-3 flex items-center justify-between gap-2 text-[10px] font-bold text-stone-400">
-            <span>Step {guidedStepIndex+1} of {guidedTask.steps.length}</span>
+            <span>{t('guided_step', { current: guidedStepIndex + 1, total: guidedTask.steps.length })}</span>
             <span>{current.target}</span>
           </div>
 
           <div className="mt-3 flex items-center gap-2">
-            <button type="button" onClick={previousGuidedStep} disabled={guidedStepIndex === 0} className="p-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 dark:text-white disabled:opacity-30" aria-label="Previous guided step"><ChevronLeft size={16} /></button>
-            <button type="button" onClick={nextGuidedStep} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-500 text-white text-xs font-black"><Check size={14} /> Done / Next</button>
+            <button type="button" onClick={previousGuidedStep} disabled={guidedStepIndex === 0} className="p-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 dark:text-white disabled:opacity-30" aria-label={t('guided_previous')}><ChevronLeft size={16} /></button>
+            <button type="button" onClick={nextGuidedStep} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-500 text-white text-xs font-black"><Check size={14} /> {t('guided_done_next')}</button>
           </div>
         </div>
       </div>
