@@ -140,7 +140,7 @@ export default function Home() {
           <h2 className="text-2xl font-black dark:text-white tracking-tight">{t('featured')}</h2>
           <div className="flex gap-4 sm:gap-5 overflow-x-auto pb-2 -mx-1 px-1">
             {featuredProducts.map((product) => (
-              <Link key={product.id} to={`/product/${product.id}`} className="shrink-0 w-56 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition group">
+              <Link key={product.id} data-ai-target={`product-${product.id}`} to={`/product/${product.id}`} className="shrink-0 w-56 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition group">
                 <div className="h-40 bg-stone-100 dark:bg-stone-800 overflow-hidden">
                   <img src={product.image_url} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
                 </div>
