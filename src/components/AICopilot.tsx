@@ -50,7 +50,7 @@ interface UiAction {
   goal?: string;
   target?: string;
   label?: string;
-  steps?: { label: string; target: string; path?: string }[];
+  steps?: { label: string; target: string }[];
 }
 
 interface PendingAction {
@@ -205,9 +205,22 @@ export default function AICopilot() {
 
   const executeUiActions = (actions: UiAction[] | undefined, allowNavigation: boolean) => {
     if (!Array.isArray(actions)) return;
-    actions.slice(0, 8).forEach((action) => {
+    const guideOnly = guidedMode && !allowNavigation;
+    actions.slice(0, 10).forEach((action) => {
       if (action.type === 'navigate' && allowNavigation && action.path && action.path.startsWith('/') && !action.path.startsWith('/ops-console')) {
         navigate(action.path);
+      } else if (guideOnly) {
+        if (action.type === 'start_guided' && action.steps?.length) {
+          startGuidedTask({
+            goal: action.goal || t('guided_mode'),
+            steps: action.steps.slice(0, 10),
+          });
+        } else if (action.type === 'spotlight' && action.target) {
+          startGuidedTask({
+            goal: action.goal || t('guided_mode'),
+            steps: [{ label: action.label || action.target, target: action.target }],
+          });
+        }
       } else if (action.type === 'set_theme' && action.theme && action.theme !== theme) {
         toggleTheme();
       } else if (action.type === 'set_language' && action.language) {
@@ -217,7 +230,7 @@ export default function AICopilot() {
       } else if (action.type === 'start_guided' && action.steps?.length) {
         const task: GuidedTask = {
           goal: action.goal || t('guided_mode'),
-          steps: action.steps.slice(0, 6),
+          steps: action.steps.slice(0, 10),
         };
         startGuidedTask(task);
       } else if (action.type === 'spotlight' && action.target) {
