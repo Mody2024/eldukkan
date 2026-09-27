@@ -117,6 +117,22 @@ export default function GuidedModeOverlay() {
   const progress = guidedTask ? Math.min(1, (guidedStepIndex + 1) / guidedTask.steps.length) : 0;
   const current = guidedTask?.steps[guidedStepIndex];
 
+  const handleNext = () => {
+    if (!guidedTask || !current) return;
+    const isLast = guidedStepIndex >= guidedTask.steps.length - 1;
+    if (isLast) {
+      stopGuidedTask();
+      window.dispatchEvent(new Event('eldukkan:guided-complete'));
+      return;
+    }
+    nextGuidedStep();
+  };
+
+  const handleStop = () => {
+    stopGuidedTask();
+    window.dispatchEvent(new Event('eldukkan:guided-stop'));
+  };
+
   if (!guidedMode || !guidedTask || !current) return null;
 
   return (
@@ -132,7 +148,7 @@ export default function GuidedModeOverlay() {
         )}
       </div>
 
-      <div className="fixed left-3 right-3 sm:left-auto sm:right-6 bottom-20 sm:bottom-6 z-[80] w-auto sm:w-[min(390px,calc(100vw-48px))]">
+      <div className={`fixed left-3 right-3 sm:left-auto sm:right-6 ${['ai', 'checkout'].includes(current.target) ? 'top-20 sm:top-6' : 'bottom-20 sm:bottom-6'} z-[80] w-auto sm:w-[min(390px,calc(100vw-48px))]`}>
         <div className="rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 shadow-2xl p-4 pointer-events-auto">
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center shrink-0"><LocateFixed size={17} /></div>
@@ -141,7 +157,7 @@ export default function GuidedModeOverlay() {
               <p className="font-black text-sm dark:text-white mt-1">{label}</p>
               {!targetFound && <p className="text-[11px] text-stone-500 mt-2">{t('guided_waiting')}</p>}
             </div>
-            <button type="button" onClick={stopGuidedTask} className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-white" aria-label={t('stop_guidance')}><X size={16} /></button>
+            <button type="button" onClick={handleStop} className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-white" aria-label={t('stop_guidance')}><X size={16} /></button>
           </div>
 
           <div className="mt-3 flex items-center justify-between gap-2 text-[10px] font-bold text-stone-400">
@@ -151,7 +167,7 @@ export default function GuidedModeOverlay() {
 
           <div className="mt-3 flex items-center gap-2">
             <button type="button" onClick={previousGuidedStep} disabled={guidedStepIndex === 0} className="p-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 dark:text-white disabled:opacity-30" aria-label={t('guided_previous')}><ChevronLeft size={16} /></button>
-            <button type="button" onClick={nextGuidedStep} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-500 text-white text-xs font-black"><Check size={14} /> {t('guided_done_next')}</button>
+            <button type="button" onClick={handleNext} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-500 text-white text-xs font-black"><Check size={14} /> {t('guided_done_next')}</button>
           </div>
         </div>
       </div>
