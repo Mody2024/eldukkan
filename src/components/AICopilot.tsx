@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { useStore } from '../store';
+import { GuidedTask, useStore } from '../store';
+import { useTranslation } from '../lib/i18n';
 import { Bot, Check, Coins, RotateCcw, Send, ShoppingBag, Sparkles, User, X, Zap } from 'lucide-react';
 
 interface Product {
@@ -37,6 +38,18 @@ interface AiStatus {
   actionCost: number;
   memoryEnabled: boolean;
   requireConfirmation: boolean;
+}
+
+interface UiAction {
+  type: 'navigate' | 'set_theme' | 'set_language' | 'set_experience' | 'start_guided' | 'spotlight';
+  path?: string;
+  theme?: 'light' | 'dark';
+  language?: 'en' | 'ar';
+  experience?: 'modern' | 'heritage' | 'easy';
+  goal?: string;
+  target?: string;
+  label?: string;
+  steps?: { label: string; target: string; path?: string }[];
 }
 
 interface PendingAction {
@@ -83,7 +96,9 @@ function storageKey(userId: string | null) {
 }
 
 export default function AICopilot() {
-  const { userId, theme, language, cart, addToCart, updateQuantity, removeFromCart, showToast } = useStore();
+  const { userId, theme, language, experience, cart, addToCart, updateQuantity, removeFromCart, showToast, setExperience, setLanguage, toggleTheme, startGuidedTask, guidedMode, stopGuidedTask } = useStore();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const key = useMemo(() => storageKey(userId), [userId]);
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -151,6 +166,44 @@ export default function AICopilot() {
     if (new Date(status.nextRenewalAt).getTime() > now) return;
     void refreshStatus();
   }, [now, status?.nextRenewalAt, status?.unlimited]);
+
+  const executeUiActions = (actions: UiAction[] | undefined) => {
+    if (!Array.isArray(actions)) return;
+    actions.slice(0, 6).forEach((action) => {
+      if (action.type === 'navigate' && action.path && action.path.startsWith('/') && !action.path.startsWith('/ops-console')) {
+        navigate(action.path);
+      } else if (action.type === 'set_theme' && action.theme && action.theme !== theme) {
+        toggleTheme();
+      } else if (action.type === 'set_language' && action.language) {
+        setLanguage(action.language);
+      } else if (action.type === 'set_experience' && action.experience) {
+        setExperience(action.experience);
+      } else if (action.type === 'start_guided' && action.steps?.length) {
+        const task: GuidedTask = {
+          goal: action.goal || t('guided_mode'),
+          steps: action.steps.slice(0, 6),
+        };
+        startGuidedTask(task);
+      } else if (action.type === 'spotlight' && action.target) {
+        startGuidedTask({
+          goal: action.goal || t('guided_mode'),
+          steps: [{ label: action.label || action.target, target: action.target }],
+        });
+      }
+    });
+  };
+
+  const startDefaultGuide = () => {
+    startGuidedTask({
+      goal: t('guide_me'),
+      steps: [
+        { label: t('search'), target: 'search' },
+        { label: t('featured'), target: 'products' },
+        { label: t('cart'), target: 'cart' },
+        { label: t('guided_mode'), target: 'ai' },
+      ],
+    });
+  };
 
   const addProductToCart = (product: Product, quantity: number) => {
     const previousQuantity = cart.find((item) => item.id === product.id)?.quantity ?? 0;
@@ -247,9 +300,13 @@ export default function AICopilot() {
       const history = messages.filter((m) => m.role === 'user' || m.role === 'model').slice(-8).map((m) => ({ role: m.role, text: m.content }));
       const context = {
         page: window.location.pathname,
+        query: window.location.search,
+        pageTitle: document.title,
         language,
         theme,
-        cart: cart.slice(0, 6).map((item) => ({ id: item.id, name: item.name, quantity: item.quantity })),
+        experience,
+        guidedMode,
+        cart: cart.slice(0, 8).map((item) => ({ id: item.id, name: item.name, quantity: item.quantity })),
       };
       const { data, error } = await supabase.functions.invoke('shop-assistant', {
         body: {
@@ -273,6 +330,7 @@ export default function AICopilot() {
         content: data.reply || 'I am ready to help.',
         products: data.products,
       }]);
+      executeUiActions(data.uiActions as UiAction[] | undefined);
 
       if (data.action?.type === 'add_to_cart') {
         const action = data.action as PendingAction;
@@ -329,7 +387,17 @@ export default function AICopilot() {
                   <p className="text-[11px] text-emerald-500 font-bold mt-0.5 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live catalog</p>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-stone-400 hover:text-stone-700 dark:hover:text-white p-2 rounded-xl transition"><X size={19} /></button>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => guidedMode ? stopGuidedTask() : startDefaultGuide()}
+                  className="p-2.5 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[10px] font-black"
+                  title={guidedMode ? t('stop_guidance') : t('guide_me')}
+                >
+                  <Sparkles size={15} />
+                </button>
+                <button onClick={() => setIsOpen(false)} className="text-stone-400 hover:text-stone-700 dark:hover:text-white p-2 rounded-xl transition" aria-label="Close assistant"><X size={19} /></button>
+              </div>
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-2">
@@ -343,9 +411,24 @@ export default function AICopilot() {
               </div>
             </div>
             {status?.memoryEnabled && userId && <p className="text-[10px] text-stone-400 mt-2">Memory is on for this account · shopping preferences only</p>}
+            {guidedMode && <div className="mt-2 rounded-xl bg-brand-500/10 text-brand-700 dark:text-brand-300 px-3 py-2 text-[11px] font-black">{t('guided_mode')} · {t('guide_me')}</div>}
           </div>
 
           <div className="flex-1 p-4 overflow-y-auto space-y-4">
+            {messages.length === 1 && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {['Find products', 'Guide me through checkout', 'Change my theme'].map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => { setInput(prompt); }}
+                    className="text-left rtl:text-right text-[11px] font-black p-3 rounded-xl border border-stone-200 dark:border-stone-700 hover:border-brand-500/50 bg-white dark:bg-stone-900"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            )}
             {messages.map((msg, index) => (
               <div key={index} className={'flex gap-3 ' + (msg.role === 'user' ? 'justify-end' : 'justify-start')}>
                 {msg.role === 'model' && <div className="w-8 h-8 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center shrink-0 mt-1"><Bot size={15} /></div>}
