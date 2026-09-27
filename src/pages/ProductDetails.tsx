@@ -341,7 +341,7 @@ export default function ProductDetails() {
             </div>
 
             {!outOfStock && (
-              <div className="flex items-center gap-2 bg-stone-100 dark:bg-stone-800 rounded-xl p-1.5 w-fit">
+              <div data-ai-target="quantity" className="flex items-center gap-2 bg-stone-100 dark:bg-stone-800 rounded-xl p-1.5 w-fit">
                 <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-2.5 rounded-lg hover:bg-white dark:hover:bg-stone-700 transition dark:text-white">
                   <Minus size={14} />
                 </button>
@@ -354,6 +354,7 @@ export default function ProductDetails() {
 
             <button
               data-guide="product-add"
+              data-ai-target="product-add"
               onClick={handleAddToCart}
               disabled={outOfStock}
               className="w-full py-4 bg-brand-500 hover:bg-brand-600 disabled:bg-stone-300 dark:disabled:bg-stone-700 disabled:cursor-not-allowed text-white font-black text-lg rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2"
@@ -375,6 +376,7 @@ export default function ProductDetails() {
             </div>
             <button
               type="button"
+              data-ai-target="product-add"
               onClick={handleAddToCart}
               className="min-h-12 px-5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-black text-sm shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2"
             >
