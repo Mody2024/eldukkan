@@ -322,7 +322,6 @@ export default function Layout() {
               <form onSubmit={handleHeaderSearch} className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={19} />
                 <input
-                  autoFocus
                   data-ai-target="search"
                   autoFocus
                   type="search"
