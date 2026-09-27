@@ -48,7 +48,7 @@ export default function OrderTracking() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300">
+    <div className="max-w-3xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300" data-ai-target="tracking">
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-black dark:text-white tracking-tight">Order Tracking</h1>
         <p className="text-stone-500 text-sm">Enter your order ID to check real-time fulfillment status.</p>
@@ -56,13 +56,14 @@ export default function OrderTracking() {
 
       <div className="flex gap-2 storefront-card p-2 sm:p-3">
         <input
+          data-ai-target="tracking-input"
           type="text"
           placeholder="Enter Order ID (UUID)..."
           value={orderId}
           onChange={(e) => setOrderId(e.target.value)}
           className="flex-1 px-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-2xl font-bold text-sm outline-none dark:text-white"
         />
-        <button onClick={() => handleSearch()} disabled={loading} className="px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-2xl transition">
+        <button data-ai-target="tracking-submit" onClick={() => handleSearch()} disabled={loading} className="px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-2xl transition">
           {loading ? 'Searching...' : 'Track'}
         </button>
       </div>
