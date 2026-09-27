@@ -74,17 +74,43 @@ export default function GuidedModeOverlay() {
       const node = findTarget(target);
       if (!node) return;
       const targetNode = event.target as Node | null;
-      if (targetNode && (targetNode === node || node.contains(targetNode))) {
-        window.setTimeout(() => nextGuidedStep(), 160);
+      if (!targetNode || (targetNode !== node && !node.contains(targetNode))) return;
+
+      const tag = node.tagName.toLowerCase();
+      const type = node instanceof HTMLInputElement ? node.type : '';
+      const eventType = event.type;
+
+      // Do not advance on every keystroke. Text inputs advance on commit
+      // (change/Enter), while buttons/links and selection controls advance
+      // from their actual user action.
+      if ((tag === 'input' || tag === 'textarea') && type !== 'checkbox' && type !== 'radio') {
+        if (eventType === 'input') return;
+        if (eventType === 'keydown') {
+          const key = (event as KeyboardEvent).key;
+          if (key !== 'Enter') return;
+        }
+      }
+
+      window.setTimeout(() => nextGuidedStep(), 180);
+    };
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      const node = findTarget(target);
+      if (!node) return;
+      const targetNode = event.target as Node | null;
+      if (!targetNode || (targetNode !== node && !node.contains(targetNode))) return;
+      if ((node.tagName === 'INPUT' || node.tagName === 'TEXTAREA') && event.key === 'Enter') {
+        window.setTimeout(() => nextGuidedStep(), 180);
       }
     };
+
     document.addEventListener('click', onAction, true);
-    document.addEventListener('input', onAction, true);
     document.addEventListener('change', onAction, true);
+    document.addEventListener('keydown', onKeyDown, true);
     return () => {
       document.removeEventListener('click', onAction, true);
-      document.removeEventListener('input', onAction, true);
       document.removeEventListener('change', onAction, true);
+      document.removeEventListener('keydown', onKeyDown, true);
     };
   }, [guidedMode, target, guidedStepIndex, nextGuidedStep]);
 
