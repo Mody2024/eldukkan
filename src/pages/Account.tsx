@@ -3,7 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import type { Order } from '../types';
-import { LogOut, Package } from 'lucide-react';
+import { LogOut, Package, RotateCcw } from 'lucide-react';
 import AIMemoryCard from '../components/AIMemoryCard';
 import AICreditsCard from '../components/AICreditsCard';
 
@@ -97,18 +97,28 @@ export default function Account() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300">
+    <div className="max-w-4xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300" data-ai-target="account">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black dark:text-white tracking-tight">My Account</h1>
           <p className="text-stone-500 text-sm">{userEmail}</p>
         </div>
-        <button
-          onClick={handleSignOut}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            data-ai-target="replay-onboarding"
+            onClick={() => window.dispatchEvent(new Event('eldukkan:replay-onboarding'))}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 hover:bg-brand-500/20 font-bold text-sm transition"
+          >
+            <RotateCcw size={16} /> Replay store tour
+          </button>
+          <button
+            onClick={handleSignOut}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:text-red-500 font-bold text-sm transition"
         >
-          <LogOut size={16} /> Sign Out
-        </button>
+            <LogOut size={16} /> Sign Out
+          </button>
+        </div>
       </div>
 
       <AICreditsCard userId={userId} />
