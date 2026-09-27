@@ -343,12 +343,12 @@ async function runAssistant(
     if (!path.startsWith('/') || path.startsWith('/ops-console')) return null;
     return path.slice(0, 220);
   };
-  const acknowledgeUiTool = (name: string, id?: string, response: Record<string, unknown> = { ok: true }) => {
+  const acknowledgeUiTool = (name: string, id?: string, result: Record<string, unknown> = { ok: true }) => {
     const modelContent = response.candidates?.[0]?.content;
     if (modelContent) contents.push(modelContent);
     contents.push({
       role: 'user',
-      parts: [{ functionResponse: { name, id, response } }],
+      parts: [{ functionResponse: { name, id, response: result } }],
     });
   };
 
