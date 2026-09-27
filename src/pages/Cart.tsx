@@ -28,7 +28,7 @@ export default function Cart() {
     <div className="max-w-4xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300">
       <h1 className="text-3xl font-black dark:text-white tracking-tight">{t('your_cart')}</h1>
 
-      <div className="space-y-4">
+      <div className="space-y-4" data-ai-target="cart-items">
         {cart.map((item) => (
           <div key={item.id} className="flex items-center gap-3 sm:gap-4 storefront-card p-3 sm:p-4">
             <img src={item.image_url} alt={item.name} className="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-xl border border-stone-200 dark:border-stone-700 shrink-0" />
@@ -71,6 +71,7 @@ export default function Cart() {
         </div>
         <button
           data-guide="checkout"
+          data-ai-target="checkout"
           onClick={() => navigate('/checkout')}
           className="flex items-center gap-2 px-6 py-4 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition shadow-lg shadow-brand-500/20"
         >
