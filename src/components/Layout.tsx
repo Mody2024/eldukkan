@@ -105,7 +105,7 @@ export default function Layout() {
           {/* No "Admin" link lives in this nav on purpose — the admin
              dashboard is reached only by a private, unguessable URL and
              is further gated behind Supabase auth + RLS. */}
-          <div className="flex items-center gap-2 sm:gap-3 ml-auto" data-ai-target="mobile-nav">
+          <div className="flex items-center gap-2 sm:gap-3 ml-auto" data-ai-target="header-actions">
             <button
               data-guide="language"
               onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
@@ -322,6 +322,8 @@ export default function Layout() {
               <form onSubmit={handleHeaderSearch} className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={19} />
                 <input
+                  autoFocus
+                  data-ai-target="search"
                   autoFocus
                   type="search"
                   value={headerSearch}
