@@ -63,6 +63,33 @@ interface PendingAction {
   requiresConfirmation: boolean;
 }
 
+function userAskedToNavigate(message: string) {
+  const normalized = message.toLowerCase().trim();
+  return /\b(open|go to|take me|navigate|visit|show me|bring me|switch to)\b/.test(normalized)
+    || /(افتح|روح|اذهب|وديني|خدني|انتقل|وريني|أدخل|ادخل)/.test(normalized);
+}
+
+function collectPageMap() {
+  const nodes = Array.from(document.querySelectorAll('[data-ai-target]')) as HTMLElement[];
+  return nodes
+    .map((node) => {
+      const rect = node.getBoundingClientRect();
+      const style = window.getComputedStyle(node);
+      const target = node.getAttribute('data-ai-target') || '';
+      const label = node.getAttribute('aria-label')
+        || node.getAttribute('placeholder')
+        || (node.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+      return {
+        target,
+        label,
+        tag: node.tagName.toLowerCase(),
+        visible: rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden',
+      };
+    })
+    .filter((item) => /^[A-Za-z0-9_-]{1,80}$/.test(item.target) && item.visible)
+    .slice(0, 100);
+}
+
 const WELCOME: ChatEntry = {
   role: 'model',
   content: "Hi! Tell me what you're looking for. I can search the live catalog and help add a product to your cart.",
@@ -111,6 +138,12 @@ export default function AICopilot() {
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [hydratedKey, setHydratedKey] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const openAssistant = () => { setIsOpen(true); void refreshStatus(); };
+    window.addEventListener('eldukkan:open-ai', openAssistant);
+    return () => window.removeEventListener('eldukkan:open-ai', openAssistant);
+  }, [userId]);
 
   useEffect(() => {
     let next: ChatEntry[] = [WELCOME];
@@ -168,10 +201,10 @@ export default function AICopilot() {
     void refreshStatus();
   }, [now, status?.nextRenewalAt, status?.unlimited]);
 
-  const executeUiActions = (actions: UiAction[] | undefined) => {
+  const executeUiActions = (actions: UiAction[] | undefined, allowNavigation: boolean) => {
     if (!Array.isArray(actions)) return;
-    actions.slice(0, 6).forEach((action) => {
-      if (action.type === 'navigate' && action.path && action.path.startsWith('/') && !action.path.startsWith('/ops-console')) {
+    actions.slice(0, 8).forEach((action) => {
+      if (action.type === 'navigate' && allowNavigation && action.path && action.path.startsWith('/') && !action.path.startsWith('/ops-console')) {
         navigate(action.path);
       } else if (action.type === 'set_theme' && action.theme && action.theme !== theme) {
         toggleTheme();
@@ -307,6 +340,15 @@ export default function AICopilot() {
         theme,
         experience,
         guidedMode,
+        guideStep: guidedMode && useStore.getState().guidedTask
+          ? {
+              index: useStore.getState().guidedStepIndex,
+              target: useStore.getState().guidedTask?.steps[useStore.getState().guidedStepIndex]?.target || null,
+              goal: useStore.getState().guidedTask?.goal || null,
+            }
+          : null,
+        userAskedToNavigate: userAskedToNavigate(userMessage),
+        pageMap: collectPageMap(),
         cart: cart.slice(0, 8).map((item) => ({ id: item.id, name: item.name, quantity: item.quantity })),
       };
       const { data, error } = await supabase.functions.invoke('shop-assistant', {
@@ -331,7 +373,7 @@ export default function AICopilot() {
         content: data.reply || 'I am ready to help.',
         products: data.products,
       }]);
-      executeUiActions(data.uiActions as UiAction[] | undefined);
+      executeUiActions(data.uiActions as UiAction[] | undefined, userAskedToNavigate(userMessage));
 
       if (data.action?.type === 'add_to_cart') {
         const action = data.action as PendingAction;
@@ -371,6 +413,7 @@ export default function AICopilot() {
       {!isOpen ? (
         <button
           onClick={() => { setIsOpen(true); void refreshStatus(); }}
+          data-ai-target="ai"
           className="flex items-center gap-3 bg-brand-500 hover:bg-brand-600 text-white font-black px-5 py-3.5 rounded-2xl shadow-xl hover:scale-[1.02] transition-all"
         >
           <Sparkles size={20} />
@@ -442,7 +485,7 @@ export default function AICopilot() {
                   {msg.products && msg.products.length > 0 && (
                     <div className="space-y-2">
                       {msg.products.slice(0, 3).map((p) => (
-                        <Link key={p.id} to={'/product/' + p.id} className="flex items-center gap-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl p-2.5 hover:border-brand-500/50 transition">
+                        <Link key={p.id} to={'/product/' + p.id} data-ai-target={'ai-product-' + p.id} className="flex items-center gap-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-xl p-2.5 hover:border-brand-500/50 transition">
                           {p.image_url ? <img src={p.image_url} alt="" className="w-11 h-11 rounded-lg object-cover bg-stone-100 shrink-0" /> : <div className="w-11 h-11 rounded-lg bg-stone-100 dark:bg-stone-800 flex items-center justify-center shrink-0"><ShoppingBag size={15} className="text-stone-400" /></div>}
                           <div className="min-w-0 flex-1">
                             <p className="font-bold text-xs dark:text-white truncate">{p.name}</p>
