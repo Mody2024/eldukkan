@@ -353,6 +353,7 @@ export default function ProductDetails() {
             )}
 
             <button
+              data-guide="product-add"
               onClick={handleAddToCart}
               disabled={outOfStock}
               className="w-full py-4 bg-brand-500 hover:bg-brand-600 disabled:bg-stone-300 dark:disabled:bg-stone-700 disabled:cursor-not-allowed text-white font-black text-lg rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2"
