@@ -31,6 +31,7 @@ export default function MobileBottomNav({ onSearch }: Props) {
         </Link>
 
         <button
+          data-guide="search"
           type="button"
           onClick={onSearch}
           className="flex flex-col items-center justify-center gap-1 text-[10px] font-black text-stone-500 dark:text-stone-400 transition"
