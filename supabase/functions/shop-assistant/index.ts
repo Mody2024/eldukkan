@@ -321,7 +321,7 @@ async function runAssistant(
     { role: 'user', parts: [{ text: message }] },
   ];
 
-  const allowCart = status.actionPermissions?.add_to_cart !== false;
+  const allowCart = status.actionPermissions?.add_to_cart !== false && context.guidedMode !== true;
   const allowGuided = status.actionPermissions?.start_guided_mode !== false;
   const allowNavigation = context.userAskedToNavigate === true;
   let response = await callGemini(apiKey, contents, { allowCart, memory, context, allowNavigation });
