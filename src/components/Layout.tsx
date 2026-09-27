@@ -202,10 +202,10 @@ export default function Layout() {
               {userId ? t('my_account') : t('sign_in')}
             </Link>
             <div className="border-t border-stone-100 dark:border-stone-800 pt-3 mt-1 grid grid-cols-3 gap-2">
-              <button type="button" onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')} className="min-h-12 rounded-xl bg-stone-100 dark:bg-stone-800 font-black text-xs dark:text-stone-200">
+              <button data-guide="language" type="button" onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')} className="min-h-12 rounded-xl bg-stone-100 dark:bg-stone-800 font-black text-xs dark:text-stone-200">
                 {language === 'en' ? 'العربية' : 'English'}
               </button>
-              <button type="button" onClick={toggleTheme} className="min-h-12 rounded-xl bg-stone-100 dark:bg-stone-800 font-black text-xs dark:text-stone-200">
+              <button data-guide="theme" type="button" onClick={toggleTheme} className="min-h-12 rounded-xl bg-stone-100 dark:bg-stone-800 font-black text-xs dark:text-stone-200">
                 {theme === 'dark' ? '☀️ ' + t('light_mode') : '🌙 ' + t('dark_mode')}
               </button>
               <div className="min-w-0"><ExperiencePicker /></div>
