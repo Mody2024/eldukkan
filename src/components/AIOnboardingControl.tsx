@@ -86,7 +86,6 @@ export default function AIOnboardingControl({ showToast }: Props) {
   const [enabled, setEnabled] = useState(true);
   const [publishedVersion, setPublishedVersion] = useState(1);
   const [draft, setDraft] = useState<Content>(normalize({}));
-  const [published, setPublished] = useState<Content>(normalize({}));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState(false);
@@ -102,7 +101,6 @@ export default function AIOnboardingControl({ showToast }: Props) {
     }
     setEnabled(Boolean(data.enabled));
     setPublishedVersion(Number(data.published_version || 1));
-    setPublished(normalize(data.published_content));
     setDraft(normalize(data.draft_content || data.published_content));
     setSelectedStep(0);
     setLoading(false);
@@ -134,7 +132,6 @@ export default function AIOnboardingControl({ showToast }: Props) {
     const next = data as Record<string, unknown>;
     setPublishedVersion(Number(next.published_version || publishedVersion));
     setDraft(normalize(next.draft_content));
-    setPublished(normalize(next.published_content));
     setEnabled(Boolean(next.enabled));
     if (publish) showToast('New onboarding published. Users will see this new version once.');
     else showToast('Onboarding draft saved — not public yet.');
