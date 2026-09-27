@@ -70,6 +70,7 @@ export default function Cart() {
           <p className="text-2xl font-black text-brand-500">EGP {total}</p>
         </div>
         <button
+          data-guide="checkout"
           onClick={() => navigate('/checkout')}
           className="flex items-center gap-2 px-6 py-4 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition shadow-lg shadow-brand-500/20"
         >
