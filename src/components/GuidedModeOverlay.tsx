@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Check, ChevronLeft, ChevronRight, LocateFixed, X } from 'lucide-react';
+import { Check, ChevronLeft, LocateFixed, X } from 'lucide-react';
 import { useStore } from '../store';
 import { useTranslation } from '../lib/i18n';
 
