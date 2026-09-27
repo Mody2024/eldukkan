@@ -16,6 +16,8 @@ const fallback: Preferences = { categories: [], budget: '500_1500', goal: 'brows
 
 export default function CustomerPreferencesCard({ userId }: Props) {
   const language = useStore((s) => s.language);
+  const theme = useStore((s) => s.theme);
+  const experience = useStore((s) => s.experience);
   const t = language === 'ar';
   const [preferences, setPreferences] = useState<Preferences>(fallback);
   const [categories, setCategories] = useState<string[]>([]);
@@ -57,6 +59,8 @@ export default function CustomerPreferencesCard({ userId }: Props) {
       shopping_goal: preferences.goal,
       assistant_mode: preferences.assistant,
       language,
+      experience,
+      theme,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' });
     setSaving(false);
