@@ -18,7 +18,7 @@ export default function Onboarding() {
         goal: t('onboarding_welcome'),
         steps: [
           { label: t('search'), target: 'search', path: '/' },
-          { label: t('featured'), target: 'products', path: '/' },
+          { label: t('featured'), target: 'products-grid', path: '/' },
           { label: t('cart'), target: 'cart', path: '/cart' },
           { label: t('guided_mode'), target: 'ai' },
         ],
