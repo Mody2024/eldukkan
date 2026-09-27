@@ -116,7 +116,7 @@ export default function Category() {
 
             return (
               <article key={product.id} className="storefront-card overflow-hidden hover:shadow-lg transition">
-                <Link to={`/product/${product.id}`} className="block">
+                <Link data-ai-target={`product-${product.id}`} to={`/product/${product.id}`} className="block">
                   <div className="h-44 sm:h-60 bg-stone-100 dark:bg-stone-800 overflow-hidden">
                     <img src={product.image_url} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover hover:scale-105 transition duration-300" />
                   </div>
