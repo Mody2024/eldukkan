@@ -35,6 +35,7 @@ export default function MobileBottomNav({ onSearch }: Props) {
           data-guide="search"
           data-ai-target="search"
           type="button"
+          data-ai-target="search-trigger"
           onClick={onSearch}
           className="flex flex-col items-center justify-center gap-1 text-[10px] font-black text-stone-500 dark:text-stone-400 transition"
           aria-label={t('search')}
