@@ -70,7 +70,7 @@ function userAskedToNavigate(message: string) {
 }
 
 function collectPageMap() {
-  const nodes = Array.from(document.querySelectorAll('[data-ai-target]')) as HTMLElement[];
+  const nodes = Array.from(document.querySelectorAll('[data-ai-target], button, a, input, select, textarea, [role="button"]')) as HTMLElement[];
   return nodes
     .map((node) => {
       const rect = node.getBoundingClientRect();
@@ -79,15 +79,17 @@ function collectPageMap() {
       const label = node.getAttribute('aria-label')
         || node.getAttribute('placeholder')
         || (node.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+      const href = node instanceof HTMLAnchorElement ? node.getAttribute('href') : null;
       return {
-        target,
+        target: target || null,
         label,
         tag: node.tagName.toLowerCase(),
-        visible: rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden',
+        href: href ? href.slice(0, 180) : null,
+        visible: rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none',
       };
     })
-    .filter((item) => /^[A-Za-z0-9_-]{1,80}$/.test(item.target) && item.visible)
-    .slice(0, 100);
+    .filter((item) => item.visible && item.label)
+    .slice(0, 140);
 }
 
 const WELCOME: ChatEntry = {
@@ -228,15 +230,11 @@ export default function AICopilot() {
   };
 
   const startDefaultGuide = () => {
-    startGuidedTask({
-      goal: t('guide_me'),
-      steps: [
-        { label: t('search'), target: 'search' },
-        { label: t('featured'), target: 'products-grid', path: '/' },
-        { label: t('cart'), target: 'cart' },
-        { label: t('guided_mode'), target: 'ai' },
-      ],
-    });
+    if (guidedMode) {
+      stopGuidedTask();
+      return;
+    }
+    setInput(language === 'ar' ? 'وجّهني خطوة بخطوة للشراء' : 'Guide me step by step to buy a product');
   };
 
   const addProductToCart = (product: Product, quantity: number) => {
@@ -421,7 +419,7 @@ export default function AICopilot() {
           {status && <span className="px-2 py-1 rounded-lg bg-white/15 text-xs">{status.unlimited ? '∞' : status.balance}</span>}
         </button>
       ) : (
-        <div className="w-[min(420px,calc(100vw-24px))] h-[min(620px,calc(100vh-104px))] sm:h-[min(620px,calc(100vh-24px))] bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+        <div data-ai-target="ai" className="w-[min(420px,calc(100vw-24px))] h-[min(620px,calc(100vh-104px))] sm:h-[min(620px,calc(100vh-24px))] bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
           <div className="bg-stone-50 dark:bg-stone-950 p-4 border-b border-stone-200 dark:border-stone-800">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
