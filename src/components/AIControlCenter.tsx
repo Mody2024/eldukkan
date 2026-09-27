@@ -4,6 +4,7 @@ import {
   BrainCircuit, CheckCircle2, Clock3, Coins, EyeOff, Play, RefreshCw,
   Save, Search, ShieldCheck, Sparkles, UserCog, Zap,
 } from 'lucide-react';
+import AIOnboardingControl from './AIOnboardingControl';
 
 interface Props {
   userEmail: string | null;
@@ -74,9 +75,11 @@ const ACTIONS = [
   ['cancel_order', 'Cancel order'],
 ] as const;
 
-const NUMERIC_OVERRIDES: { key: 'daily_credits_override' | 'message_cost_override' | 'renewal_interval_minutes_override' | 'max_balance_override'; label: string }[] = [
+const NUMERIC_OVERRIDES: { key: 'daily_credits_override' | 'message_cost_override' | 'search_cost_override' | 'action_cost_override' | 'renewal_interval_minutes_override' | 'max_balance_override'; label: string }[] = [
   { key: 'daily_credits_override', label: 'Renewal credits' },
   { key: 'message_cost_override', label: 'Message cost' },
+  { key: 'search_cost_override', label: 'Search cost' },
+  { key: 'action_cost_override', label: 'Action cost' },
   { key: 'renewal_interval_minutes_override', label: 'Renew every (min)' },
   { key: 'max_balance_override', label: 'Max balance' },
 ];
@@ -119,6 +122,14 @@ function formatCredits(value: number, unlimited = false) {
 
 export default function AIControlCenter({ userEmail, showToast }: Props) {
   const [settings, setSettings] = useState<GlobalSettings>(emptySettings);
+  const [numericDraft, setNumericDraft] = useState({
+    renewal_credits: String(emptySettings.renewal_credits),
+    renewal_interval_minutes: String(emptySettings.renewal_interval_minutes),
+    message_cost: String(emptySettings.message_cost),
+    search_cost: String(emptySettings.search_cost),
+    action_cost: String(emptySettings.action_cost),
+    max_balance: String(emptySettings.max_balance),
+  });
   const [userSettings, setUserSettings] = useState<UserSettings[]>([]);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [activity, setActivity] = useState<ActivityRow[]>([]);
@@ -149,13 +160,22 @@ export default function AIControlCenter({ userEmail, showToast }: Props) {
     ]);
 
     if (settingsResult.data) {
-      setSettings({
+      const nextSettings: GlobalSettings = {
         ...emptySettings,
         ...settingsResult.data,
         action_permissions: {
           ...emptySettings.action_permissions,
           ...(settingsResult.data.action_permissions || {}),
         },
+      };
+      setSettings(nextSettings);
+      setNumericDraft({
+        renewal_credits: String(nextSettings.renewal_credits),
+        renewal_interval_minutes: String(nextSettings.renewal_interval_minutes),
+        message_cost: String(nextSettings.message_cost),
+        search_cost: String(nextSettings.search_cost),
+        action_cost: String(nextSettings.action_cost),
+        max_balance: String(nextSettings.max_balance),
       });
     }
 
@@ -197,15 +217,52 @@ export default function AIControlCenter({ userEmail, showToast }: Props) {
   }, [activity, userSettings]);
 
   const saveGlobal = async () => {
-    setSaving(true);
-    const { data: userData } = await supabase.auth.getUser();
-    const payload = { ...settings, updated_by: userData.user?.id ?? null, updated_at: new Date().toISOString() };
-    const { error } = await supabase.from('ai_credit_settings').upsert(payload, { onConflict: 'id' });
-    if (error) showToast('Could not save AI settings: ' + error.message);
-    else {
-      await supabase.from('admin_activity_log').insert([{ admin_email: userEmail, action: 'update_ai_global_settings', details: payload }]);
-      showToast('AI control settings saved.');
+    const parsed = {
+      renewal_credits: Number(numericDraft.renewal_credits),
+      renewal_interval_minutes: Number(numericDraft.renewal_interval_minutes),
+      message_cost: Number(numericDraft.message_cost),
+      search_cost: Number(numericDraft.search_cost),
+      action_cost: Number(numericDraft.action_cost),
+      max_balance: Number(numericDraft.max_balance),
+    };
+    const invalid = Object.entries(parsed).find(([, value]) => !Number.isFinite(value) || value < 0);
+    if (invalid) {
+      showToast('Enter valid non-negative AI setting values.');
+      return;
     }
+    if (parsed.renewal_interval_minutes < 5 || parsed.renewal_interval_minutes > 43200) {
+      showToast('Renewal time must be between 5 minutes and 30 days.');
+      return;
+    }
+
+    setSaving(true);
+    const payload = { ...settings, ...parsed };
+    const { data, error } = await supabase.rpc('ai_admin_update_settings', { p_settings: payload });
+    if (error) {
+      showToast('Could not save AI settings: ' + error.message);
+      setSaving(false);
+      return;
+    }
+
+    const nextSettings: GlobalSettings = {
+      ...emptySettings,
+      ...(data as GlobalSettings),
+      action_permissions: {
+        ...emptySettings.action_permissions,
+        ...((data as GlobalSettings).action_permissions || {}),
+      },
+    };
+    setSettings(nextSettings);
+    setNumericDraft({
+      renewal_credits: String(nextSettings.renewal_credits),
+      renewal_interval_minutes: String(nextSettings.renewal_interval_minutes),
+      message_cost: String(nextSettings.message_cost),
+      search_cost: String(nextSettings.search_cost),
+      action_cost: String(nextSettings.action_cost),
+      max_balance: String(nextSettings.max_balance),
+    });
+    await supabase.from('admin_activity_log').insert([{ admin_email: userEmail, action: 'update_ai_global_settings', details: nextSettings }]);
+    showToast('AI control settings saved and applied.');
     setSaving(false);
   };
 
@@ -316,12 +373,12 @@ export default function AIControlCenter({ userEmail, showToast }: Props) {
           <div className="flex items-center gap-3"><Coins size={19} className="text-brand-500" /><div><h3 className="font-black text-lg dark:text-white">Credit engine</h3><p className="text-xs text-stone-500">Global defaults for the live AI wallet.</p></div></div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <label className="space-y-2"><span className="text-[11px] font-black text-stone-500">Renewal credits</span><input type="number" min="0" value={settings.renewal_credits} onChange={(e) => setSettings({ ...settings, renewal_credits: Math.max(0, Number(e.target.value) || 0) })} className={inputClass} /></label>
-            <label className="space-y-2"><span className="text-[11px] font-black text-stone-500">Renew every (minutes)</span><input type="number" min="5" max="43200" value={settings.renewal_interval_minutes} onChange={(e) => setSettings({ ...settings, renewal_interval_minutes: Math.min(43200, Math.max(5, Number(e.target.value) || 5)) })} className={inputClass} /></label>
-            <label className="space-y-2"><span className="text-[11px] font-black text-stone-500">Message cost</span><input type="number" min="0" value={settings.message_cost} onChange={(e) => setSettings({ ...settings, message_cost: Math.max(0, Number(e.target.value) || 0) })} className={inputClass} /></label>
-            <label className="space-y-2"><span className="text-[11px] font-black text-stone-500">Max balance</span><input type="number" min="0" value={settings.max_balance} onChange={(e) => setSettings({ ...settings, max_balance: Math.max(0, Number(e.target.value) || 0) })} className={inputClass} /></label>
-            <label className="space-y-2"><span className="text-[11px] font-black text-stone-500">Search cost</span><input type="number" min="0" value={settings.search_cost} onChange={(e) => setSettings({ ...settings, search_cost: Math.max(0, Number(e.target.value) || 0) })} className={inputClass} /></label>
-            <label className="space-y-2"><span className="text-[11px] font-black text-stone-500">Action cost</span><input type="number" min="0" value={settings.action_cost} onChange={(e) => setSettings({ ...settings, action_cost: Math.max(0, Number(e.target.value) || 0) })} className={inputClass} /></label>
+            <label className="space-y-2"><span className="text-[11px] font-black text-stone-500">Renewal credits</span><input type="number" min="0" value={numericDraft.renewal_credits} onChange={(e) => setNumericDraft({ ...numericDraft, renewal_credits: e.target.value })} className={inputClass} /></label>
+            <label className="space-y-2"><span className="text-[11px] font-black text-stone-500">Renew every (minutes)</span><input type="number" min="5" max="43200" value={numericDraft.renewal_interval_minutes} onChange={(e) => setNumericDraft({ ...numericDraft, renewal_interval_minutes: e.target.value })} className={inputClass} /></label>
+            <label className="space-y-2"><span className="text-[11px] font-black text-stone-500">Message cost</span><input type="number" min="0" value={numericDraft.message_cost} onChange={(e) => setNumericDraft({ ...numericDraft, message_cost: e.target.value })} className={inputClass} /></label>
+            <label className="space-y-2"><span className="text-[11px] font-black text-stone-500">Max balance</span><input type="number" min="0" value={numericDraft.max_balance} onChange={(e) => setNumericDraft({ ...numericDraft, max_balance: e.target.value })} className={inputClass} /></label>
+            <label className="space-y-2"><span className="text-[11px] font-black text-stone-500">Search cost</span><input type="number" min="0" value={numericDraft.search_cost} onChange={(e) => setNumericDraft({ ...numericDraft, search_cost: e.target.value })} className={inputClass} /></label>
+            <label className="space-y-2"><span className="text-[11px] font-black text-stone-500">Action cost</span><input type="number" min="0" value={numericDraft.action_cost} onChange={(e) => setNumericDraft({ ...numericDraft, action_cost: e.target.value })} className={inputClass} /></label>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
@@ -418,6 +475,8 @@ export default function AIControlCenter({ userEmail, showToast }: Props) {
           </div>
         )}
       </div>
+
+      <AIOnboardingControl showToast={showToast} />
 
       <div className="grid xl:grid-cols-2 gap-6">
         <div className={cardClass + ' p-5 sm:p-6'}>
