@@ -143,8 +143,13 @@ export default function AICopilot() {
 
   useEffect(() => {
     const openAssistant = () => { setIsOpen(true); void refreshStatus(); };
+    const closeAssistant = () => setIsOpen(false);
     window.addEventListener('eldukkan:open-ai', openAssistant);
-    return () => window.removeEventListener('eldukkan:open-ai', openAssistant);
+    window.addEventListener('eldukkan:close-ai', closeAssistant);
+    return () => {
+      window.removeEventListener('eldukkan:open-ai', openAssistant);
+      window.removeEventListener('eldukkan:close-ai', closeAssistant);
+    };
   }, [userId]);
 
   useEffect(() => {
