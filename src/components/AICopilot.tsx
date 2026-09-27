@@ -199,7 +199,7 @@ export default function AICopilot() {
       goal: t('guide_me'),
       steps: [
         { label: t('search'), target: 'search' },
-        { label: t('featured'), target: 'products' },
+        { label: t('featured'), target: 'products-grid', path: '/' },
         { label: t('cart'), target: 'cart' },
         { label: t('guided_mode'), target: 'ai' },
       ],
