@@ -45,7 +45,7 @@ export default function Wishlist() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300">
+    <div className="max-w-5xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300" data-ai-target="wishlist">
       <h1 className="text-3xl font-black dark:text-white tracking-tight flex items-center gap-3">
         <Heart className="text-red-500" /> My Wishlist
       </h1>
