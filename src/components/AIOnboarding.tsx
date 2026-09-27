@@ -173,8 +173,21 @@ export default function AIOnboarding() {
         <div className="p-4 sm:p-5 border-t border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <button type="button" onClick={() => run('skip')} className="text-xs font-black text-stone-500 hover:text-stone-800 dark:hover:text-white text-left rtl:text-right">{rtl ? 'عدم العرض مرة أخرى' : 'Don’t show this again'}</button>
           <div className="flex items-center gap-2 justify-end">
-            <button type="button" disabled={stepIndex === 0} onClick={() => run(step.secondary_action === 'back' ? 'back' : 'back')} className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-xs font-black dark:text-white disabled:opacity-40"><ArrowLeft size={15} /> {stepIndex === 0 ? (rtl ? 'رجوع' : 'Back') : (rtl ? 'رجوع' : 'Back')}</button>
-            <button type="button" onClick={() => run(step.primary_action === 'next' && stepIndex === content.steps.length - 1 ? 'finish' : step.primary_action)} className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-brand-500 text-white text-xs font-black shadow-lg shadow-brand-500/20">
+            {step.secondary_action !== 'skip' && (
+              <button
+                type="button"
+                disabled={step.secondary_action === 'back' && stepIndex === 0}
+                onClick={() => run(step.secondary_action)}
+                className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-xs font-black dark:text-white disabled:opacity-40"
+              >
+                <ArrowLeft size={15} /> {rtl ? step.secondary_ar : step.secondary_en}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => run(step.primary_action === 'next' && stepIndex === content.steps.length - 1 ? 'finish' : step.primary_action)}
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-brand-500 text-white text-xs font-black shadow-lg shadow-brand-500/20"
+            >
               {stepIndex === content.steps.length - 1 ? <Check size={15} /> : <ArrowRight size={15} />}
               {rtl ? step.primary_ar : step.primary_en}
             </button>
