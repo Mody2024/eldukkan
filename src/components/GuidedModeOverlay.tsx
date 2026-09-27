@@ -148,7 +148,7 @@ export default function GuidedModeOverlay() {
         )}
       </div>
 
-      <div className={`fixed left-3 right-3 sm:left-auto sm:right-6 ${['ai', 'checkout'].includes(current.target) ? 'top-20 sm:top-6' : 'bottom-20 sm:bottom-6'} z-[80] w-auto sm:w-[min(390px,calc(100vw-48px))]`}>
+      <div className={`fixed left-3 right-3 sm:left-auto sm:right-6 ${['ai', 'checkout', 'search-trigger'].includes(current.target) ? 'top-20 sm:top-6' : 'bottom-20 sm:bottom-6'} z-[80] w-auto sm:w-[min(390px,calc(100vw-48px))]`}>
         <div className="rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 shadow-2xl p-4 pointer-events-auto">
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center shrink-0"><LocateFixed size={17} /></div>
