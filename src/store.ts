@@ -16,6 +16,7 @@ interface StoreState {
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  replaceCart: (items: CartItem[]) => void;
 
   userEmail: string | null;
   setUserEmail: (email: string | null) => void;
@@ -96,6 +97,7 @@ export const useStore = create<StoreState>()(
         return { cart: state.cart.map((i) => i.id === productId ? { ...i, quantity } : i) };
       }),
       clearCart: () => set({ cart: [] }),
+      replaceCart: (items) => set({ cart: items }),
 
       userEmail: null,
       setUserEmail: (email) => set({ userEmail: email }),
