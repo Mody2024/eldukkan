@@ -65,8 +65,8 @@ interface PendingAction {
 
 function userAskedToNavigate(message: string) {
   const normalized = message.toLowerCase().trim();
-  return /\b(open|go to|take me|navigate|visit|show me|bring me|switch to)\b/.test(normalized)
-    || /(افتح|روح|اذهب|وديني|خدني|انتقل|وريني|أدخل|ادخل)/.test(normalized);
+  return /\b(open|go to|take me to|navigate to|visit|switch to)\b/.test(normalized)
+    || /(افتح|روح إلى|اذهب إلى|وديني إلى|خدني إلى|انتقل إلى|أدخل إلى|ادخل إلى)/.test(normalized);
 }
 
 function collectPageMap() {
