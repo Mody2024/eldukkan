@@ -63,6 +63,80 @@ const CART_TOOL = {
   },
 };
 
+const UI_TOOLS = [
+  {
+    name: 'navigate',
+    description: 'Open a safe internal storefront page. Use paths beginning with /. Never use external URLs or private admin paths.',
+    parameters: {
+      type: 'object',
+      properties: { path: { type: 'string' }, label: { type: 'string' } },
+      required: ['path'],
+    },
+  },
+  {
+    name: 'set_theme',
+    description: 'Change the customer storefront theme between light and dark.',
+    parameters: {
+      type: 'object',
+      properties: { theme: { type: 'string', enum: ['light', 'dark'] } },
+      required: ['theme'],
+    },
+  },
+  {
+    name: 'set_language',
+    description: 'Change the storefront language.',
+    parameters: {
+      type: 'object',
+      properties: { language: { type: 'string', enum: ['en', 'ar'] } },
+      required: ['language'],
+    },
+  },
+  {
+    name: 'set_experience',
+    description: 'Change the storefront experience. Modern is the default; heritage and easy are alternatives.',
+    parameters: {
+      type: 'object',
+      properties: { experience: { type: 'string', enum: ['modern', 'heritage', 'easy'] } },
+      required: ['experience'],
+    },
+  },
+  {
+    name: 'start_guided',
+    description: 'Start a step-by-step guided shopping task. Keep it practical and use only valid targets: search, products, products-grid, cart, checkout, product-add, ai, language, theme, experience.',
+    parameters: {
+      type: 'object',
+      properties: {
+        goal: { type: 'string' },
+        steps: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              label: { type: 'string' },
+              target: { type: 'string' },
+              path: { type: 'string' },
+            },
+            required: ['label', 'target'],
+          },
+        },
+      },
+      required: ['goal', 'steps'],
+    },
+  },
+  {
+    name: 'spotlight',
+    description: 'Highlight one safe storefront control for the customer.',
+    parameters: {
+      type: 'object',
+      properties: {
+        target: { type: 'string' },
+        label: { type: 'string' },
+      },
+      required: ['target'],
+    },
+  },
+];
+
 const GEMINI_MODEL = 'gemini-3.5-flash-lite';
 
 const json = (body: unknown, status = 200) =>
@@ -194,7 +268,7 @@ async function callGemini(
   contents: unknown[],
   options: { allowCart: boolean; memory: Record<string, unknown>; context: Record<string, unknown> }
 ) {
-  const tools = [{ functionDeclarations: [SEARCH_TOOL, ...(options.allowCart ? [CART_TOOL] : [])] }];
+  const tools = [{ functionDeclarations: [SEARCH_TOOL, ...(options.allowCart ? [CART_TOOL] : []), ...UI_TOOLS] }];
   const payload = {
     contents,
     tools,
@@ -203,7 +277,9 @@ async function callGemini(
         text: `You are Eldukkan's friendly shopping assistant for an Egyptian online store.
 Be concise, practical, and warm. Never invent products, prices, stock, ids, coupons, or policies.
 Use search_products before recommending a specific catalog product. Only use add_to_cart with an exact id returned by search_products.
+You may control safe storefront navigation and presentation through the UI tools. Never open external URLs or admin/private paths.
 The customer is always the final actor for checkout and irreversible actions; never submit or cancel an order.
+When the customer asks to be guided, use start_guided with a short practical sequence. Use spotlight when one control is enough.
 Current shopping context: ${JSON.stringify(options.context).slice(0, 2500)}
 Remembered shopping preferences: ${JSON.stringify(options.memory).slice(0, 2500)}
 `,
@@ -242,6 +318,7 @@ async function runAssistant(
   identifier: string,
   context: Record<string, unknown>,
   memory: Record<string, unknown>,
+  requestId?: string,
 ) {
   const contents = [
     ...(history || []).slice(-8).map((h) => ({ role: h.role, parts: [{ text: h.text }] })),
@@ -260,7 +337,14 @@ async function runAssistant(
 
   const toolTrace: { tool: string; input?: Record<string, unknown>; resultCount?: number }[] = [];
 
-  for (let round = 0; round < 2 && functionCall; round += 1) {
+  const uiActions: Record<string, unknown>[] = [];
+  const validTargets = new Set(['search', 'products', 'products-grid', 'cart', 'checkout', 'product-add', 'ai', 'language', 'theme', 'experience']);
+  const validPaths = (path: string) => {
+    if (!path.startsWith('/') || path.startsWith('/ops-console')) return null;
+    return path.slice(0, 220);
+  };
+
+  for (let round = 0; round < 5 && functionCall; round += 1) {
     if (functionCall.name === 'search_products') {
       if (status.actionPermissions?.search_products === false) break;
       const query = String(functionCall.args.query ?? '').trim().slice(0, 120);
@@ -281,24 +365,16 @@ async function runAssistant(
 
       const { data, error } = await q;
       if (error) throw new Error('Catalog search failed: ' + error.message);
-
       searchResults = (data ?? []) as Product[];
       searchUsed = true;
       toolTrace.push({ tool: 'search_products', input: { query: safeQuery, sort }, resultCount: searchResults.length });
 
       const modelContent = response.candidates?.[0]?.content;
       if (!modelContent) throw new Error('Gemini returned an incomplete tool call.');
-
       contents.push(modelContent);
       contents.push({
         role: 'user',
-        parts: [{
-          functionResponse: {
-            name: 'search_products',
-            id: functionCall.id,
-            response: { results: searchResults },
-          },
-        }],
+        parts: [{ functionResponse: { name: 'search_products', id: functionCall.id, response: { results: searchResults } } }],
       });
     } else if (functionCall.name === 'add_to_cart') {
       if (!allowCart) break;
@@ -317,6 +393,59 @@ async function runAssistant(
         toolTrace.push({ tool: 'add_to_cart', input: { product_id: match.id, quantity }, resultCount: 1 });
       }
       break;
+    } else if (functionCall.name === 'navigate') {
+      const path = validPaths(String(functionCall.args.path ?? ''));
+      if (path) {
+        uiActions.push({ type: 'navigate', path, label: String(functionCall.args.label ?? '').slice(0, 100) });
+        toolTrace.push({ tool: 'navigate', input: { path } });
+      }
+    } else if (functionCall.name === 'set_theme') {
+      const value = String(functionCall.args.theme ?? '');
+      if (value === 'light' || value === 'dark') {
+        uiActions.push({ type: 'set_theme', theme: value });
+        toolTrace.push({ tool: 'set_theme', input: { theme: value } });
+      }
+    } else if (functionCall.name === 'set_language') {
+      const value = String(functionCall.args.language ?? '');
+      if (value === 'en' || value === 'ar') {
+        uiActions.push({ type: 'set_language', language: value });
+        toolTrace.push({ tool: 'set_language', input: { language: value } });
+      }
+    } else if (functionCall.name === 'set_experience') {
+      const value = String(functionCall.args.experience ?? '');
+      if (value === 'modern' || value === 'heritage' || value === 'easy') {
+        uiActions.push({ type: 'set_experience', experience: value });
+        toolTrace.push({ tool: 'set_experience', input: { experience: value } });
+      }
+    } else if (functionCall.name === 'start_guided') {
+      const rawSteps = Array.isArray(functionCall.args.steps) ? functionCall.args.steps : [];
+      const steps = rawSteps
+        .slice(0, 6)
+        .map((step: Record<string, unknown>) => ({
+          label: String(step.label ?? 'Next step').slice(0, 100),
+          target: String(step.target ?? ''),
+          ...(typeof step.path === 'string' ? { path: validPaths(step.path) || undefined } : {}),
+        }))
+        .filter((step) => validTargets.has(step.target));
+      if (steps.length) {
+        uiActions.push({
+          type: 'start_guided',
+          goal: String(functionCall.args.goal ?? 'Guided shopping').slice(0, 160),
+          steps,
+        });
+        toolTrace.push({ tool: 'start_guided', input: { stepCount: steps.length } });
+      }
+    } else if (functionCall.name === 'spotlight') {
+      const target = String(functionCall.args.target ?? '');
+      if (validTargets.has(target)) {
+        uiActions.push({
+          type: 'spotlight',
+          target,
+          label: String(functionCall.args.label ?? target).slice(0, 100),
+          goal: 'Guided shopping',
+        });
+        toolTrace.push({ tool: 'spotlight', input: { target } });
+      }
     } else {
       break;
     }
@@ -335,12 +464,12 @@ async function runAssistant(
       : "Tell me what you're looking for and I'll search the store.");
 
   const estimatedCost = status.messageCost + (searchUsed ? status.searchCost : 0);
-  const requestId = `message:${crypto.randomUUID()}`;
+  const chargeRequestId = requestId ? `message:${requestId}` : `message:${crypto.randomUUID()}`;
   const charge = await supabaseAdmin.rpc('ai_consume_credits', {
     p_user_id: userId,
     p_identifier: userId ? null : identifier,
     p_cost: estimatedCost,
-    p_request_id: requestId,
+    p_request_id: chargeRequestId,
     p_event_type: 'message',
     p_reason: 'AI assistant message',
     p_metadata: { searched: searchUsed, suggestedAction: Boolean(suggestedAction) },
@@ -385,6 +514,7 @@ async function runAssistant(
     action: suggestedAction ?? undefined,
     credits: chargedState,
     toolTrace,
+    uiActions: uiActions.length ? uiActions : undefined,
     estimatedCost,
   };
 }
@@ -625,7 +755,8 @@ Deno.serve(async (req) => {
         user?.id ?? null,
         identifier,
         body.context || {},
-        memory
+        memory,
+        body.requestId
       );
 
       return json(result);
