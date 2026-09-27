@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Sparkles, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
-import { useTranslation } from '../lib/i18n';
 
 type Action = 'next' | 'back' | 'skip' | 'finish' | 'open_ai' | 'choose_experience' | 'set_language_en' | 'set_language_ar' | 'set_theme_light' | 'set_theme_dark';
 type Step = {
@@ -79,7 +78,6 @@ const normalize = (value: unknown): Content => {
 
 export default function AIOnboarding() {
   const { userId, language, setLanguage, toggleTheme } = useStore();
-  const { t } = useTranslation();
   const [content, setContent] = useState<Content | null>(null);
   const [version, setVersion] = useState(0);
   const [stepIndex, setStepIndex] = useState(0);
@@ -116,7 +114,14 @@ export default function AIOnboarding() {
     setChecking(false);
   };
 
-  useEffect(() => { void load(); }, [userId]);
+  useEffect(() => {
+    void load();
+    const channel = supabase
+      .channel('ai-onboarding-published')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'ai_onboarding_config' }, () => { void load(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [userId]);
 
   const finish = async () => {
     setOpen(false);
