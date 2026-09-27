@@ -17,6 +17,7 @@ export default function MobileBottomNav({ onSearch }: Props) {
 
   return (
     <nav
+      data-ai-target="mobile-nav"
       aria-label="Mobile storefront navigation"
       className="md:hidden fixed inset-x-0 bottom-0 z-[45] border-t border-stone-200 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl mobile-safe-bottom"
     >
