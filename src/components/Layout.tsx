@@ -129,6 +129,7 @@ export default function Layout() {
             </button>
 
             <Link
+              data-ai-target="wishlist"
               to="/wishlist"
               className="relative hidden sm:flex p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:text-red-500 transition"
               title={t('wishlist')}
@@ -142,6 +143,7 @@ export default function Layout() {
             </Link>
 
             <Link
+              data-ai-target="account"
               to={userId ? '/account' : '/login'}
               className="hidden sm:flex p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:text-brand-500 transition"
               title={userId ? t('my_account') : t('sign_in')}
