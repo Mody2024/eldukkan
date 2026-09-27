@@ -225,7 +225,7 @@ export default function Home() {
         ) : filteredProducts.length === 0 ? (
           <p className="text-stone-500 text-center py-20 font-bold">No products match your search query.</p>
         ) : (
-          <div data-guide="products-grid" className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+          <div data-guide="products-grid" data-ai-target="products" className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {filteredProducts.map((product) => {
               const outOfStock = product.stock !== undefined && product.stock <= 0;
               const lowStock = product.stock !== undefined && product.stock > 0 && product.stock <= 5;
@@ -282,7 +282,7 @@ export default function Home() {
                           {t('details')}
                         </Link>
                         <button
-                          onClick={() => handleAddToCart(product)}
+                          data-ai-target={"add-" + product.id} onClick={() => handleAddToCart(product)}
                           disabled={outOfStock}
                           className="p-3 bg-brand-500 hover:bg-brand-600 disabled:bg-stone-300 dark:disabled:bg-stone-700 disabled:cursor-not-allowed text-white font-bold rounded-xl transition shadow-md"
                         >
