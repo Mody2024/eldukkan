@@ -17,9 +17,9 @@ export default function Onboarding() {
       startGuidedTask({
         goal: t('onboarding_welcome'),
         steps: [
-          { label: t('search'), target: 'search' },
-          { label: t('featured'), target: 'products' },
-          { label: t('cart'), target: 'cart' },
+          { label: t('search'), target: 'search', path: '/' },
+          { label: t('featured'), target: 'products', path: '/' },
+          { label: t('cart'), target: 'cart', path: '/cart' },
           { label: t('guided_mode'), target: 'ai' },
         ],
       });
