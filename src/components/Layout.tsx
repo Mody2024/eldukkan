@@ -6,6 +6,8 @@ import ShopIntro from './ShopIntro';
 import { useStore } from '../store';
 import ExperiencePicker from './ExperiencePicker';
 import MobileBottomNav from './MobileBottomNav';
+import Onboarding from './Onboarding';
+import GuideOverlay from './GuideOverlay';
 import { useTranslation } from '../lib/i18n';
 
 export default function Layout() {
@@ -86,7 +88,7 @@ export default function Layout() {
           </Link>
 
           {/* Full-width search — the centerpiece of a real storefront header */}
-          <form onSubmit={handleHeaderSearch} className="flex-1 max-w-2xl hidden md:flex">
+          <form data-guide="search" onSubmit={handleHeaderSearch} className="flex-1 max-w-2xl hidden md:flex">
             <div className="relative w-full">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
               <input
@@ -104,6 +106,7 @@ export default function Layout() {
              is further gated behind Supabase auth + RLS. */}
           <div className="flex items-center gap-2 sm:gap-3 ml-auto">
             <button
+              data-guide="language"
               onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
               className="hidden sm:flex p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:scale-105 transition flex items-center gap-1.5 font-bold text-xs"
               title="Language / اللغة"
@@ -115,6 +118,7 @@ export default function Layout() {
             <div className="hidden sm:block"><ExperiencePicker /></div>
 
             <button
+              data-guide="theme"
               onClick={toggleTheme}
               className="hidden sm:flex p-3 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:scale-105 transition"
               title="Toggle Theme"
@@ -145,6 +149,7 @@ export default function Layout() {
             </Link>
 
             <Link
+              data-guide="cart"
               to="/cart"
               className="relative p-3 rounded-xl bg-brand-500/10 text-brand-500 hover:bg-brand-500 hover:text-white transition flex items-center gap-2 font-bold text-sm"
             >
@@ -289,6 +294,9 @@ export default function Layout() {
       <Suspense fallback={null}>
         <AICopilot />
       </Suspense>
+
+      <GuideOverlay />
+      <Onboarding />
 
       <MobileBottomNav onSearch={() => { setMobileMenuOpen(false); setMobileSearchOpen(true); }} />
 
