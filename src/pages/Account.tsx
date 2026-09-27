@@ -6,6 +6,7 @@ import type { Order } from '../types';
 import { LogOut, Package, RotateCcw } from 'lucide-react';
 import AIMemoryCard from '../components/AIMemoryCard';
 import AICreditsCard from '../components/AICreditsCard';
+import CustomerPreferencesCard from '../components/CustomerPreferencesCard';
 
 export default function Account() {
   const { userId, userEmail, setUserId, setUserEmail, setAdminStatus } = useStore();
@@ -124,6 +125,8 @@ export default function Account() {
       <AICreditsCard userId={userId} />
 
       <AIMemoryCard userId={userId} />
+
+      <CustomerPreferencesCard userId={userId} />
 
       <div className="space-y-4">
         <h2 className="text-lg font-black dark:text-white">Order History</h2>
