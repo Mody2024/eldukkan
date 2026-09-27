@@ -238,7 +238,7 @@ export default function Checkout() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
-        <form onSubmit={handleSubmitOrder} id="checkout-form" className="lg:col-span-2 space-y-5 sm:space-y-6 storefront-card p-4 sm:p-8">
+        <form onSubmit={handleSubmitOrder} id="checkout-form" data-ai-target="checkout-form" className="lg:col-span-2 space-y-5 sm:space-y-6 storefront-card p-4 sm:p-8">
           <h2 className="text-xl font-black dark:text-white mb-4">{t('shipping_info')}</h2>
 
           <div className="space-y-4">
