@@ -343,6 +343,14 @@ async function runAssistant(
     if (!path.startsWith('/') || path.startsWith('/ops-console')) return null;
     return path.slice(0, 220);
   };
+  const acknowledgeUiTool = (name: string, id?: string, response: Record<string, unknown> = { ok: true }) => {
+    const modelContent = response.candidates?.[0]?.content;
+    if (modelContent) contents.push(modelContent);
+    contents.push({
+      role: 'user',
+      parts: [{ functionResponse: { name, id, response } }],
+    });
+  };
 
   for (let round = 0; round < 5 && functionCall; round += 1) {
     if (functionCall.name === 'search_products') {
@@ -398,24 +406,28 @@ async function runAssistant(
       if (path) {
         uiActions.push({ type: 'navigate', path, label: String(functionCall.args.label ?? '').slice(0, 100) });
         toolTrace.push({ tool: 'navigate', input: { path } });
+        acknowledgeUiTool('navigate', functionCall.id, { ok: true, path });
       }
     } else if (functionCall.name === 'set_theme') {
       const value = String(functionCall.args.theme ?? '');
       if (value === 'light' || value === 'dark') {
         uiActions.push({ type: 'set_theme', theme: value });
         toolTrace.push({ tool: 'set_theme', input: { theme: value } });
+        acknowledgeUiTool('set_theme', functionCall.id, { ok: true, theme: value });
       }
     } else if (functionCall.name === 'set_language') {
       const value = String(functionCall.args.language ?? '');
       if (value === 'en' || value === 'ar') {
         uiActions.push({ type: 'set_language', language: value });
         toolTrace.push({ tool: 'set_language', input: { language: value } });
+        acknowledgeUiTool('set_language', functionCall.id, { ok: true, language: value });
       }
     } else if (functionCall.name === 'set_experience') {
       const value = String(functionCall.args.experience ?? '');
       if (value === 'modern' || value === 'heritage' || value === 'easy') {
         uiActions.push({ type: 'set_experience', experience: value });
         toolTrace.push({ tool: 'set_experience', input: { experience: value } });
+        acknowledgeUiTool('set_experience', functionCall.id, { ok: true, experience: value });
       }
     } else if (functionCall.name === 'start_guided') {
       const rawSteps = Array.isArray(functionCall.args.steps) ? functionCall.args.steps : [];
@@ -434,6 +446,7 @@ async function runAssistant(
           steps,
         });
         toolTrace.push({ tool: 'start_guided', input: { stepCount: steps.length } });
+        acknowledgeUiTool('start_guided', functionCall.id, { ok: true, stepCount: steps.length });
       }
     } else if (functionCall.name === 'spotlight') {
       const target = String(functionCall.args.target ?? '');
@@ -445,6 +458,7 @@ async function runAssistant(
           goal: 'Guided shopping',
         });
         toolTrace.push({ tool: 'spotlight', input: { target } });
+        acknowledgeUiTool('spotlight', functionCall.id, { ok: true, target });
       }
     } else {
       break;
