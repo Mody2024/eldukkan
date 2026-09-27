@@ -357,7 +357,6 @@ export default function ProductDetails() {
               data-ai-target="product-add"
               onClick={handleAddToCart}
               disabled={outOfStock}
-              data-ai-target="product-add"
               className="w-full py-4 bg-brand-500 hover:bg-brand-600 disabled:bg-stone-300 dark:disabled:bg-stone-700 disabled:cursor-not-allowed text-white font-black text-lg rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2"
             >
               <ShoppingBag size={20} /> {outOfStock ? 'Out of Stock' : 'Add to Cart'}
@@ -379,7 +378,6 @@ export default function ProductDetails() {
               type="button"
               data-ai-target="product-add"
               onClick={handleAddToCart}
-              data-ai-target="product-add"
               className="min-h-12 px-5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-black text-sm shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2"
             >
               <ShoppingBag size={18} /> {t('add_to_cart')}
