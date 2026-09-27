@@ -90,6 +90,9 @@ const dict = {
     done: 'Done',
     close: 'Close',
     dark_mode: 'Dark',
+    guided_waiting: 'Waiting for this part of the page to appear. You can keep using the site — guidance stays active.',
+    guided_done_next: 'Done / Next',
+    guided_previous: 'Previous guided step',
   },
   ar: {
     all_products: 'كل المنتجات',
@@ -178,6 +181,9 @@ const dict = {
     done: 'تم',
     close: 'إغلاق',
     dark_mode: 'داكن',
+    guided_waiting: 'مستني الجزء ده يظهر. استخدم الموقع عادي — الإرشاد هيفضل شغال.',
+    guided_done_next: 'تم / التالي',
+    guided_previous: 'الخطوة الإرشادية السابقة',
   },
 } as const;
 
