@@ -164,7 +164,7 @@ export default function Home() {
       )}
 
       {categories.length > 0 && (
-        <div className="flex gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-3 lg:grid-cols-4 sm:gap-4 -mx-1 px-1">
+        <div className="flex gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-3 lg:grid-cols-4 sm:gap-4 -mx-1 px-1" data-ai-target="category-filters">
           {categories.map((cat) => (
             <Link
               key={cat}
@@ -197,6 +197,7 @@ export default function Home() {
               </button>
             )}
             <select
+              data-ai-target="sort"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
               className="px-4 py-2.5 rounded-xl text-xs font-bold bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 dark:text-white outline-none cursor-pointer"
