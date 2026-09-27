@@ -244,22 +244,22 @@ export default function Checkout() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">{t('full_name')}</label>
-              <input required type="text" placeholder="Full name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+              <input data-ai-target="checkout-name" required type="text" placeholder="Full name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
             </div>
 
             <div>
               <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Email address</label>
-              <input required type="email" placeholder="you@example.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+              <input data-ai-target="checkout-email" required type="email" placeholder="you@example.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
             </div>
 
             <div>
               <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">{t('phone_number')}</label>
-              <input required type="tel" placeholder="010XXXXXXXX" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
+              <input data-ai-target="checkout-phone" required type="tel" placeholder="010XXXXXXXX" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500" />
             </div>
 
             <div>
               <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">{t('delivery_address')}</label>
-              <textarea required placeholder="Street address, city, landmark" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500 min-h-[100px]" />
+              <textarea data-ai-target="checkout-address" required placeholder="Street address, city, landmark" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="w-full p-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl font-bold dark:text-white outline-none focus:border-brand-500 min-h-[100px]" />
             </div>
 
             <div>
@@ -276,6 +276,7 @@ export default function Checkout() {
               ) : (
                 <div className="flex gap-2">
                   <input
+                    data-ai-target="checkout-discount"
                     type="text"
                     placeholder="Enter code"
                     value={discountInput}
@@ -300,10 +301,10 @@ export default function Checkout() {
             <div>
               <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">{t('payment_method')}</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <button type="button" onClick={() => setFormData({ ...formData, paymentMethod: 'cod' })} className={`p-4 rounded-xl border font-bold text-sm flex items-center justify-center gap-2 transition ${formData.paymentMethod === 'cod' ? 'border-brand-500 bg-brand-500/10 text-brand-500' : 'border-stone-200 dark:border-stone-700 text-stone-500'}`}>
+                <button data-ai-target="checkout-cod" type="button" onClick={() => setFormData({ ...formData, paymentMethod: 'cod' })} className={`p-4 rounded-xl border font-bold text-sm flex items-center justify-center gap-2 transition ${formData.paymentMethod === 'cod' ? 'border-brand-500 bg-brand-500/10 text-brand-500' : 'border-stone-200 dark:border-stone-700 text-stone-500'}`}>
                   <CheckCircle2 size={18} /> {t('cash_on_delivery')}
                 </button>
-                <button type="button" onClick={() => setFormData({ ...formData, paymentMethod: 'instapay' })} className={`p-4 rounded-xl border font-bold text-sm flex items-center justify-center gap-2 transition ${formData.paymentMethod === 'instapay' ? 'border-brand-500 bg-brand-500/10 text-brand-500' : 'border-stone-200 dark:border-stone-700 text-stone-500'}`}>
+                <button data-ai-target="checkout-online" type="button" onClick={() => setFormData({ ...formData, paymentMethod: 'instapay' })} className={`p-4 rounded-xl border font-bold text-sm flex items-center justify-center gap-2 transition ${formData.paymentMethod === 'instapay' ? 'border-brand-500 bg-brand-500/10 text-brand-500' : 'border-stone-200 dark:border-stone-700 text-stone-500'}`}>
                   <CreditCard size={18} /> {t('pay_online')}
                 </button>
               </div>
