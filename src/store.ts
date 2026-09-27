@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CartItem, Product } from './types';
 
+export type GuideStep = { label: string; target: string; path?: string };
+export type GuidedTask = { goal: string; steps: GuideStep[] };
+
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
 interface StoreState {
@@ -56,6 +59,17 @@ interface StoreState {
 
   experience: 'modern' | 'heritage' | 'easy';
   setExperience: (experience: 'modern' | 'heritage' | 'easy') => void;
+  onboardingCompleted: boolean;
+  completeOnboarding: () => void;
+  resetOnboarding: () => void;
+  guidedMode: boolean;
+  guidedTask: GuidedTask | null;
+  guidedStepIndex: number;
+  startGuidedTask: (task: GuidedTask) => void;
+  setGuidedMode: (enabled: boolean) => void;
+  nextGuidedStep: () => void;
+  previousGuidedStep: () => void;
+  stopGuidedTask: () => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -153,12 +167,29 @@ export const useStore = create<StoreState>()(
 
       experience: 'modern',
       setExperience: (experience) => set({ experience }),
+
+      onboardingCompleted: false,
+      completeOnboarding: () => set({ onboardingCompleted: true }),
+      resetOnboarding: () => set({ onboardingCompleted: false }),
+      guidedMode: false,
+      guidedTask: null,
+      guidedStepIndex: 0,
+      startGuidedTask: (task) => set({ guidedMode: true, guidedTask: task, guidedStepIndex: 0 }),
+      setGuidedMode: (enabled) => set({ guidedMode: enabled }),
+      nextGuidedStep: () => set((state) => {
+        if (!state.guidedTask) return {};
+        const next = state.guidedStepIndex + 1;
+        if (next >= state.guidedTask.steps.length) return { guidedMode: false, guidedTask: null, guidedStepIndex: 0 };
+        return { guidedStepIndex: next };
+      }),
+      previousGuidedStep: () => set((state) => ({ guidedStepIndex: Math.max(0, state.guidedStepIndex - 1) })),
+      stopGuidedTask: () => set({ guidedMode: false, guidedTask: null, guidedStepIndex: 0 }),
     }),
     {
       name: 'eldukkan-storage',
       // Only persist what should survive a refresh; auth/admin status and the
       // toast are runtime-only and must never be cached to localStorage.
-      partialize: (state) => ({ theme: state.theme, cart: state.cart, language: state.language, experience: state.experience }),
+      partialize: (state) => ({ theme: state.theme, cart: state.cart, language: state.language, experience: state.experience, onboardingCompleted: state.onboardingCompleted }),
     }
   )
 );
