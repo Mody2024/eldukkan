@@ -117,7 +117,7 @@ export default function Home() {
         ]}
       />
       <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 sm:p-10 lg:p-12 flex flex-col md:flex-row items-center gap-8 shadow-sm">
-        <div className="flex flex-col items-start gap-4 flex-1">
+        <div data-guide="products" className="flex flex-col items-start gap-4 flex-1">
           <div className="inline-flex items-center gap-2 bg-brand-500/10 text-brand-500 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
             <Sparkles size={14} /> {storeName}
           </div>
@@ -225,7 +225,7 @@ export default function Home() {
         ) : filteredProducts.length === 0 ? (
           <p className="text-stone-500 text-center py-20 font-bold">No products match your search query.</p>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+          <div data-guide="products-grid" className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {filteredProducts.map((product) => {
               const outOfStock = product.stock !== undefined && product.stock <= 0;
               const lowStock = product.stock !== undefined && product.stock > 0 && product.stock <= 5;
