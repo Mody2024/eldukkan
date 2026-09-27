@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { GuidedTask, useStore } from '../store';
+import { useStore } from '../store';
+import type { GuidedTask } from '../store';
 import { useTranslation } from '../lib/i18n';
 import { Bot, Check, Coins, RotateCcw, Send, ShoppingBag, Sparkles, User, X, Zap } from 'lucide-react';
 
