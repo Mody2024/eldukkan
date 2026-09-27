@@ -336,7 +336,7 @@ async function runAssistant(
   const toolTrace: { tool: string; input?: Record<string, unknown>; resultCount?: number }[] = [];
 
   const uiActions: Record<string, unknown>[] = [];
-  const stableTargets = new Set(['search', 'products', 'products-grid', 'cart', 'checkout', 'product-add', 'ai', 'language', 'theme', 'experience', 'product-detail', 'cart-items', 'checkout-form', 'place-order', 'wishlist', 'account', 'mobile-nav']);
+  const stableTargets = new Set(['search', 'search-trigger', 'products', 'products-grid', 'cart', 'checkout', 'product-add', 'ai', 'language', 'theme', 'experience', 'product-detail', 'cart-items', 'checkout-form', 'place-order', 'wishlist', 'account', 'mobile-nav']);
   const pageMap = Array.isArray(context.pageMap) ? context.pageMap as { target?: unknown }[] : [];
   const pageTargets = new Set(pageMap.map((item) => String(item.target || '')).filter((target) => /^[A-Za-z0-9_-]{1,80}$/.test(target)));
   const validTarget = (target: string) => stableTargets.has(target) || pageTargets.has(target);
@@ -760,6 +760,29 @@ Deno.serve(async (req) => {
         if (memoryRow?.enabled !== false) {
           memory = (memoryRow?.preferences && typeof memoryRow.preferences === 'object') ? memoryRow.preferences as Record<string, unknown> : {};
           effectiveHistory = Array.isArray(memoryRow?.recent_history) ? memoryRow.recent_history as ChatMessage[] : effectiveHistory;
+        }
+      }
+
+      if (user) {
+        const { data: preferencesRow } = await supabaseAdmin
+          .from('customer_preferences')
+          .select('preferred_categories, budget_band, shopping_goal, assistant_mode, language, experience, theme')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (preferencesRow) {
+          memory = {
+            ...memory,
+            explicit_customer_preferences: {
+              categories: preferencesRow.preferred_categories ?? [],
+              budget_band: preferencesRow.budget_band ?? null,
+              shopping_goal: preferencesRow.shopping_goal ?? null,
+              assistant_mode: preferencesRow.assistant_mode ?? null,
+              language: preferencesRow.language ?? null,
+              experience: preferencesRow.experience ?? null,
+              theme: preferencesRow.theme ?? null,
+            },
+          };
         }
       }
 
