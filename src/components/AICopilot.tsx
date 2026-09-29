@@ -5,7 +5,7 @@ import { useStore } from '../store';
 import type { GuidedTask } from '../store';
 import { useTranslation } from '../lib/i18n';
 import { useAIContext } from '../hooks/useAIContext';
-import { Bot, Check, Coins, RotateCcw, Send, ShoppingBag, Headset, Compass, User, X, Zap } from 'lucide-react';
+import { Check, Coins, RotateCcw, Send, ShoppingBag, Headset, Compass, User, X, Zap } from 'lucide-react';
 import AIProductComparison from './AIProductComparison';
 
 interface Product {
