@@ -7,6 +7,8 @@ import type { Product } from '../types';
 import { ShoppingBag, Sparkles, Star, Heart } from 'lucide-react';
 import SEO from '../components/SEO';
 import MobileFilterSheet from '../components/MobileFilterSheet';
+import AIEntryPoint from '../components/AIEntryPoint';
+import { useAIPageContext } from '../hooks/useAIContext';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'trending';
 
@@ -20,6 +22,21 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const { addToCart, showToast, userId, wishlist, toggleWishlistId, storeName, logoUrl, heroHeadline, heroSubheadline, heroImageUrl, experience } = useStore();
   const { t } = useTranslation();
+  useAIPageContext({
+    searchQuery,
+    activeCategory,
+    sortBy,
+    visibleProductCount: products.length,
+    categories: categories.slice(0, 20),
+    visibleProducts: products.slice(0, 12).map((product) => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      sale_price: product.sale_price ?? null,
+      category: product.category ?? null,
+      stock: product.stock ?? null,
+    })),
+  });
 
   useEffect(() => {
     fetchProducts();
@@ -153,6 +170,22 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      <div className="flex flex-wrap items-center gap-2" data-ai-target="ai-shopping-entry">
+        <AIEntryPoint
+          label={t('ai_help_find')}
+          prompt={language === 'ar' ? 'ساعدني ألاقي اللي محتاجه' : 'Help me find what I need'}
+          source="home"
+          mode="task"
+        />
+        <AIEntryPoint
+          label={t('ai_compare)}
+          prompt={language === 'ar' ? 'ساعدني أقارن بين المنتجات' : 'Help me compare products'}
+          source="home"
+          mode="chat"
+          className="bg-white dark:bg-stone-900"
+        />
+      </div>
 
       {searchQuery && (
         <div className="flex items-center gap-3 -mt-6">
