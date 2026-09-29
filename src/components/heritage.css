@@ -867,3 +867,27 @@
     text-transform: uppercase;
   }
 }
+
+.storefront-shell[data-experience="heritage"] .heritage-intro {
+  background: #27282a !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-intro > div:first-child {
+  background-color: #6a6259 !important;
+  background-image:
+    repeating-linear-gradient(to bottom, rgba(255,255,255,.08) 0 2px, rgba(0,0,0,.12) 2px 10px),
+    linear-gradient(180deg,#6d675f,#48443f) !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-intro > div:last-child {
+  color: #f8f1e8;
+}
+.storefront-shell[data-experience="heritage"] .heritage-intro > div:last-child > div:first-child {
+  border: 2px solid #aaa197 !important;
+  border-radius: 7px !important;
+  background: #27282a !important;
+  color: #cbe896 !important;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.08), inset -2px -2px 0 rgba(0,0,0,.45), 0 5px 12px rgba(0,0,0,.35);
+}
+.storefront-shell[data-experience="heritage"] .heritage-intro p:last-child {
+  font-family: "IBM Plex Mono","Courier New",monospace !important;
+  letter-spacing: .12em;
+}
