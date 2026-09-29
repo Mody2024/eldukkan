@@ -47,3 +47,50 @@
  .heritage-page-frame__display{min-width:92px}
  .heritage-page-frame__identity strong{font-size:10px}
 }
+
+
+/* Route-specific device consoles */
+.heritage-page-frame__device{
+  position:relative;min-width:220px;width:min(31vw,290px);padding:6px 9px 7px;
+  border:1px solid #5b5752;border-radius:7px;background:linear-gradient(180deg,#343434,#222324);
+  color:#d4e8aa;box-shadow:inset 1px 1px 0 rgba(255,255,255,.08),inset -1px -1px 0 rgba(0,0,0,.52),0 2px 4px rgba(38,30,23,.18)
+}
+.heritage-page-frame__device-label,.heritage-page-frame__device-detail{
+  color:#9a978e;font:800 7px/1 "IBM Plex Mono","Courier New",monospace;letter-spacing:.12em;text-transform:uppercase
+}
+.heritage-page-frame__device-row{display:grid;grid-template-columns:10px 1fr 20px;align-items:center;gap:8px;margin:5px 0}
+.heritage-page-frame__device-row strong{font:900 17px/1 "Courier New",monospace;letter-spacing:.08em;text-align:center;text-shadow:0 0 7px rgba(203,230,150,.12)}
+.heritage-page-frame__meter{display:flex;flex-direction:column;gap:2px}
+.heritage-page-frame__meter::before,.heritage-page-frame__meter::after,.heritage-page-frame__meter i{content:"";display:block;width:7px;height:2px;background:#6d8f5d;border-radius:1px}
+.heritage-page-frame__meter i{background:#c8a95f}
+.heritage-page-frame__knob{width:17px;height:17px;border-radius:50%;background:radial-gradient(circle at 30% 28%,#eee 0 8%,#a9a49b 24%,#5d5a55 67%,#2e2e2d 100%);box-shadow:inset 1px 1px 1px rgba(255,255,255,.32),0 1px 2px rgba(0,0,0,.3)}
+.heritage-page-frame__device-detail{text-align:right}
+.heritage-page-frame--browse .heritage-page-frame__device{--device-accent:#77c5d2}
+.heritage-page-frame--category .heritage-page-frame__device{--device-accent:#ddb56c}
+.heritage-page-frame--product .heritage-page-frame__device{--device-accent:#9bb47c}
+.heritage-page-frame--cart .heritage-page-frame__device{--device-accent:#d28d70}
+.heritage-page-frame--checkout .heritage-page-frame__device{--device-accent:#77a7d1}
+.heritage-page-frame--tracking .heritage-page-frame__device{--device-accent:#a08fc8}
+.heritage-page-frame--account .heritage-page-frame__device{--device-accent:#8dbb91}
+.heritage-page-frame--wishlist .heritage-page-frame__device{--device-accent:#c9a678}
+.heritage-page-frame--login .heritage-page-frame__device{--device-accent:#81b5c0}
+.heritage-page-frame--service .heritage-page-frame__device{--device-accent:#d5a05e}
+.heritage-page-frame__device::after{
+  content:"";position:absolute;left:9px;bottom:5px;width:42px;height:2px;background:var(--device-accent,#84b082);
+  box-shadow:0 0 6px var(--device-accent,#84b082);opacity:.55
+}
+.heritage-page-frame--product .heritage-page-frame__device::before,
+.heritage-page-frame--tracking .heritage-page-frame__device::before{
+  content:"";position:absolute;right:12px;top:-5px;width:27px;height:9px;border:1px solid #55514c;border-bottom:0;border-radius:4px 4px 0 0;background:#1f2021
+}
+.heritage-page-frame--cart .heritage-page-frame__device::before{
+  content:"";position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);width:72px;height:5px;border-radius:0 0 4px 4px;background:#716962;box-shadow:0 2px 0 #45413d
+}
+@media(max-width:700px){
+  .heritage-page-frame__device{min-width:132px;width:auto;flex:0 0 44%;padding:6px}
+  .heritage-page-frame__device-label{font-size:6px}
+  .heritage-page-frame__device-row{grid-template-columns:8px 1fr 17px;gap:5px}
+  .heritage-page-frame__device-row strong{font-size:14px}
+  .heritage-page-frame__device-detail{font-size:6px}
+  .heritage-page-frame__identity{max-width:48%}
+}
