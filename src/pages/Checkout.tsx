@@ -257,16 +257,6 @@ export default function Checkout() {
           className="shrink-0"
         />
       </div>
-        <button onClick={() => navigate('/cart')} className="p-3 bg-stone-100 dark:bg-stone-800 rounded-xl hover:scale-105 transition dark:text-white">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="text-3xl font-black dark:text-white tracking-tight">{t('checkout')}</h1>
-          <p className="text-stone-500 text-sm">
-            {prefilling ? 'Filling in your saved details...' : 'Complete your delivery and payment details.'}
-          </p>
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
         <form onSubmit={handleSubmitOrder} id="checkout-form" data-ai-target="checkout-form" className="lg:col-span-2 space-y-5 sm:space-y-6 storefront-card p-4 sm:p-8">
