@@ -25,7 +25,7 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const ADMIN_PATH = (import.meta.env.VITE_ADMIN_PATH || 'ops-console-7f2k9x').replace(/^\/+/, '');
 
 export function App() {
-  const { setUserEmail, setUserId, setAdminStatus, setAdminRole, setAdminPermissions, setAdminCheckPending, setSiteSettings } = useStore();
+  const { setUserEmail, setUserId, setAdminStatus, setAdminRole, setAdminPermissions, setAdminCheckPending, setSiteSettings, setExperience, setTheme, setLanguage } = useStore();
 
   useEffect(() => {
     // Site-wide settings (announcement banner, maintenance mode) — public
@@ -94,6 +94,45 @@ export function App() {
       supabase.removeChannel(settingsChannel);
     };
   }, []);
+
+  const { userId } = useStore();
+
+  useEffect(() => {
+    if (!userId) return;
+
+    let cancelled = false;
+
+    const loadSavedStorefrontPreferences = async () => {
+      const activeUserId = userId;
+      if (!activeUserId) return;
+
+      const { data } = await supabase
+        .from('customer_preferences')
+        .select('experience,theme,language')
+        .eq('user_id', activeUserId)
+        .maybeSingle();
+
+      if (cancelled || !data) return;
+
+      if (data.experience === 'modern' || data.experience === 'heritage' || data.experience === 'easy') {
+        setExperience(data.experience);
+      }
+
+      if (data.theme === 'light' || data.theme === 'dark') {
+        setTheme(data.theme);
+      }
+
+      if (data.language === 'en' || data.language === 'ar') {
+        setLanguage(data.language);
+      }
+    };
+
+    void loadSavedStorefrontPreferences();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, setExperience, setTheme, setLanguage]);
 
   const checkAdminAccess = async (email: string) => {
     setUserEmail(email);
