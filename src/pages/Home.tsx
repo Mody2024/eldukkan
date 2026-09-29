@@ -258,6 +258,21 @@ export default function Home() {
           <p className="text-stone-500 text-center py-20 font-bold">Loading live store catalog...</p>
         ) : filteredProducts.length === 0 ? (
           <p className="text-stone-500 text-center py-20 font-bold">No products match your search query.</p>
+        ) : filteredProducts.length === 0 ? (
+          <div className="py-16 sm:py-20 text-center space-y-4 storefront-card">
+            <p className="text-stone-500 font-bold">
+              {language === 'ar' ? 'مش لاقيين منتجات مطابقة للبحث الحالي.' : 'No products match this search.'}
+            </p>
+            <p className="text-sm text-stone-500">
+              {language === 'ar' ? 'خلّي ElDukkan AI يوسّع البحث أو يقترح بدائل حقيقية من الكتالوج.' : 'Ask ElDukkan AI to broaden the search or find real alternatives from the catalog.'}
+            </p>
+            <AIEntryPoint
+              label={language === 'ar' ? 'وسّع البحث بالـ AI' : 'Broaden my search with AI'}
+              prompt={language === 'ar' ? 'البحث فاضي. وسّع البحث واقترح بدائل حقيقية من الكتالوج' : 'My search returned nothing. Broaden it and suggest real alternatives from the catalog'}
+              source="search-empty"
+              mode="task"
+            />
+          </div>
         ) : (
           <div data-guide="products-grid" data-ai-target="products" className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {filteredProducts.map((product) => {
