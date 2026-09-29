@@ -21,7 +21,9 @@ export default function Home() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { addToCart, showToast, userId, wishlist, toggleWishlistId, storeName, logoUrl, heroHeadline, heroSubheadline, heroImageUrl, experience } = useStore();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const categories = Array.from(new Set(products.map((p) => p.category).filter((c): c is string => !!c)));
+
   useAIPageContext({
     searchQuery,
     activeCategory,
