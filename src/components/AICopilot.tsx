@@ -434,19 +434,19 @@ export default function AICopilot() {
   };
 
   return (
-    <div className="fixed bottom-20 sm:bottom-6 right-3 sm:right-6 z-50">
+    <div className="heritage-ai fixed bottom-20 sm:bottom-6 right-3 sm:right-6 z-50">
       {!isOpen ? (
         <button
           onClick={() => { setIsOpen(true); void refreshStatus(); }}
           data-ai-target="ai"
-          className="flex items-center gap-3 bg-brand-500 hover:bg-brand-600 text-white font-black px-5 py-3.5 rounded-2xl shadow-xl hover:scale-[1.02] transition-all"
+          className="heritage-ai-launch flex items-center gap-3 bg-brand-500 hover:bg-brand-600 text-white font-black px-5 py-3.5 rounded-2xl shadow-xl hover:scale-[1.02] transition-all"
         >
           <Sparkles size={20} />
           <span>Ask Eldukkan</span>
           {status && <span className="px-2 py-1 rounded-lg bg-white/15 text-xs">{status.unlimited ? '∞' : status.balance}</span>}
         </button>
       ) : (
-        <div data-ai-target="ai" className="w-[min(420px,calc(100vw-24px))] h-[min(620px,calc(100vh-104px))] sm:h-[min(620px,calc(100vh-24px))] bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+        <div data-ai-target="ai" className="heritage-ai-panel w-[min(420px,calc(100vw-24px))] h-[min(620px,calc(100vh-104px))] sm:h-[min(620px,calc(100vh-24px))] bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
           <div className="bg-stone-50 dark:bg-stone-950 p-4 border-b border-stone-200 dark:border-stone-800">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
