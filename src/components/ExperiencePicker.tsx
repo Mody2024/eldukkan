@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Check, Palette } from 'lucide-react';
+import { Check, Palette, Radio } from 'lucide-react';
 import { useStore } from '../store';
 import { useTranslation } from '../lib/i18n';
 
 export default function ExperiencePicker() {
   const [open, setOpen] = useState(false);
   const { experience, setExperience } = useStore();
+  const heritageActive = experience === 'heritage';
   const { t } = useTranslation();
 
   const options = [
@@ -24,7 +25,7 @@ export default function ExperiencePicker() {
         aria-haspopup="menu"
         title={t('store_experience')}
       >
-        <Palette size={16} />
+        {heritageActive ? <Radio size={16} /> : <Palette size={16} />}
         <span className="hidden lg:inline">{t('experience_short')}</span>
       </button>
 
@@ -45,6 +46,7 @@ export default function ExperiencePicker() {
               role="menuitemradio"
               aria-checked={experience === option.id}
             >
+              {heritageActive && <span className="experience-picker-option__code">{option.id === 'modern' ? 'CH 01' : option.id === 'heritage' ? 'CH 02' : 'CH 03'}</span>}
               <span className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${experience === option.id ? 'border-brand-500 bg-brand-500 text-white' : 'border-stone-300 dark:border-stone-600 text-transparent'}`}>
                 <Check size={13} />
               </span>
