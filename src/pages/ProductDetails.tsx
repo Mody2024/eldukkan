@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import type { Product, Review } from '../types';
-import { ShoppingBag, ArrowLeft, Star, Heart, Minus, Plus, Store, MessageSquare, ArrowUp, ArrowDown, Truck, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Heart, Minus, Plus, Store, MessageSquare, ArrowUp, ArrowDown, Truck, ShieldCheck } from 'lucide-react';
 import SEO from '../components/SEO';
 import { useTranslation } from '../lib/i18n';
 import AIEntryPoint from '../components/AIEntryPoint';
@@ -301,12 +301,7 @@ export default function ProductDetails() {
 
             {reviewCount > 0 && (
               <div className="flex items-center gap-2 text-sm">
-                <div className="flex items-center gap-0.5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} size={16} className={star <= Math.round(reviewAverage) ? 'fill-brand-500 text-brand-500' : 'text-stone-300 dark:text-stone-700'} />
-                  ))}
-                </div>
-                <span className="font-bold dark:text-stone-300">{reviewAverage.toFixed(1)}</span>
+                <span className="font-black text-stone-800 dark:text-stone-200">{reviewAverage.toFixed(1)} / 5</span>
                 <span className="text-stone-500">({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})</span>
               </div>
             )}
@@ -449,17 +444,15 @@ export default function ProductDetails() {
           <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-5">
             <div className="text-center sm:text-left">
               <div className="text-4xl font-black dark:text-white">{reviewAverage.toFixed(1)}</div>
-              <div className="flex justify-center sm:justify-start gap-0.5 mt-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} size={16} className={star <= Math.round(reviewAverage) ? 'fill-brand-500 text-brand-500' : 'text-stone-300 dark:text-stone-700'} />
-                ))}
+              <div className="mt-1 inline-flex items-center rounded-md bg-stone-100 dark:bg-stone-800 px-2.5 py-1 text-xs font-black text-stone-700 dark:text-stone-200">
+                {reviewAverage.toFixed(1)} / 5
               </div>
               <p className="text-xs text-stone-500 mt-1">{reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</p>
             </div>
             <div className="space-y-2">
               {reviewBreakdown.map(({ star, count }) => (
                 <div key={star} className="flex items-center gap-2 text-xs">
-                  <span className="w-10 font-bold text-stone-500">{star} star</span>
+                  <span className="w-10 font-bold text-stone-500">{star} / 5</span>
                   <div className="h-2 flex-1 rounded-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
                     <div className="h-full bg-brand-500 rounded-full" style={{ width: `${(count / reviewCount) * 100}%` }} />
                   </div>
@@ -473,12 +466,19 @@ export default function ProductDetails() {
         {eligibleOrderId && (
           <div className="bg-white dark:bg-stone-900 border border-brand-500/30 rounded-2xl p-6 space-y-3">
             <p className="font-bold text-sm dark:text-white">You bought this — leave a review</p>
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button key={star} type="button" onClick={() => setNewRating(star)}>
-                  <Star size={22} className={star <= newRating ? 'fill-brand-500 text-brand-500' : 'text-stone-300 dark:text-stone-700'} />
+            <div className="flex items-center gap-1.5" aria-label="Choose a rating from 1 to 5">
+              {[1, 2, 3, 4, 5].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setNewRating(value)}
+                  aria-pressed={newRating === value}
+                  className={`min-w-10 min-h-10 rounded-lg border text-sm font-black transition ${newRating === value ? 'border-brand-500 bg-brand-500 text-white' : 'border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 text-stone-600 dark:text-stone-300'}`}
+                >
+                  {value}
                 </button>
               ))}
+              <span className="ms-1 text-xs font-bold text-stone-500">{newRating}/5</span>
             </div>
             <textarea
               value={newComment}
@@ -503,11 +503,9 @@ export default function ProductDetails() {
             {reviews.map((review) => (
               <div key={review.id} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-5 space-y-2">
                 <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star key={star} size={14} className={star <= review.rating ? 'fill-brand-500 text-brand-500' : 'text-stone-300 dark:text-stone-700'} />
-                    ))}
-                  </div>
+                  <span className="inline-flex items-center rounded-md bg-stone-100 dark:bg-stone-800 px-2 py-1 text-xs font-black text-stone-700 dark:text-stone-200">
+                    {review.rating} / 5
+                  </span>
                   <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">Verified purchase</span>
                 </div>
                 <span className="text-xs text-stone-400">{new Date(review.created_at).toLocaleDateString()}</span>
