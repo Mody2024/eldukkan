@@ -30,7 +30,7 @@ export default function HeritageHeader() {
 
   const labels = language === 'ar'
     ? { live: 'الدكان مفتوح', search: 'ابحث في الدكان', browse: 'تصفح القنوات', track: 'تتبع الطلب', wish: 'المفضلة', account: 'الحساب', cart: 'السلة', open: 'فتح القائمة', close: 'إغلاق القائمة', theme: theme === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن', language: language === 'ar' ? 'English' : 'العربية' }
-    : { live: 'STORE LIVE', search: 'SEARCH THE STORE', browse: 'CHANNELS', track: 'TRACK ORDER', wish: 'WISHLIST', account: 'ACCOUNT', cart: 'CART', open: 'Open menu', close: 'Close menu', theme: theme === 'dark' ? 'LIGHT MODE' : 'DARK MODE', language: language === 'ar' ? 'English' : 'العربية' };
+    : { live: 'STORE LIVE', search: 'SEARCH THE STORE', browse: 'CHANNELS', track: 'TRACK ORDER', wish: 'WISHLIST', account: 'ACCOUNT', cart: 'CART', open: 'Open menu', close: 'Close menu', theme: theme === 'dark' ? 'LIGHT MODE' : 'DARK MODE', language: 'العربية' };
 
   return (
     <>
