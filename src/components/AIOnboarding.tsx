@@ -34,7 +34,7 @@ const copy = {
     browse: 'I like to browse', browseDesc: 'Show me options and let me explore.', compare: 'Help me compare', compareDesc: 'Help me weigh different options.',
     assistant: 'How should the assistant help?', assistantSelf: 'Only when I ask', assistantAsk: 'Suggest help when useful', assistantGuided: 'Guide me step by step',
     appearance: 'Make the store comfortable', appearanceSub: 'Choose the display now. You can change it any time.', light: 'Light', lightDesc: 'Bright, clean and easy to scan.',
-    dark: 'Dark', darkDesc: 'Lower-light interface for darker rooms.', modern: 'Modern', modernDesc: 'Clean marketplace layout.', easy: 'Easy Mode', easyDesc: 'Larger controls and simpler hierarchy.',
+    dark: 'Dark', darkDesc: 'Lower-light interface for darker rooms.', heritage: 'Heritage', heritageDesc: '90s storefront with tactile hardware, CRT displays and classic controls.', modern: 'Modern', modernDesc: 'Clean marketplace layout.', easy: 'Easy Mode', easyDesc: 'Larger controls and simpler hierarchy.',
     tour: 'Learn the real store', tourSub: 'Not a slideshow. We will highlight the exact control to use next.',
     tourSteps: ['Search', 'Open a product', 'Add to cart', 'Open the cart', 'See checkout', 'Meet the AI assistant'],
     startTour: 'Start interactive tour', skipTour: 'I already know how to use it', tourRunning: 'Follow the highlight',
@@ -58,7 +58,7 @@ const copy = {
     browse: 'بحب أتصفح', browseDesc: 'ورّيني اختيارات وخليّني أستكشف.', compare: 'ساعدني أقارن', compareDesc: 'ساعدني أقارن بين الاختيارات.',
     assistant: 'المساعد يساعدك إزاي؟', assistantSelf: 'لما أطلب منه فقط', assistantAsk: 'يقترح المساعدة لما تكون مفيدة', assistantGuided: 'يوجهني خطوة بخطوة',
     appearance: 'خلّي المتجر مريح ليك', appearanceSub: 'ظبط الشكل دلوقتي، وتقدر تغيّره في أي وقت.', light: 'فاتح', lightDesc: 'مشرق ونظيف وسهل القراءة.',
-    dark: 'داكن', darkDesc: 'واجهة أهدى للغرف قليلة الإضاءة.', modern: 'حديث', modernDesc: 'شكل متجر نظيف ومألوف.', easy: 'الوضع السهل', easyDesc: 'أزرار أكبر وترتيب أبسط.',
+    dark: 'داكن', darkDesc: 'واجهة أهدى للغرف قليلة الإضاءة.', heritage: 'تراثي', heritageDesc: 'متجر بطابع التسعينات وشاشات CRT وأدوات ميكانيكية.', modern: 'حديث', modernDesc: 'شكل متجر نظيف ومألوف.', easy: 'الوضع السهل', easyDesc: 'أزرار أكبر وترتيب أبسط.',
     tour: 'دلوقتي اتعلم المتجر بجد', tourSub: 'دي مش شرائح كلام. هنحدد لك الأداة اللي تستخدمها بعدها بالظبط.',
     tourSteps: ['البحث', 'افتح منتج', 'أضف للسلة', 'افتح السلة', 'شوف صفحة الشراء', 'تعرّف على المساعد'],
     startTour: 'ابدأ الجولة التفاعلية', skipTour: 'أنا عارف أستخدمه', tourRunning: 'اتبع العلامة',
@@ -336,7 +336,7 @@ export default function AIOnboarding() {
   { id: 'light' as const, label: t.light, desc: t.lightDesc, Icon: Sun },
   { id: 'dark' as const, label: t.dark, desc: t.darkDesc, Icon: Moon },
 ]).map(({ id, label, desc, Icon }) => <button key={String(id)} type="button" onClick={() => chooseTheme(id as 'light' | 'dark')} className={cx('text-left rtl:text-right p-5 rounded-2xl border-2', theme === id ? 'border-brand-500 bg-brand-500/10' : 'border-stone-200 dark:border-stone-700')}><div className="flex items-center gap-3"><Icon size={20} className="text-brand-500" /><span className="font-black dark:text-white">{label}</span></div><p className="text-xs text-stone-500 mt-2">{desc}</p></button>)}</div>
-            <div className="grid sm:grid-cols-2 gap-4">{[['modern',t.modern,t.modernDesc],['easy',t.easy,t.easyDesc]].map(([id,label,desc]) => <button key={String(id)} type="button" onClick={() => setExperience(id as 'modern' | 'easy')} className={cx('text-left rtl:text-right p-5 rounded-2xl border-2', experience === id ? 'border-brand-500 bg-brand-500/10' : 'border-stone-200 dark:border-stone-700')}><div className="flex items-center justify-between"><span className="font-black dark:text-white">{label}</span>{experience === id && <Check size={18} className="text-brand-500" />}</div><p className="text-xs text-stone-500 mt-2">{desc}</p></button>)}</div>
+            <div className="grid sm:grid-cols-3 gap-4">{[['heritage',t.heritage,t.heritageDesc],['modern',t.modern,t.modernDesc],['easy',t.easy,t.easyDesc]].map(([id,label,desc]) => <button key={String(id)} type="button" onClick={() => setExperience(id as 'modern' | 'heritage' | 'easy')} className={cx('text-left rtl:text-right p-5 rounded-2xl border-2', experience === id ? 'border-brand-500 bg-brand-500/10' : 'border-stone-200 dark:border-stone-700')}><div className="flex items-center justify-between"><span className="font-black dark:text-white">{label}</span>{experience === id && <Check size={18} className="text-brand-500" />}</div><p className="text-xs text-stone-500 mt-2">{desc}</p></button>)}</div>
           </div>}
 
           {stage === 'tour' && <div className="max-w-4xl mx-auto space-y-7 py-3">
