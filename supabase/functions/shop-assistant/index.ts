@@ -475,9 +475,9 @@ async function runAssistant(
       break;
     } else if (functionCall.name === 'navigate') {
       if (!allowNavigation) break;
-      const path = String(functionCall.args.path ?? '');
-      if (path === '/checkout' && status.actionPermissions?.open_checkout === false) break;
-      const path = validPaths(String(functionCall.args.path ?? ''));
+      const requestedPath = String(functionCall.args.path ?? '');
+      if (requestedPath === '/checkout' && status.actionPermissions?.open_checkout === false) break;
+      const path = validPaths(requestedPath);
       if (path) {
         uiActions.push({ type: 'navigate', path, label: String(functionCall.args.label ?? '').slice(0, 100) });
         toolTrace.push({ tool: 'navigate', input: { path } });
@@ -813,24 +813,18 @@ Deno.serve(async (req) => {
         if (charge.error) throw new Error('Action credit charge failed: ' + charge.error.message);
         if (!(charge.data as Record<string, unknown>)?.ok) return json({ ...(charge.data as object), error: 'Not enough credits for this AI action.' }, 402);
 
-        return json({
-          allowed: true,
-          action: body.action.action || 'add_to_cart',
-          product,
-          quantity,
-          credits: charge.data,
-        });
         await logActivity(supabaseAdmin, {
           userId: user?.id ?? null,
           identifier,
-          eventType: 'add_to_cart',
+          eventType: isChange ? 'change_cart' : 'add_to_cart',
           credits: status.actionCost,
           success: true,
-          metadata: { product_id: productId, quantity },
+          metadata: { product_id: productId, quantity, action: body.action.action || 'add_to_cart' },
         });
 
         return json({
           allowed: true,
+          action: body.action.action || 'add_to_cart',
           product,
           quantity,
           credits: charge.data,
