@@ -69,7 +69,7 @@ export default function Layout() {
         Skip to store content
       </a>
       {experience === 'heritage' ? <HeritageHeader /> : <ShopIntro />}
-      {/* Utility bar — the small strip real storefronts use for trust signals */
+      {/* Utility bar — the small strip real storefronts use for trust signals */}
       {experience !== 'heritage' && <div className="hidden sm:block bg-stone-900 dark:bg-black text-stone-300 text-xs font-bold">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-between">
           <span className="flex items-center gap-1.5"><Truck size={13} /> {t('fast_delivery')}</span>
