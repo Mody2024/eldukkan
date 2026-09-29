@@ -6,6 +6,7 @@ import type { GuidedTask } from '../store';
 import { useTranslation } from '../lib/i18n';
 import { useAIContext } from '../hooks/useAIContext';
 import { Bot, Check, Coins, RotateCcw, Send, ShoppingBag, Sparkles, User, X, Zap } from 'lucide-react';
+import AIProductComparison from './AIProductComparison';
 
 interface Product {
   id: string;
@@ -23,6 +24,7 @@ interface ChatEntry {
   role: 'user' | 'model';
   content: string;
   products?: Product[];
+  comparison?: Product[];
   cartAction?: {
     productId: string;
     quantity: number;
@@ -391,6 +393,7 @@ export default function AICopilot() {
         role: 'model',
         content: data.reply || 'I am ready to help.',
         products: data.products,
+        comparison: /\b(compare|comparison|which one|فرق|قارن|مقارنة)\b/i.test(userMessage) && Array.isArray(data.products) && data.products.length > 1 ? data.products.slice(0, 3) : undefined,
       }]);
       executeUiActions(data.uiActions as UiAction[] | undefined, userAskedToNavigate(userMessage));
 
@@ -503,6 +506,10 @@ export default function AICopilot() {
                     : 'bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 rounded-bl-none')}>
                     {msg.content}
                   </div>
+                  {msg.comparison && msg.comparison.length > 1 && (
+                    <AIProductComparison products={msg.comparison} language={language} />
+                  )}
+
                   {msg.products && msg.products.length > 0 && (
                     <div className="space-y-2">
                       {msg.products.slice(0, 3).map((p) => (
