@@ -9,7 +9,7 @@ type AIProduct = {
   stock: number | null;
   category: string | null;
   rating: number | null;
-  review_count: number | null;
+  review_count?: number | null;
   description?: string;
 };
 
