@@ -6,6 +6,8 @@ import type { Product, Review } from '../types';
 import { ShoppingBag, ArrowLeft, Star, Heart, Minus, Plus, Store, MessageSquare, ArrowUp, ArrowDown, Truck, ShieldCheck } from 'lucide-react';
 import SEO from '../components/SEO';
 import { useTranslation } from '../lib/i18n';
+import AIEntryPoint from '../components/AIEntryPoint';
+import { useAIPageContext } from '../hooks/useAIContext';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -17,6 +19,21 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const { addToCart, showToast, userId, wishlist, toggleWishlistId } = useStore();
+  useAIPageContext({
+    product: product ? {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      sale_price: product.sale_price ?? null,
+      stock: product.stock ?? null,
+      category: product.category ?? null,
+      description: product.description,
+      review_count: product.review_count ?? 0,
+      rating: product.review_count && product.review_count > 0 ? product.rating ?? null : null,
+      sale_active: isOnSale,
+    } : null,
+    quantity,
+  });
 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [eligibleOrderId, setEligibleOrderId] = useState<string | null>(null);
@@ -322,6 +339,19 @@ export default function ProductDetails() {
             <div className="flex flex-col items-center text-center gap-1 text-[10px] sm:text-xs font-bold text-stone-500"><Truck size={18} className="text-brand-500" /> Delivery</div>
             <div className="flex flex-col items-center text-center gap-1 text-[10px] sm:text-xs font-bold text-stone-500"><ShieldCheck size={18} className="text-brand-500" /> Secure checkout</div>
             <div className="flex flex-col items-center text-center gap-1 text-[10px] sm:text-xs font-bold text-stone-500"><Store size={18} className="text-brand-500" /> Trusted shop</div>
+          </div>
+
+          <div className="flex flex-wrap gap-2" data-ai-target="product-ai-actions">
+            <AIEntryPoint
+              label={t('ai_about_product')}
+              prompt={language === 'ar' ? 'اشرحلي المنتج ده وهل يناسبني' : 'Tell me about this product and whether it fits my needs'}
+              source="product"
+            />
+            <AIEntryPoint
+              label={t('ai_compare_product')}
+              prompt={language === 'ar' ? 'قارن المنتج ده ببدائل مشابهة' : 'Compare this product with similar alternatives'}
+              source="product"
+            />
           </div>
 
           <div className="space-y-4 pt-2">
