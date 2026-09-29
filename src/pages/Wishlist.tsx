@@ -4,11 +4,14 @@ import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import type { Product } from '../types';
 import { Heart, ShoppingBag, Trash2 } from 'lucide-react';
+import AIEntryPoint from '../components/AIEntryPoint';
+import { useAIPageContext } from '../hooks/useAIContext';
 
 export default function Wishlist() {
   const { userId, wishlist, setWishlist, addToCart, showToast } = useStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  useAIPageContext({ wishlistCount: products.length, wishlistProducts: products.slice(0, 12).map((p) => ({ id: p.id, name: p.name, price: p.price, category: p.category ?? null })) });
 
   useEffect(() => {
     if (!userId) return;
@@ -56,9 +59,12 @@ export default function Wishlist() {
         <div className="text-center py-20 space-y-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl">
           <Heart className="mx-auto text-stone-400" size={32} />
           <p className="text-stone-500 text-sm">Nothing saved yet.</p>
-          <Link to="/" className="inline-block px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-black text-sm rounded-xl transition">
+          <div className="flex flex-wrap justify-center gap-2">
+            <AIEntryPoint label="Find something to save" prompt="Help me find something I might want to save to my wishlist" source="wishlist-empty" mode="task" />
+            <Link to="/" className="inline-block px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-black text-sm rounded-xl transition">
             Browse Storefront
-          </Link>
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">

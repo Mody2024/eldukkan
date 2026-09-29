@@ -4,9 +4,12 @@ import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import { useTranslation } from '../lib/i18n';
 import type { Product } from '../types';
-import { ShoppingBag, Sparkles, Star, Heart } from 'lucide-react';
+import { ShoppingBag, Radio, Heart } from 'lucide-react';
 import SEO from '../components/SEO';
 import MobileFilterSheet from '../components/MobileFilterSheet';
+import AIEntryPoint from '../components/AIEntryPoint';
+import { useAIPageContext } from '../hooks/useAIContext';
+import HeritageCatalogHero from '../components/HeritageCatalogHero';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'trending';
 
@@ -19,7 +22,24 @@ export default function Home() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { addToCart, showToast, userId, wishlist, toggleWishlistId, storeName, logoUrl, heroHeadline, heroSubheadline, heroImageUrl, experience } = useStore();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const categories = Array.from(new Set(products.map((p) => p.category).filter((c): c is string => !!c)));
+
+  useAIPageContext({
+    searchQuery,
+    activeCategory,
+    sortBy,
+    visibleProductCount: products.length,
+    categories: categories.slice(0, 20),
+    visibleProducts: products.slice(0, 12).map((product) => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      sale_price: product.sale_price ?? null,
+      category: product.category ?? null,
+      stock: product.stock ?? null,
+    })),
+  });
 
   useEffect(() => {
     fetchProducts();
@@ -72,8 +92,6 @@ export default function Home() {
     }
   };
 
-  const categories = Array.from(new Set(products.map((p) => p.category).filter((c): c is string => !!c)));
-
   const filteredProducts = products
     .filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
     .filter((p) => !activeCategory || p.category === activeCategory)
@@ -116,24 +134,28 @@ export default function Home() {
           },
         ]}
       />
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 sm:p-10 lg:p-12 flex flex-col md:flex-row items-center gap-8 shadow-sm">
-        <div data-guide="products" className="flex flex-col items-start gap-4 flex-1">
-          <div className="inline-flex items-center gap-2 bg-brand-500/10 text-brand-500 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
-            <Sparkles size={14} /> {storeName}
+      {experience === 'heritage' ? (
+        <HeritageCatalogHero />
+      ) : (
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 sm:p-10 lg:p-12 flex flex-col md:flex-row items-center gap-8 shadow-sm">
+          <div data-guide="products" className="flex flex-col items-start gap-4 flex-1">
+            <div className="inline-flex items-center gap-2 bg-brand-500/10 text-brand-500 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
+              <Radio size={14} /> {storeName}
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-black tracking-tight dark:text-white max-w-xl">
+              {heroHeadline || t('discover')}
+            </h1>
+            <p className="text-stone-600 dark:text-stone-400 font-medium max-w-lg text-sm sm:text-base">
+              {heroSubheadline || t('hero_sub')}
+            </p>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black tracking-tight dark:text-white max-w-xl">
-            {heroHeadline || t('discover')}
-          </h1>
-          <p className="text-stone-600 dark:text-stone-400 font-medium max-w-lg text-sm sm:text-base">
-            {heroSubheadline || t('hero_sub')}
-          </p>
+          {heroImageUrl && (
+            <div className="w-full md:w-64 h-48 md:h-64 rounded-3xl overflow-hidden shrink-0">
+              <img src={heroImageUrl} alt="" loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
+            </div>
+          )}
         </div>
-        {heroImageUrl && (
-          <div className="w-full md:w-64 h-48 md:h-64 rounded-3xl overflow-hidden shrink-0">
-            <img src={heroImageUrl} alt="" loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
-          </div>
-        )}
-      </div>
+      )}
 
       {experience !== 'easy' && featuredProducts.length > 0 && (
         <div className="space-y-6">
@@ -153,6 +175,22 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      <div className="flex flex-wrap items-center gap-2" data-ai-target="ai-shopping-entry">
+        <AIEntryPoint
+          label={t('ai_help_find')}
+          prompt={language === 'ar' ? 'ساعدني ألاقي اللي محتاجه' : 'Help me find what I need'}
+          source="home"
+          mode="task"
+        />
+        <AIEntryPoint
+          label={t('ai_compare')}
+          prompt={language === 'ar' ? 'ساعدني أقارن بين المنتجات' : 'Help me compare products'}
+          source="home"
+          mode="chat"
+          className="bg-white dark:bg-stone-900"
+        />
+      </div>
 
       {searchQuery && (
         <div className="flex items-center gap-3 -mt-6">
@@ -225,8 +263,23 @@ export default function Home() {
           <p className="text-stone-500 text-center py-20 font-bold">Loading live store catalog...</p>
         ) : filteredProducts.length === 0 ? (
           <p className="text-stone-500 text-center py-20 font-bold">No products match your search query.</p>
+        ) : filteredProducts.length === 0 ? (
+          <div className="py-16 sm:py-20 text-center space-y-4 storefront-card">
+            <p className="text-stone-500 font-bold">
+              {language === 'ar' ? 'مش لاقيين منتجات مطابقة للبحث الحالي.' : 'No products match this search.'}
+            </p>
+            <p className="text-sm text-stone-500">
+              {language === 'ar' ? 'خلّي ElDukkan AI يوسّع البحث أو يقترح بدائل حقيقية من الكتالوج.' : 'Ask ElDukkan AI to broaden the search or find real alternatives from the catalog.'}
+            </p>
+            <AIEntryPoint
+              label={language === 'ar' ? 'وسّع البحث بالـ AI' : 'Broaden my search with AI'}
+              prompt={language === 'ar' ? 'البحث فاضي. وسّع البحث واقترح بدائل حقيقية من الكتالوج' : 'My search returned nothing. Broaden it and suggest real alternatives from the catalog'}
+              source="search-empty"
+              mode="task"
+            />
+          </div>
         ) : (
-          <div data-guide="products-grid" data-ai-target="products" className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+          <div id="products-grid" data-guide="products-grid" data-ai-target="products" className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {filteredProducts.map((product) => {
               const outOfStock = product.stock !== undefined && product.stock <= 0;
               const lowStock = product.stock !== undefined && product.stock > 0 && product.stock <= 5;
@@ -260,7 +313,7 @@ export default function Home() {
                       <h3 className="font-black text-sm sm:text-lg dark:text-white line-clamp-2">{product.name}</h3>
                       {product.rating !== undefined && product.review_count !== undefined && product.review_count > 0 && (
                         <div className="flex items-center gap-1 text-xs">
-                          <Star size={13} className="fill-brand-500 text-brand-500" />
+                          <span className="font-black">Rated</span>
                           <span className="font-bold dark:text-stone-300">{product.rating.toFixed(1)}</span>
                           <span className="text-stone-500">({product.review_count})</span>
                         </div>

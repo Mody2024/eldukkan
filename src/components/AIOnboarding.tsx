@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
-import { ArrowLeft, ArrowRight, Check, CircleUserRound, Eye, Gift, Globe2, Heart, Lightbulb, Loader2, LockKeyhole, Moon, Search, ShoppingBag, Sparkles, Sun, UserRound, X, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, CircleUserRound, Eye, Gift, Globe2, Heart, Lightbulb, Loader2, LockKeyhole, Moon, Search, ShoppingBag, Store, Sun, UserRound, X, Zap } from 'lucide-react';
 
 type Stage = 'welcome' | 'language' | 'account' | 'preferences' | 'appearance' | 'tour' | 'ready';
 type Preferences = {
@@ -266,7 +266,7 @@ export default function AIOnboarding() {
     stage === 'language' ? t.language : stage === 'account' ? t.account : stage === 'preferences' ? t.preferences :
     stage === 'appearance' ? t.appearance : stage === 'tour' ? t.tour : t.ready;
 
-  const icon = stage === 'welcome' ? <Sparkles size={20} /> : stage === 'language' ? <Globe2 size={20} /> :
+  const icon = stage === 'welcome' ? <Store size={20} /> : stage === 'language' ? <Globe2 size={20} /> :
     stage === 'account' ? <CircleUserRound size={20} /> : stage === 'preferences' ? <Heart size={20} /> :
     stage === 'appearance' ? <Eye size={20} /> : stage === 'tour' ? <Zap size={20} /> : <Check size={20} />;
 
@@ -295,7 +295,7 @@ export default function AIOnboarding() {
         <div className="flex-1 overflow-y-auto p-5 sm:p-7">
           {stage === 'welcome' && <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6 items-center min-h-[520px]">
             <div className="space-y-6">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[11px] font-black"><Sparkles size={13} /> {t.setup}</span>
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[11px] font-black"><Store size={13} /> {t.setup}</span>
               <div className="space-y-3"><h1 className="text-4xl sm:text-5xl font-black tracking-tight dark:text-white">{rtl ? config.titleAr : config.titleEn}</h1><p className="text-base sm:text-lg text-stone-500 leading-relaxed max-w-xl">{rtl ? config.introAr : config.introEn}</p></div>
               <div className="space-y-3">{t.welcomeBullets.map((item) => <div key={item} className="flex gap-3 items-start"><span className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0"><Check size={14} /></span><span className="text-sm sm:text-base font-bold text-stone-700 dark:text-stone-200">{item}</span></div>)}</div>
               <button type="button" onClick={() => go('language')} className="min-h-12 px-6 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-black inline-flex items-center gap-2">{t.start} <ArrowRight size={16} /></button>

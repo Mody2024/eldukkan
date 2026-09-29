@@ -6,8 +6,11 @@ import ShopIntro from './ShopIntro';
 import { useStore } from '../store';
 import ExperiencePicker from './ExperiencePicker';
 import AIOnboarding from './AIOnboarding';
-import GuidedModeOverlay from './GuidedModeOverlay';
 import MobileBottomNav from './MobileBottomNav';
+import GuidedSpotlight from './GuidedSpotlight';
+import HeritageHeader from './HeritageHeader';
+import HeritageFooter from './HeritageFooter';
+import HeritagePageFrame from './HeritagePageFrame';
 import { useTranslation } from '../lib/i18n';
 
 export default function Layout() {
@@ -41,11 +44,13 @@ export default function Layout() {
   // site icon while the actual destination can follow the current branding.
   useEffect(() => {
     const iconHref = logoUrl || '/favicon';
+    const themeColor = document.head.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+    if (themeColor) themeColor.content = experience === 'heritage' ? '#27282a' : theme === 'dark' ? '#0c0a09' : '#c96a2e';
     const icon = document.head.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
     if (icon) icon.href = iconHref;
     const appleIcon = document.head.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement | null;
     if (appleIcon) appleIcon.href = iconHref;
-  }, [logoUrl]);
+  }, [logoUrl, experience, theme]);
 
   // Maintenance mode blocks the storefront for everyone except a confirmed
   // signed-in admin.
@@ -63,16 +68,16 @@ export default function Layout() {
       <a href="#store-content" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-xl focus:bg-stone-900 focus:px-4 focus:py-3 focus:text-sm focus:font-black focus:text-white">
         Skip to store content
       </a>
-      <ShopIntro />
+      {experience === 'heritage' ? <HeritageHeader /> : <ShopIntro />}
       {/* Utility bar — the small strip real storefronts use for trust signals */}
-      <div className="hidden sm:block bg-stone-900 dark:bg-black text-stone-300 text-xs font-bold">
+      {experience !== 'heritage' && <div className="hidden sm:block bg-stone-900 dark:bg-black text-stone-300 text-xs font-bold">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-between">
           <span className="flex items-center gap-1.5"><Truck size={13} /> {t('fast_delivery')}</span>
           <span className="flex items-center gap-1.5"><Headset size={13} /> {t('need_help')}</span>
         </div>
-      </div>
+      </div>}
 
-      <header className="sticky top-0 z-40 bg-white/98 dark:bg-stone-900/98 backdrop-blur-md border-b border-stone-200 dark:border-stone-800">
+      {experience !== 'heritage' && <header className="sticky top-0 z-40 bg-white/98 dark:bg-stone-900/98 backdrop-blur-md border-b border-stone-200 dark:border-stone-800">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center gap-2 sm:gap-5">
           <Link to="/" className="flex items-center gap-2 group shrink-0">
             {logoUrl ? (
@@ -217,9 +222,9 @@ export default function Layout() {
             </div>
           </div>
         )}
-      </header>
+      </header>}
 
-      {announcementBanner && (
+      {experience !== 'heritage' && announcementBanner && (
         <div className="bg-brand-500 text-white px-4 py-2.5 text-center text-sm font-bold flex items-center justify-center gap-2">
           <Megaphone size={16} /> {announcementBanner}
         </div>
@@ -236,12 +241,12 @@ export default function Layout() {
           </div>
         ) : (
           <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8">
-            <Outlet />
+            {experience === 'heritage' ? <HeritagePageFrame><Outlet /></HeritagePageFrame> : <Outlet />}
           </div>
         )}
       </main>
 
-      <footer className="bg-stone-950 dark:bg-black text-stone-400 mt-auto pb-16 md:pb-0">
+      {experience === 'heritage' ? <HeritageFooter /> : <footer className="bg-stone-950 dark:bg-black text-stone-400 mt-auto pb-16 md:pb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1 space-y-3">
             <span className="text-lg font-black text-white">{storeName}</span>
@@ -294,18 +299,18 @@ export default function Layout() {
             )}
           </div>
         </div>
-      </footer>
+      </footer>}
 
       <Suspense fallback={null}>
         <AICopilot />
       </Suspense>
 
-      <GuidedModeOverlay />
+      <GuidedSpotlight />
       <AIOnboarding />
 
-      <MobileBottomNav onSearch={() => { setMobileMenuOpen(false); setMobileSearchOpen(true); }} />
+      {experience !== 'heritage' && <MobileBottomNav onSearch={() => { setMobileMenuOpen(false); setMobileSearchOpen(true); }} />}
 
-      {mobileSearchOpen && (
+      {experience !== 'heritage' && mobileSearchOpen && (
         <div className="md:hidden fixed inset-0 z-[80] bg-stone-950/40 backdrop-blur-sm" onClick={() => setMobileSearchOpen(false)}>
           <div
             className="absolute inset-x-0 bottom-0 mobile-safe-bottom bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 rounded-t-3xl p-4 shadow-2xl animate-in slide-in-from-bottom duration-200"

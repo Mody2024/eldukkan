@@ -4,7 +4,9 @@ import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import type { GuidedTask } from '../store';
 import { useTranslation } from '../lib/i18n';
-import { Bot, Check, Coins, RotateCcw, Send, ShoppingBag, Sparkles, User, X, Zap } from 'lucide-react';
+import { useAIContext } from '../hooks/useAIContext';
+import { Bot, Check, Coins, RotateCcw, Send, ShoppingBag, Headset, Compass, User, X, Zap } from 'lucide-react';
+import AIProductComparison from './AIProductComparison';
 
 interface Product {
   id: string;
@@ -15,6 +17,7 @@ interface Product {
   category: string | null;
   stock: number | null;
   rating: number | null;
+  review_count?: number | null;
   image_url: string | null;
 }
 
@@ -22,6 +25,7 @@ interface ChatEntry {
   role: 'user' | 'model';
   content: string;
   products?: Product[];
+  comparison?: Product[];
   cartAction?: {
     productId: string;
     quantity: number;
@@ -54,7 +58,8 @@ interface UiAction {
 }
 
 interface PendingAction {
-  type: 'add_to_cart';
+  type: 'add_to_cart' | 'change_cart';
+  action?: 'remove' | 'set_quantity';
   product_id: string;
   product_name?: string;
   quantity: number;
@@ -67,29 +72,6 @@ function userAskedToNavigate(message: string) {
   const normalized = message.toLowerCase().trim();
   return /\b(open|go to|take me to|navigate to|visit|switch to)\b/.test(normalized)
     || /(افتح|روح إلى|اذهب إلى|وديني إلى|خدني إلى|انتقل إلى|أدخل إلى|ادخل إلى)/.test(normalized);
-}
-
-function collectPageMap() {
-  const nodes = Array.from(document.querySelectorAll('[data-ai-target], button, a, input, select, textarea, [role="button"]')) as HTMLElement[];
-  return nodes
-    .map((node) => {
-      const rect = node.getBoundingClientRect();
-      const style = window.getComputedStyle(node);
-      const target = node.getAttribute('data-ai-target') || '';
-      const label = node.getAttribute('aria-label')
-        || node.getAttribute('placeholder')
-        || (node.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
-      const href = node instanceof HTMLAnchorElement ? node.getAttribute('href') : null;
-      return {
-        target: target || null,
-        label,
-        tag: node.tagName.toLowerCase(),
-        href: href ? href.slice(0, 180) : null,
-        visible: rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none',
-      };
-    })
-    .filter((item) => item.visible && item.label)
-    .slice(0, 140);
 }
 
 const WELCOME: ChatEntry = {
@@ -126,8 +108,9 @@ function storageKey(userId: string | null) {
 }
 
 export default function AICopilot() {
-  const { userId, theme, language, experience, cart, addToCart, updateQuantity, removeFromCart, showToast, setExperience, setLanguage, toggleTheme, startGuidedTask, guidedMode, stopGuidedTask } = useStore();
+  const { userId, theme, language, cart, addToCart, updateQuantity, removeFromCart, showToast, setExperience, setLanguage, toggleTheme, startGuidedTask, guidedMode, stopGuidedTask } = useStore();
   const { t } = useTranslation();
+  const { getContext } = useAIContext();
   const navigate = useNavigate();
   const key = useMemo(() => storageKey(userId), [userId]);
   const [isOpen, setIsOpen] = useState(false);
@@ -142,7 +125,19 @@ export default function AICopilot() {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const openAssistant = () => { setIsOpen(true); void refreshStatus(); };
+    const openAssistant = (event: Event) => {
+      const detail = (event as CustomEvent<{ prompt?: string; source?: string; mode?: 'chat' | 'guided' | 'task' }>).detail;
+      setIsOpen(true);
+      void refreshStatus();
+      if (detail?.prompt) {
+        setInput(detail.prompt);
+        if (detail.mode === 'guided' || detail.mode === 'task') {
+          window.setTimeout(() => {
+            void sendPrompt(detail.prompt!);
+          }, 60);
+        }
+      }
+    };
     const closeAssistant = () => setIsOpen(false);
     window.addEventListener('eldukkan:open-ai', openAssistant);
     window.addEventListener('eldukkan:close-ai', closeAssistant);
@@ -258,7 +253,7 @@ export default function AICopilot() {
   const addProductToCart = (product: Product, quantity: number) => {
     const previousQuantity = cart.find((item) => item.id === product.id)?.quantity ?? 0;
     for (let i = 0; i < quantity; i += 1) {
-      addToCart({ ...product, category: product.category ?? undefined, stock: product.stock ?? undefined, rating: product.rating ?? undefined, image_url: product.image_url || '', price: product.sale_price ?? product.price });
+      addToCart({ ...product, category: product.category ?? undefined, stock: product.stock ?? undefined, rating: product.rating ?? undefined, review_count: product.review_count ?? undefined, image_url: product.image_url || '', price: product.sale_price ?? product.price });
     }
     return previousQuantity;
   };
@@ -302,12 +297,33 @@ export default function AICopilot() {
         return;
       }
 
-      const product = data.product as Product;
-      const previousQuantity = addProductToCart(product, Number(data.quantity || action.quantity));
       setStatus((prev) => prev && data.credits ? { ...prev, ...data.credits } : prev);
-      appendAddedMessage(product, Number(data.quantity || action.quantity), previousQuantity);
-      rememberEvent(product);
-      showToast('Added ' + product.name + ' to your cart');
+      if (action.type === 'add_to_cart') {
+        const product = data.product as Product;
+        const previousQuantity = addProductToCart(product, Number(data.quantity || action.quantity));
+        appendAddedMessage(product, Number(data.quantity || action.quantity), previousQuantity);
+        rememberEvent(product);
+        showToast('Added ' + product.name + ' to your cart');
+      } else {
+        const current = useStore.getState().cart.find((item) => item.id === action.product_id);
+        if (!current) {
+          setMessages((prev) => [...prev, { role: 'model', content: 'That item is no longer in your cart, so I left the cart unchanged.' }]);
+        } else {
+          if (action.action === 'remove') {
+            removeFromCart(action.product_id);
+            showToast('Removed ' + current.name + ' from your cart');
+          } else {
+            updateQuantity(action.product_id, Number(data.quantity || action.quantity));
+            showToast('Updated ' + current.name + ' quantity');
+          }
+          setMessages((prev) => [...prev, {
+            role: 'model',
+            content: action.action === 'remove'
+              ? 'Removed ' + current.name + ' from your cart.'
+              : 'Updated ' + current.name + ' quantity to ' + Number(data.quantity || action.quantity) + '.',
+          }]);
+        }
+      }
     } catch (err) {
       console.error('Eldukkan Assistant action error:', err);
       setMessages((prev) => [...prev, { role: 'model', content: 'Sorry, that cart action could not be completed.' }]);
@@ -323,9 +339,15 @@ export default function AICopilot() {
     showToast('Cart action undone');
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const sendPrompt = async (prompt: string) => {
+    if (!prompt.trim() || loading || statusLoading) return;
+    await handleSendMessage({ preventDefault: () => {} } as React.FormEvent, prompt);
+  };
+
+  const handleSendMessage = async (e: React.FormEvent, requestedMessage?: string) => {
     e.preventDefault();
-    if (!input.trim() || loading || statusLoading) return;
+    const requested = requestedMessage?.trim() || input.trim();
+    if (!requested || loading || statusLoading) return;
 
     if (status?.enabled === false) {
       setMessages((prev) => [...prev, { role: 'model', content: 'The AI assistant is currently unavailable.' }]);
@@ -340,7 +362,7 @@ export default function AICopilot() {
       return;
     }
 
-    const userMessage = input.trim();
+    const userMessage = requested;
     setInput('');
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setLoading(true);
@@ -348,25 +370,9 @@ export default function AICopilot() {
     const requestId = crypto.randomUUID();
     try {
       const history = messages.filter((m) => m.role === 'user' || m.role === 'model').slice(-8).map((m) => ({ role: m.role, text: m.content }));
-      const context = {
-        page: window.location.pathname,
-        query: window.location.search,
-        pageTitle: document.title,
-        language,
-        theme,
-        experience,
-        guidedMode,
-        guideStep: guidedMode && useStore.getState().guidedTask
-          ? {
-              index: useStore.getState().guidedStepIndex,
-              target: useStore.getState().guidedTask?.steps[useStore.getState().guidedStepIndex]?.target || null,
-              goal: useStore.getState().guidedTask?.goal || null,
-            }
-          : null,
+      const context = getContext({
         userAskedToNavigate: userAskedToNavigate(userMessage),
-        pageMap: collectPageMap(),
-        cart: cart.slice(0, 8).map((item) => ({ id: item.id, name: item.name, quantity: item.quantity })),
-      };
+      });
       const { data, error } = await supabase.functions.invoke('shop-assistant', {
         body: {
           mode: 'chat',
@@ -388,15 +394,18 @@ export default function AICopilot() {
         role: 'model',
         content: data.reply || 'I am ready to help.',
         products: data.products,
+        comparison: /\b(compare|comparison|which one|فرق|قارن|مقارنة)\b/i.test(userMessage) && Array.isArray(data.products) && data.products.length > 1 ? data.products.slice(0, 3) : undefined,
       }]);
       executeUiActions(data.uiActions as UiAction[] | undefined, userAskedToNavigate(userMessage));
 
-      if (data.action?.type === 'add_to_cart') {
+      if (data.action?.type === 'add_to_cart' || data.action?.type === 'change_cart') {
         const action = data.action as PendingAction;
-        const product = (data.products || []).find((p: Product) => p.id === action.product_id) as Product | undefined;
+        const product = action.type === 'add_to_cart'
+          ? (data.products || []).find((p: Product) => p.id === action.product_id) as Product | undefined
+          : useStore.getState().cart.find((item) => item.id === action.product_id) as Product | undefined;
         if (product && action.requiresConfirmation) {
           setPendingAction(action);
-        } else if (product) {
+        } else if (product && action.type === 'add_to_cart') {
           const previousQuantity = addProductToCart(product, Number(action.quantity || 1));
           appendAddedMessage(product, Number(action.quantity || 1), previousQuantity);
           rememberEvent(product);
@@ -425,19 +434,19 @@ export default function AICopilot() {
   };
 
   return (
-    <div className="fixed bottom-20 sm:bottom-6 right-3 sm:right-6 z-50">
+    <div className="heritage-ai fixed bottom-20 sm:bottom-6 right-3 sm:right-6 z-50">
       {!isOpen ? (
         <button
           onClick={() => { setIsOpen(true); void refreshStatus(); }}
           data-ai-target="ai"
-          className="flex items-center gap-3 bg-brand-500 hover:bg-brand-600 text-white font-black px-5 py-3.5 rounded-2xl shadow-xl hover:scale-[1.02] transition-all"
+          className="heritage-ai-launch flex items-center gap-3 bg-brand-500 hover:bg-brand-600 text-white font-black px-5 py-3.5 rounded-2xl shadow-xl hover:scale-[1.02] transition-all"
         >
-          <Sparkles size={20} />
+          <Headset size={20} />
           <span>Ask Eldukkan</span>
           {status && <span className="px-2 py-1 rounded-lg bg-white/15 text-xs">{status.unlimited ? '∞' : status.balance}</span>}
         </button>
       ) : (
-        <div data-ai-target="ai" className="w-[min(420px,calc(100vw-24px))] h-[min(620px,calc(100vh-104px))] sm:h-[min(620px,calc(100vh-24px))] bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+        <div data-ai-target="ai" className="heritage-ai-panel w-[min(420px,calc(100vw-24px))] h-[min(620px,calc(100vh-104px))] sm:h-[min(620px,calc(100vh-24px))] bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
           <div className="bg-stone-50 dark:bg-stone-950 p-4 border-b border-stone-200 dark:border-stone-800">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
@@ -454,7 +463,7 @@ export default function AICopilot() {
                   className="p-2.5 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[10px] font-black"
                   title={guidedMode ? t('stop_guidance') : t('guide_me')}
                 >
-                  <Sparkles size={15} />
+                  <Compass size={15} />
                 </button>
                 <button onClick={() => setIsOpen(false)} className="text-stone-400 hover:text-stone-700 dark:hover:text-white p-2 rounded-xl transition" aria-label="Close assistant"><X size={19} /></button>
               </div>
@@ -498,6 +507,10 @@ export default function AICopilot() {
                     : 'bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 rounded-bl-none')}>
                     {msg.content}
                   </div>
+                  {msg.comparison && msg.comparison.length > 1 && (
+                    <AIProductComparison products={msg.comparison} language={language} />
+                  )}
+
                   {msg.products && msg.products.length > 0 && (
                     <div className="space-y-2">
                       {msg.products.slice(0, 3).map((p) => (
@@ -521,8 +534,17 @@ export default function AICopilot() {
 
             {pendingAction && (
               <div className="rounded-2xl border border-brand-500/20 bg-brand-500/5 p-4 space-y-3">
-                <p className="text-sm font-black dark:text-white">Add {pendingAction.product_name || 'this product'} to your cart?</p>
-                <p className="text-xs text-stone-500">Quantity: {pendingAction.quantity} · {pendingAction.creditCost ? pendingAction.creditCost + ' AI credits' : 'No extra action credit'}</p>
+                <p className="text-sm font-black dark:text-white">
+                {pendingAction.type === 'add_to_cart'
+                  ? 'Add ' + (pendingAction.product_name || 'this product') + ' to your cart?'
+                  : pendingAction.action === 'remove'
+                    ? 'Remove ' + (pendingAction.product_name || 'this item') + ' from your cart?'
+                    : 'Change ' + (pendingAction.product_name || 'this item') + ' quantity to ' + pendingAction.quantity + '?'}
+              </p>
+                <p className="text-xs text-stone-500">
+                {pendingAction.type === 'add_to_cart' ? 'Quantity: ' + pendingAction.quantity + ' · ' : ''}
+                {pendingAction.creditCost ? pendingAction.creditCost + ' AI credits' : 'No extra action credit'}
+              </p>
                 <div className="flex gap-2">
                   <button onClick={confirmAction} disabled={loading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-500 text-white text-xs font-black disabled:opacity-50"><Check size={14} /> Confirm</button>
                   <button onClick={() => setPendingAction(null)} disabled={loading} className="px-4 py-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-xs font-black dark:text-white">Cancel</button>

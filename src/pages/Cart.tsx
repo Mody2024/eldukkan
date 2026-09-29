@@ -2,12 +2,21 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../lib/i18n';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useStore } from '../store';
+import AIEntryPoint from '../components/AIEntryPoint';
+import { useAIPageContext } from '../hooks/useAIContext';
 
 export default function Cart() {
   const { cart, updateQuantity, removeFromCart } = useStore();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const navigate = useNavigate();
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  useAIPageContext({
+    cartState: {
+      itemCount: cart.reduce((sum, item) => sum + item.quantity, 0),
+      subtotal: total,
+      items: cart.map((item) => ({ id: item.id, name: item.name, quantity: item.quantity, price: item.price })),
+    },
+  });
 
   if (cart.length === 0) {
     return (
@@ -16,17 +25,32 @@ export default function Cart() {
           <ShoppingBag size={36} />
         </div>
         <h2 className="text-2xl font-black dark:text-white">{t('cart_empty')}</h2>
-        <p className="text-stone-500 text-sm">Add some items from the store first.</p>
-        <button onClick={() => navigate('/')} className="px-6 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition">
-          {t('browse_storefront')}
-        </button>
+        <p className="text-stone-500 text-sm">{language === 'ar' ? 'قول للمساعد إنت محتاج إيه وهو يساعدك تلاقيه.' : 'Tell the assistant what you need and it can help you find it.'}</p>
+        <div className="flex flex-wrap justify-center gap-2">
+          <AIEntryPoint
+            label={t('ai_help_find')}
+            prompt={language === 'ar' ? 'سلتّي فاضية. ساعدني ألاقي حاجة أشتريها' : 'My cart is empty. Help me find something to buy'}
+            source="cart-empty"
+            mode="task"
+          />
+          <button onClick={() => navigate('/')} className="px-6 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition">
+            {t('browse_storefront')}
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300">
-      <h1 className="text-3xl font-black dark:text-white tracking-tight">{t('your_cart')}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-3xl font-black dark:text-white tracking-tight">{t('your_cart')}</h1>
+        <AIEntryPoint
+          label={language === 'ar' ? 'راجع السلة' : 'Review my cart'}
+          prompt={language === 'ar' ? 'راجع سلة المشتريات وقلّي لو فيها حاجة ممكن أحسنها' : 'Review my cart and tell me if there is anything I should improve'}
+          source="cart"
+        />
+      </div>
 
       <div className="space-y-4" data-ai-target="cart-items">
         {cart.map((item) => (
@@ -47,7 +71,7 @@ export default function Cart() {
               <span className="w-6 text-center font-bold text-sm dark:text-white">{item.quantity}</span>
               <button
                 onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                className="p-2 rounded-lg hover:bg-white dark:hover:bg-stone-700 transition dark:text-white"
+                className="min-w-11 min-h-11 p-2 rounded-lg hover:bg-white dark:hover:bg-stone-700 transition dark:text-white flex items-center justify-center"
                 aria-label="Increase quantity"
               >
                 <Plus size={14} />
@@ -73,7 +97,6 @@ export default function Cart() {
           data-guide="checkout"
           data-ai-target="checkout"
           onClick={() => navigate('/checkout')}
-
           className="flex items-center gap-2 px-6 py-4 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl transition shadow-lg shadow-brand-500/20"
         >
           {t('checkout')} <ArrowRight size={18} />

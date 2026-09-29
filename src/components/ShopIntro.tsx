@@ -15,11 +15,11 @@ export default function ShopIntro() {
     return () => clearTimeout(startTimer);
   }, [visible]);
 
-  if (!visible) return null;
-
   return (
+    <>
+      {!visible ? null : (
     <div
-      className={`fixed inset-0 z-[100] flex items-end justify-center overflow-hidden transition-transform duration-[900ms] ease-[cubic-bezier(0.65,0,0.35,1)] ${opening ? '-translate-y-full' : 'translate-y-0'}`}
+      className={`heritage-intro fixed inset-0 z-[100] flex items-end justify-center overflow-hidden transition-transform duration-[900ms] ease-[cubic-bezier(0.65,0,0.35,1)] ${opening ? '-translate-y-full' : 'translate-y-0'}`}
       onTransitionEnd={() => setVisible(false)}
       aria-hidden="true"
     >
@@ -39,5 +39,7 @@ export default function ShopIntro() {
         <p className="text-xs font-bold uppercase tracking-widest text-white/70">Opening up...</p>
       </div>
     </div>
+      )}
+    </>
   );
 }

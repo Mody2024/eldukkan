@@ -4,10 +4,15 @@ on:
   push:
     branches:
       - main
+      - update3-intelligence
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   build:
@@ -29,4 +34,24 @@ jobs:
         run: npm ci
 
       - name: Production build
-        run: npm run build
+        run: |
+          npm run build 2>&1 | tee build.log
+          test ${PIPESTATUS[0]} -eq 0
+
+      - name: Report build errors
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const log = fs.existsSync('build.log') ? fs.readFileSync('build.log', 'utf8') : 'No build log was captured.';
+            const safe = log.replace(/\x1b\[[0-9;]*m/g, '');
+            const body = '### ElDukkan production build failure\n\n```text\n' + safe.slice(-14000) + '\n```';
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body,
+              event: 'COMMENT'
+            });
+

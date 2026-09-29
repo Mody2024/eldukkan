@@ -3,6 +3,9 @@ import { Link, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Product } from '../types';
 import SEO from '../components/SEO';
+import AIEntryPoint from '../components/AIEntryPoint';
+import { useAIPageContext } from '../hooks/useAIContext';
+import { useTranslation } from '../lib/i18n';
 
 export default function Category() {
   const { slug } = useParams<{ slug: string }>();
@@ -16,6 +19,18 @@ export default function Category() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { language } = useTranslation();
+  useAIPageContext({
+    category,
+    productCount: products.length,
+    visibleProducts: products.slice(0, 12).map((product) => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      sale_price: product.sale_price ?? null,
+      stock: product.stock ?? null,
+    })),
+  });
 
   useEffect(() => {
     if (!category) {
@@ -101,12 +116,36 @@ export default function Category() {
         </p>
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        <AIEntryPoint
+          label={language === 'ar' ? 'ساعدني أختار' : 'Help me choose'}
+          prompt={language === 'ar' ? 'ساعدني أختار من الفئة دي' : 'Help me choose from this category'}
+          source="category"
+          mode="task"
+        />
+        <AIEntryPoint
+          label={language === 'ar' ? 'قارن المنتجات' : 'Compare products'}
+          prompt={language === 'ar' ? 'قارن المنتجات الظاهرة هنا' : 'Compare the products shown here'}
+          source="category"
+        />
+      </div>
+
       {loading ? (
         <div className="py-20 text-center text-stone-500 font-bold">Loading live catalog…</div>
       ) : products.length === 0 ? (
         <div className="py-20 text-center space-y-3">
           <p className="text-stone-500 font-bold">No active products found in this category.</p>
           <Link to="/" className="inline-block text-brand-500 font-bold hover:underline">Browse all products</Link>
+        </div>
+      ) : products.length === 0 ? (
+        <div className="py-16 text-center space-y-4 storefront-card">
+          <p className="text-stone-500 font-bold">{language === 'ar' ? 'الفئة دي مفيهاش منتجات متاحة حاليًا.' : 'No active products were found in this category.'}</p>
+          <AIEntryPoint
+            label={language === 'ar' ? 'ساعدني ألاقي بدائل' : 'Find alternatives with AI'}
+            prompt={language === 'ar' ? 'الفئة دي فاضية. ساعدني ألاقي بدائل حقيقية قريبة منها' : 'This category is empty. Help me find real alternatives close to it'}
+            source="category-empty"
+            mode="task"
+          />
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6" data-ai-target="products">

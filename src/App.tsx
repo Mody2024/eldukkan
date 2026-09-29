@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { supabase } from './lib/supabase';
+import { AIContextProvider } from './hooks/useAIContext';
 import { useStore } from './store';
 import Layout from './components/Layout';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
@@ -108,7 +109,8 @@ export function App() {
     <div className="min-h-screen transition-colors duration-300 bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100">
       <BrowserRouter>
         <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-stone-500 font-bold">Loading ElDukkan…</div>}>
-          <Routes>
+          <AIContextProvider>
+            <Routes>
           {/* Public Storefront Routes wrapped in Layout */}
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
@@ -128,7 +130,8 @@ export function App() {
 
           {/* Unknown URLs get a real 404-style page instead of silently redirecting to the homepage. */}
           <Route path="*" element={<NotFound />} />
-          </Routes>
+            </Routes>
+          </AIContextProvider>
         </Suspense>
       </BrowserRouter>
     </div>

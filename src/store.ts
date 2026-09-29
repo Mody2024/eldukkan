@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CartItem, Product } from './types';
 
-export type GuideStep = { label: string; target: string; path?: string };
+export type GuideStep = { id?: string; label: string; target: string; path?: string };
 export type GuidedTask = { goal: string; steps: GuideStep[] };
 
 let toastTimer: ReturnType<typeof setTimeout> | undefined;

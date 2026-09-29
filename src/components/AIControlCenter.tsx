@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import {
   BrainCircuit, CheckCircle2, Clock3, Coins, EyeOff, Play, RefreshCw,
-  Save, Search, ShieldCheck, Sparkles, UserCog, Zap,
+  Save, Search, ShieldCheck, SlidersHorizontal, UserCog, Zap,
 } from 'lucide-react';
 import AIOnboardingControl from './AIOnboardingControl';
 
@@ -480,7 +480,7 @@ export default function AIControlCenter({ userEmail, showToast }: Props) {
 
       <div className="grid xl:grid-cols-2 gap-6">
         <div className={cardClass + ' p-5 sm:p-6'}>
-          <div className="flex items-center gap-3 mb-4"><Sparkles size={19} className="text-brand-500" /><div><h3 className="font-black text-lg dark:text-white">AI Playground</h3><p className="text-xs text-stone-500">Test the assistant against the live catalog without charging customer credits or saving customer memory.</p></div></div>
+          <div className="flex items-center gap-3 mb-4"><SlidersHorizontal size={19} className="text-brand-500" /><div><h3 className="font-black text-lg dark:text-white">AI Playground</h3><p className="text-xs text-stone-500">Test the assistant against the live catalog without charging customer credits or saving customer memory.</p></div></div>
           <textarea value={playgroundPrompt} onChange={(e) => setPlaygroundPrompt(e.target.value)} className={inputClass + ' min-h-28 resize-y'} />
           <button onClick={runPlayground} disabled={playgroundLoading} className="mt-3 inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-brand-500 text-white font-black text-xs disabled:opacity-50"><Play size={14} /> {playgroundLoading ? 'Testing...' : 'Run test'}</button>
           {playgroundResult && (
