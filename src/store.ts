@@ -169,7 +169,7 @@ export const useStore = create<StoreState>()(
       language: 'en',
       setLanguage: (lang) => set({ language: lang }),
 
-      experience: 'modern',
+      experience: 'heritage',
       setExperience: (experience) => set({ experience }),
 
       onboardingCompleted: false,
