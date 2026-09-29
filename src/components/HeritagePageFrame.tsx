@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Archive, Banknote, CassetteTape, CircleUserRound, Headset, KeyRound, Radio, ShoppingCart, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { Archive, Banknote, CassetteTape, CircleUserRound, Headset, KeyRound, Radio, ShoppingCart, SlidersHorizontal } from 'lucide-react';
 import './heritage-frame.css';
 
 type FrameKind = {
