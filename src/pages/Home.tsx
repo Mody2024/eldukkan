@@ -91,8 +91,6 @@ export default function Home() {
     }
   };
 
-  const categories = Array.from(new Set(products.map((p) => p.category).filter((c): c is string => !!c)));
-
   const filteredProducts = products
     .filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
     .filter((p) => !activeCategory || p.category === activeCategory)
