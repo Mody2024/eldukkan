@@ -55,7 +55,8 @@ interface UiAction {
 }
 
 interface PendingAction {
-  type: 'add_to_cart';
+  type: 'add_to_cart' | 'change_cart';
+  action?: 'remove' | 'set_quantity';
   product_id: string;
   product_name?: string;
   quantity: number;
@@ -293,12 +294,33 @@ export default function AICopilot() {
         return;
       }
 
-      const product = data.product as Product;
-      const previousQuantity = addProductToCart(product, Number(data.quantity || action.quantity));
       setStatus((prev) => prev && data.credits ? { ...prev, ...data.credits } : prev);
-      appendAddedMessage(product, Number(data.quantity || action.quantity), previousQuantity);
-      rememberEvent(product);
-      showToast('Added ' + product.name + ' to your cart');
+      if (action.type === 'add_to_cart') {
+        const product = data.product as Product;
+        const previousQuantity = addProductToCart(product, Number(data.quantity || action.quantity));
+        appendAddedMessage(product, Number(data.quantity || action.quantity), previousQuantity);
+        rememberEvent(product);
+        showToast('Added ' + product.name + ' to your cart');
+      } else {
+        const current = useStore.getState().cart.find((item) => item.id === action.product_id);
+        if (!current) {
+          setMessages((prev) => [...prev, { role: 'model', content: 'That item is no longer in your cart, so I left the cart unchanged.' }]);
+        } else {
+          if (action.action === 'remove') {
+            removeFromCart(action.product_id);
+            showToast('Removed ' + current.name + ' from your cart');
+          } else {
+            updateQuantity(action.product_id, Number(data.quantity || action.quantity));
+            showToast('Updated ' + current.name + ' quantity');
+          }
+          setMessages((prev) => [...prev, {
+            role: 'model',
+            content: action.action === 'remove'
+              ? 'Removed ' + current.name + ' from your cart.'
+              : 'Updated ' + current.name + ' quantity to ' + Number(data.quantity || action.quantity) + '.',
+          }]);
+        }
+      }
     } catch (err) {
       console.error('Eldukkan Assistant action error:', err);
       setMessages((prev) => [...prev, { role: 'model', content: 'Sorry, that cart action could not be completed.' }]);
@@ -372,12 +394,14 @@ export default function AICopilot() {
       }]);
       executeUiActions(data.uiActions as UiAction[] | undefined, userAskedToNavigate(userMessage));
 
-      if (data.action?.type === 'add_to_cart') {
+      if (data.action?.type === 'add_to_cart' || data.action?.type === 'change_cart') {
         const action = data.action as PendingAction;
-        const product = (data.products || []).find((p: Product) => p.id === action.product_id) as Product | undefined;
+        const product = action.type === 'add_to_cart'
+          ? (data.products || []).find((p: Product) => p.id === action.product_id) as Product | undefined
+          : useStore.getState().cart.find((item) => item.id === action.product_id) as Product | undefined;
         if (product && action.requiresConfirmation) {
           setPendingAction(action);
-        } else if (product) {
+        } else if (product && action.type === 'add_to_cart') {
           const previousQuantity = addProductToCart(product, Number(action.quantity || 1));
           appendAddedMessage(product, Number(action.quantity || 1), previousQuantity);
           rememberEvent(product);
@@ -502,8 +526,17 @@ export default function AICopilot() {
 
             {pendingAction && (
               <div className="rounded-2xl border border-brand-500/20 bg-brand-500/5 p-4 space-y-3">
-                <p className="text-sm font-black dark:text-white">Add {pendingAction.product_name || 'this product'} to your cart?</p>
-                <p className="text-xs text-stone-500">Quantity: {pendingAction.quantity} · {pendingAction.creditCost ? pendingAction.creditCost + ' AI credits' : 'No extra action credit'}</p>
+                <p className="text-sm font-black dark:text-white">
+                {pendingAction.type === 'add_to_cart'
+                  ? 'Add ' + (pendingAction.product_name || 'this product') + ' to your cart?'
+                  : pendingAction.action === 'remove'
+                    ? 'Remove ' + (pendingAction.product_name || 'this item') + ' from your cart?'
+                    : 'Change ' + (pendingAction.product_name || 'this item') + ' quantity to ' + pendingAction.quantity + '?'}
+              </p>
+                <p className="text-xs text-stone-500">
+                {pendingAction.type === 'add_to_cart' ? 'Quantity: ' + pendingAction.quantity + ' · ' : ''}
+                {pendingAction.creditCost ? pendingAction.creditCost + ' AI credits' : 'No extra action credit'}
+              </p>
                 <div className="flex gap-2">
                   <button onClick={confirmAction} disabled={loading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-500 text-white text-xs font-black disabled:opacity-50"><Check size={14} /> Confirm</button>
                   <button onClick={() => setPendingAction(null)} disabled={loading} className="px-4 py-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-xs font-black dark:text-white">Cancel</button>
