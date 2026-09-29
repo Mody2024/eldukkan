@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import './heritage.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
   ChevronDown, Heart, Languages, Menu, Moon, Search, ShoppingBag, Sun,
   Truck, UserRound, X, Zap,
@@ -29,15 +29,14 @@ export default function HeritageHeader() {
   };
 
   const labels = language === 'ar'
-    ? { live: 'الدكان مفتوح', search: 'ابحث في الدكان', browse: 'تصفح القنوات', track: 'تتبع الطلب', wish: 'المفضلة', account: 'الحساب', cart: 'السلة', open: 'فتح القائمة', close: 'إغلاق القائمة', theme: theme === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن', language: 'English' }
-    : { live: 'STORE LIVE', search: 'SEARCH THE STORE', browse: 'CHANNELS', track: 'TRACK ORDER', wish: 'WISHLIST', account: 'ACCOUNT', cart: 'CART', open: 'Open menu', close: 'Close menu', theme: theme === 'dark' ? 'LIGHT MODE' : 'DARK MODE', language: 'العربية' };
+    ? { search: 'ابحث في الدكان', browse: 'تصفح القنوات', track: 'تتبع الطلب', wish: 'المفضلة', account: 'الحساب', cart: 'السلة', open: 'فتح القائمة', close: 'إغلاق القائمة', theme: theme === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن', language: 'English' }
+    : { search: 'SEARCH THE STORE', browse: 'CHANNELS', track: 'TRACK ORDER', wish: 'WISHLIST', account: 'ACCOUNT', cart: 'CART', open: 'Open menu', close: 'Close menu', theme: theme === 'dark' ? 'LIGHT MODE' : 'DARK MODE', language: 'العربية' };
 
   return (
     <>
       <div className="heritage-utility">
         <div className="heritage-utility__inner">
-          <span className="heritage-status"><i className="heritage-led heritage-led--green" /> {labels.live}</span>
-          <span className="heritage-utility__hint"><Truck size={13} /> {t('fast_delivery')}</span>
+<span className="heritage-utility__hint"><Truck size={13} /> {t('fast_delivery')}</span>
           <span className="heritage-utility__hint heritage-utility__help"><Zap size={13} /> {t('need_help')}</span>
         </div>
       </div>
@@ -129,10 +128,10 @@ export default function HeritageHeader() {
           </div>
 
           <nav className="heritage-channel-strip" aria-label="Store navigation">
-            <Link to="/" className="heritage-channel"><span>01</span>{labels.browse}</Link>
-            <Link to="/tracking" className="heritage-channel"><span>02</span>{labels.track}</Link>
-            <Link to="/wishlist" className="heritage-channel"><span>03</span>{labels.wish}</Link>
-            <Link to={userId ? '/account' : '/login'} className="heritage-channel"><span>04</span>{labels.account}</Link>
+            <NavLink to="/" end className={({ isActive }) => 'heritage-channel' + (isActive ? ' heritage-channel--active' : '')}><span>01</span>{labels.browse}</NavLink>
+            <NavLink to="/tracking" className={({ isActive }) => 'heritage-channel' + (isActive ? ' heritage-channel--active' : '')}><span>02</span>{labels.track}</NavLink>
+            <NavLink to="/wishlist" className={({ isActive }) => 'heritage-channel' + (isActive ? ' heritage-channel--active' : '')}><span>03</span>{labels.wish}</NavLink>
+            <NavLink to={userId ? '/account' : '/login'} className={({ isActive }) => 'heritage-channel' + (isActive ? ' heritage-channel--active' : '')}><span>04</span>{labels.account}</NavLink>
             <span className="heritage-channel heritage-channel--info"><ChevronDown size={14} /> V2 / HERITAGE</span>
           </nav>
 
