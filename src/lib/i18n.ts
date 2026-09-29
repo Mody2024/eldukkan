@@ -93,6 +93,11 @@ const dict = {
     guided_waiting: 'Waiting for this part of the page to appear. You can keep using the site — guidance stays active.',
     guided_done_next: 'Done / Next',
     guided_previous: 'Previous guided step',
+    ai_help_find: 'Help me find something',
+    ai_compare: 'Compare products',
+    ai_about_product: 'Ask about this product',
+    ai_compare_product: 'Compare this product',
+    ai_checkout_help: 'Need checkout help?',
   },
   ar: {
     all_products: 'كل المنتجات',
@@ -184,6 +189,11 @@ const dict = {
     guided_waiting: 'مستني الجزء ده يظهر. استخدم الموقع عادي — الإرشاد هيفضل شغال.',
     guided_done_next: 'تم / التالي',
     guided_previous: 'الخطوة الإرشادية السابقة',
+    ai_help_find: 'ساعدني ألاقي حاجة',
+    ai_compare: 'قارن المنتجات',
+    ai_about_product: 'اسأل عن المنتج',
+    ai_compare_product: 'قارن المنتج',
+    ai_checkout_help: 'محتاج مساعدة؟',
   },
 } as const;
 
