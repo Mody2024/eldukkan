@@ -19,6 +19,9 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const { addToCart, showToast, userId, wishlist, toggleWishlistId } = useStore();
+  const outOfStock = product?.stock !== undefined && product.stock <= 0;
+  const isOnSale = !!(product?.sale_price && (!product.sale_ends_at || new Date(product.sale_ends_at) > new Date()));
+
   useAIPageContext({
     product: product ? {
       id: product.id,
