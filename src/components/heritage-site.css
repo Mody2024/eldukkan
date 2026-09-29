@@ -1,0 +1,161 @@
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content {
+  color: #37322e;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content h1 {
+  margin: 0;
+  color: #2c2926;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.65rem, 4vw, 2.55rem);
+  line-height: 1.08;
+  letter-spacing: -.018em;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content h2,
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content h3 {
+  color: #35302b;
+  font-family: Georgia, "Times New Roman", serif;
+}
+[dir="rtl"] .storefront-shell[data-experience="heritage"] .heritage-page-frame__content h1,
+[dir="rtl"] .storefront-shell[data-experience="heritage"] .heritage-page-frame__content h2,
+[dir="rtl"] .storefront-shell[data-experience="heritage"] .heritage-page-frame__content h3 {
+  font-family: "Cairo", Arial, sans-serif;
+  letter-spacing: 0;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content p,
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content li {
+  color: #686057;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .text-stone-400,
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .text-stone-500,
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .text-stone-600 {
+  color: #756c63 !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .text-white,
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .dark\:text-white {
+  color: #fffaf3 !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .bg-white,
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .dark\:bg-stone-900 {
+  background: linear-gradient(145deg,#faf6f0,#e1d9cf) !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .bg-stone-50,
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .dark\:bg-stone-950 {
+  background: #e9e1d6 !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="border-stone-200"],
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="border-stone-800"] {
+  border-color: #b9b0a6 !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="rounded-2xl"],
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="rounded-3xl"] {
+  border-radius: 12px !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="rounded-xl"] {
+  border-radius: 9px !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="shadow-sm"],
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="shadow-md"] {
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.78), inset -1px -1px 0 rgba(58,47,37,.12), 0 7px 18px rgba(49,39,30,.07) !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content button:not(.heritage-mechanical-button),
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [role="button"] {
+  border-radius: 7px;
+  border: 1px solid #9e958b;
+  background: linear-gradient(180deg,#faf7f2,#d2c9bf);
+  color: #433e39;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.86), inset -1px -1px 0 rgba(58,47,37,.16), 0 2px 3px rgba(53,41,30,.1);
+  transition: transform 110ms ease, box-shadow 110ms ease, filter 110ms ease;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content button:not(.heritage-mechanical-button):hover:not(:disabled),
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [role="button"]:hover {
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content button:not(.heritage-mechanical-button):active:not(:disabled),
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [role="button"]:active {
+  transform: translateY(1px);
+  box-shadow: inset -1px -1px 0 rgba(255,255,255,.25), inset 1px 1px 0 rgba(58,47,37,.16);
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content input:not([type="checkbox"]):not([type="radio"]),
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content select,
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content textarea {
+  border-color: #a69d93 !important;
+  border-radius: 7px !important;
+  background: #f7f2eb !important;
+  color: #322e2a !important;
+  box-shadow: inset 1px 1px 4px rgba(73,58,44,.1), inset -1px -1px 0 rgba(255,255,255,.64) !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content input:not([type="checkbox"]):not([type="radio"]):focus,
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content select:focus,
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content textarea:focus {
+  border-color: #5a82a6 !important;
+  box-shadow: 0 0 0 3px rgba(90,130,166,.18), inset 1px 1px 4px rgba(73,58,44,.1) !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="bg-brand-500"] {
+  background: linear-gradient(180deg,#6f9bb8,#4e728e) !important;
+  border-color: #46657b !important;
+  color: #fff !important;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.18), inset -1px -1px 0 rgba(0,0,0,.2), 0 3px 4px rgba(35,29,24,.15) !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="text-brand-500"],
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="text-brand-600"] {
+  color: #4f7390 !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="bg-red-500"] {
+  background: #c96565 !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="bg-emerald-"] {
+  background: #739875 !important;
+  color: #fff !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content img {
+  border-radius: 8px;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .storefront-field {
+  background: #f7f2eb !important;
+  border-color: #a69d93 !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [role="alert"] {
+  border: 1px solid #aaa197;
+  background: #eee7de;
+  color: #514a44;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content table {
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 1px solid #aaa197;
+  border-radius: 9px;
+  background: #f8f3ec;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content th {
+  background: #d8d0c5;
+  color: #4f4943;
+  font-family: "IBM Plex Mono","Courier New",monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content td,
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content th {
+  border-color: #bcb3a9 !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .sticky {
+  z-index: 5;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .animate-in {
+  animation-timing-function: cubic-bezier(.2,.8,.2,1);
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [data-guide],
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content [data-ai-target] {
+  scroll-margin-top: 90px;
+}
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .bg-black,
+.storefront-shell[data-experience="heritage"] .heritage-page-frame__content .dark\:bg-black {
+  background: #242526 !important;
+}
+@media(max-width:700px){
+ .storefront-shell[data-experience="heritage"] .heritage-page-frame__content{padding-inline:2px}
+ .storefront-shell[data-experience="heritage"] .heritage-page-frame__content h1{font-size:1.55rem}
+ .storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="grid-cols-4"]{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+ .storefront-shell[data-experience="heritage"] .heritage-page-frame__content [class*="grid-cols-3"]{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+}
