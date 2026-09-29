@@ -12,7 +12,7 @@ import { useAIPageContext } from '../hooks/useAIContext';
 
 export default function Checkout() {
   const { cart, clearCart, showToast, userEmail, userId } = useStore();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     email: userEmail ?? '',
