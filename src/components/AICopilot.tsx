@@ -76,7 +76,7 @@ function userAskedToNavigate(message: string) {
 
 const WELCOME: ChatEntry = {
   role: 'model',
-  content: "Hi! Tell me what you're looking for. I can search the live catalog and help add a product to your cart.",
+  content: "Howdy. I’m the ElDukkan trail guide — tell me what you need, your budget, or what you’re comparing, and I’ll check the real catalog.",
 };
 
 function getAnonId(): string {
@@ -450,10 +450,10 @@ export default function AICopilot() {
           <div className="bg-stone-50 dark:bg-stone-950 p-4 border-b border-stone-200 dark:border-stone-800">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 bg-brand-500/10 text-brand-500 rounded-xl flex items-center justify-center shrink-0"><Bot size={21} /></div>
+                <div className="heritage-ai-seal w-10 h-10 rounded-xl flex items-center justify-center shrink-0"><Compass size={21} /></div>
                 <div className="min-w-0">
-                  <h3 className="font-black dark:text-white text-sm">Eldukkan Assistant</h3>
-                  <p className="text-[11px] text-emerald-500 font-bold mt-0.5 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live catalog</p>
+                  <h3 className="font-black dark:text-white text-sm">Eldukkan Trail Guide</h3>
+                  <p className="text-[10px] text-amber-700 dark:text-amber-300 font-bold mt-0.5">RANGE DESK · CATALOG COMPUTER</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
@@ -479,14 +479,14 @@ export default function AICopilot() {
                 <p className="font-black text-sm dark:text-white mt-1">{status?.unlimited ? 'Always on' : formatRemaining(status?.nextRenewalAt, now)}</p>
               </div>
             </div>
-            {status?.memoryEnabled && userId && <p className="text-[10px] text-stone-400 mt-2">Memory is on for this account · shopping preferences only</p>}
+            {status?.memoryEnabled && userId && <p className="text-[10px] text-stone-400 mt-2">Trail notes are on for this account · shopping preferences only</p>}
             {guidedMode && <div className="mt-2 rounded-xl bg-brand-500/10 text-brand-700 dark:text-brand-300 px-3 py-2 text-[11px] font-black">{t('guided_mode')} · {t('guide_me')}</div>}
           </div>
 
           <div className="flex-1 p-4 overflow-y-auto space-y-4">
             {messages.length === 1 && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                {['Find products', 'Guide me through checkout', 'Change my theme'].map((prompt) => (
+                {['Find me something under EGP 200', 'Help me compare two products', 'Put me on the Heritage trail'].map((prompt) => (
                   <button
                     key={prompt}
                     type="button"
@@ -500,7 +500,7 @@ export default function AICopilot() {
             )}
             {messages.map((msg, index) => (
               <div key={index} className={'flex gap-3 ' + (msg.role === 'user' ? 'justify-end' : 'justify-start')}>
-                {msg.role === 'model' && <div className="w-8 h-8 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center shrink-0 mt-1"><Bot size={15} /></div>}
+                {msg.role === 'model' && <div className="heritage-ai-avatar w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-1"><Compass size={15} /></div>}
                 <div className="max-w-[86%] space-y-2">
                   <div className={'p-3.5 rounded-2xl text-sm leading-relaxed ' + (msg.role === 'user'
                     ? 'bg-brand-500 text-white font-semibold rounded-br-none ml-auto w-fit'
@@ -552,7 +552,7 @@ export default function AICopilot() {
               </div>
             )}
 
-            {loading && <div className="flex items-center gap-2 text-stone-400 text-xs font-semibold animate-pulse"><Bot size={15} /> Thinking...</div>}
+            {loading && <div className="flex items-center gap-2 text-stone-400 text-xs font-semibold animate-pulse"><Compass size={15} /> Checking the trail...</div>}
             <div ref={chatEndRef} />
           </div>
 
@@ -560,7 +560,7 @@ export default function AICopilot() {
             <div className="flex gap-2">
               <input
                 type="text"
-                placeholder="e.g. best headphones under EGP 200"
+                placeholder="Try: headphones under EGP 200, compare cameras, find a deal"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 disabled={loading || statusLoading}
