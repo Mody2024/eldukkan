@@ -179,7 +179,7 @@ export default function Home() {
           mode="task"
         />
         <AIEntryPoint
-          label={t('ai_compare)}
+          label={t('ai_compare')}
           prompt={language === 'ar' ? 'ساعدني أقارن بين المنتجات' : 'Help me compare products'}
           source="home"
           mode="chat"
