@@ -20,6 +20,9 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const { addToCart, showToast, userId, wishlist, toggleWishlistId } = useStore();
 
+  const outOfStock = product?.stock !== undefined && product.stock <= 0;
+  const isOnSale = !!(product?.sale_price && (!product.sale_ends_at || new Date(product.sale_ends_at) > new Date()));
+
   useAIPageContext({
     product: product ? {
       id: product.id,
@@ -146,8 +149,6 @@ export default function ProductDetails() {
     fetchProduct();
   };
 
-  const outOfStock = product?.stock !== undefined && product.stock <= 0;
-  const isOnSale = !!(product?.sale_price && (!product.sale_ends_at || new Date(product.sale_ends_at) > new Date()));
   const isWishlisted = product ? wishlist.includes(product.id) : false;
   const gallery = product ? [product.image_url, ...(product.images ?? [])].filter(Boolean) : [];
   const reviewCount = reviews.length;
