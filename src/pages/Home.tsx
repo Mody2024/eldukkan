@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import { useTranslation } from '../lib/i18n';
 import type { Product } from '../types';
-import { ShoppingBag, Sparkles, Star, Heart } from 'lucide-react';
+import { ShoppingBag, Radio, Heart } from 'lucide-react';
 import SEO from '../components/SEO';
 import MobileFilterSheet from '../components/MobileFilterSheet';
 import AIEntryPoint from '../components/AIEntryPoint';
@@ -140,7 +140,7 @@ export default function Home() {
         <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 sm:p-10 lg:p-12 flex flex-col md:flex-row items-center gap-8 shadow-sm">
           <div data-guide="products" className="flex flex-col items-start gap-4 flex-1">
             <div className="inline-flex items-center gap-2 bg-brand-500/10 text-brand-500 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
-              <Sparkles size={14} /> {storeName}
+              <Radio size={14} /> {storeName}
             </div>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight dark:text-white max-w-xl">
               {heroHeadline || t('discover')}
@@ -313,7 +313,7 @@ export default function Home() {
                       <h3 className="font-black text-sm sm:text-lg dark:text-white line-clamp-2">{product.name}</h3>
                       {product.rating !== undefined && product.review_count !== undefined && product.review_count > 0 && (
                         <div className="flex items-center gap-1 text-xs">
-                          <Star size={13} className="fill-brand-500 text-brand-500" />
+                          <span className="font-black">Rated</span>
                           <span className="font-bold dark:text-stone-300">{product.rating.toFixed(1)}</span>
                           <span className="text-stone-500">({product.review_count})</span>
                         </div>
