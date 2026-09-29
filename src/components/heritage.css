@@ -801,3 +801,69 @@
     transition: none;
   }
 }
+
+/* Global Heritage overlays and mobile navigation. */
+.storefront-shell[data-experience="heritage"] nav[data-ai-target="mobile-nav"] {
+  border-top: 1px solid #8f877d;
+  background: linear-gradient(180deg,#ece7df,#cbc3b9);
+  color: #4a443e;
+  box-shadow: 0 -8px 20px rgba(48,38,28,.12), inset 0 1px 0 rgba(255,255,255,.78);
+  backdrop-filter: none;
+}
+.storefront-shell[data-experience="heritage"] nav[data-ai-target="mobile-nav"] a,
+.storefront-shell[data-experience="heritage"] nav[data-ai-target="mobile-nav"] button {
+  color: #5e5750;
+}
+.storefront-shell[data-experience="heritage"] nav[data-ai-target="mobile-nav"] a.text-brand-500 {
+  color: #4f7390 !important;
+}
+.storefront-shell[data-experience="heritage"] nav[data-ai-target="mobile-nav"] a::before,
+.storefront-shell[data-experience="heritage"] nav[data-ai-target="mobile-nav"] button::before {
+  content: "";
+  position: absolute;
+  width: 34px;
+  height: 30px;
+  border: 1px solid rgba(120,110,100,.32);
+  border-radius: 5px;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.55), inset -1px -1px 0 rgba(72,60,48,.1);
+}
+.storefront-shell[data-experience="heritage"] nav[data-ai-target="mobile-nav"] a,
+.storefront-shell[data-experience="heritage"] nav[data-ai-target="mobile-nav"] button { position: relative; }
+.storefront-shell[data-experience="heritage"] [data-guide="experience"] [role="menu"] {
+  border-color: #8f877d !important;
+  border-radius: 9px !important;
+  background: #ece7df !important;
+}
+.storefront-shell[data-experience="heritage"] [data-guide="experience"] [role="menuitemradio"] {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.storefront-shell[data-experience="heritage"] [data-guide="experience"] [role="menuitemradio"]:hover {
+  background: #ded6cc !important;
+}
+.storefront-shell[data-experience="heritage"] [role="dialog"] {
+  border-radius: 10px;
+}
+.storefront-shell[data-experience="heritage"] .fixed.inset-0.z-\[75\] + .fixed .bg-white,
+.storefront-shell[data-experience="heritage"] .fixed.inset-0.z-\[75\] + .fixed .dark\:bg-stone-900 {
+  border: 1px solid #928a80 !important;
+  border-radius: 10px !important;
+  background: linear-gradient(145deg,#f7f2eb,#d9d1c7) !important;
+  box-shadow: 0 20px 50px rgba(31,24,18,.3), inset 1px 1px 0 rgba(255,255,255,.82);
+}
+.storefront-shell[data-experience="heritage"] .storefront-toast {
+  background: #27282a !important;
+  color: #cbe896 !important;
+  border: 1px solid #55524d !important;
+  border-radius: 6px !important;
+  font: 800 10px/1.3 "IBM Plex Mono","Courier New",monospace !important;
+  box-shadow: 0 10px 25px rgba(20,17,14,.3), inset 0 0 8px rgba(0,0,0,.45) !important;
+}
+@media(max-width:700px){
+  .storefront-shell[data-experience="heritage"] nav[data-ai-target="mobile-nav"] .mobile-bottom-label {
+    font: 800 7px/1 "IBM Plex Mono","Courier New",monospace;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+}
