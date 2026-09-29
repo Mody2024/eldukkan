@@ -1137,3 +1137,85 @@
     animation: none;
   }
 }
+
+
+/* Trail Guide AI refinements */
+.storefront-shell[data-experience="heritage"] .heritage-ai-launch,
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel {
+  font-family:"Cairo","Arial",sans-serif;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel {
+  position:relative;
+  border:2px solid #61574f !important;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(255,255,255,.36),transparent 13rem),
+    linear-gradient(180deg,#efe5d7,#cdbfae) !important;
+  box-shadow:
+    0 24px 60px rgba(31,24,18,.34),
+    inset 1px 1px 0 rgba(255,255,255,.78),
+    inset -2px -2px 0 rgba(49,40,32,.18) !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel::after {
+  content:"";
+  position:absolute;
+  left:8px;right:8px;bottom:5px;height:3px;
+  background:repeating-linear-gradient(90deg,#655c54 0 16px,#3b3835 16px 20px);
+  opacity:.7;
+  pointer-events:none;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel > div:first-child {
+  background:
+    linear-gradient(180deg,#a99b8c,#8d8073) !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel > div:first-child::after {
+  content:"";
+  position:absolute;
+  top:25px;
+  left:12px;
+  right:12px;
+  height:1px;
+  background:rgba(255,248,236,.32);
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel > div:first-child .text-emerald-500,
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel > div:first-child .text-amber-700 {
+  color:#d7b06a !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel .bg-white.dark\:bg-stone-900 {
+  background:#f4ece1 !important;
+  border-color:#b9aa9b !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel .bg-stone-100.dark\:bg-stone-800 {
+  background:#ddd0c1 !important;
+  border-color:#b6a89b !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel .bg-brand-500 {
+  background:linear-gradient(180deg,#6f92aa,#4f7188) !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel .text-brand-500 {
+  color:#5b7890 !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel [data-ai-target="ai-product-"] {
+  box-shadow:inset 1px 1px 0 rgba(255,255,255,.7),0 2px 4px rgba(48,38,29,.08);
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel input::placeholder {
+  color:#8aa9ae !important;
+  font-family:"IBM Plex Mono","Courier New",monospace;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel form::before {
+  content:"TRANSMIT";
+  color:#756d64;
+  font:800 7px/1 "IBM Plex Mono","Courier New",monospace;
+  letter-spacing:.11em;
+  position:absolute;
+  inset-inline-start:14px;
+  transform:translateY(-20px);
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel button {
+  transition:transform 100ms ease,filter 100ms ease,box-shadow 100ms ease;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel button:hover:not(:disabled) {
+  filter:brightness(1.03);
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel button:active:not(:disabled) {
+  transform:translateY(1px);
+}
