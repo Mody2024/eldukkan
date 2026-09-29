@@ -17,6 +17,7 @@ interface Product {
   category: string | null;
   stock: number | null;
   rating: number | null;
+  review_count?: number | null;
   image_url: string | null;
 }
 
