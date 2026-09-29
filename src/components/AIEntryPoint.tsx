@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Headset } from 'lucide-react';
 
 export type AIEntryPointDetail = {
   prompt?: string;
@@ -22,7 +22,7 @@ export default function AIEntryPoint({
   prompt,
   source = 'storefront',
   mode = 'chat',
-  icon = <Sparkles size={16} />,
+  icon = <Headset size={16} />,
   className = '',
   title,
 }: Props) {
