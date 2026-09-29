@@ -9,6 +9,7 @@ import SEO from '../components/SEO';
 import MobileFilterSheet from '../components/MobileFilterSheet';
 import AIEntryPoint from '../components/AIEntryPoint';
 import { useAIPageContext } from '../hooks/useAIContext';
+import HeritageCatalogHero from '../components/HeritageCatalogHero';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'trending';
 
@@ -133,24 +134,28 @@ export default function Home() {
           },
         ]}
       />
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 sm:p-10 lg:p-12 flex flex-col md:flex-row items-center gap-8 shadow-sm">
-        <div data-guide="products" className="flex flex-col items-start gap-4 flex-1">
-          <div className="inline-flex items-center gap-2 bg-brand-500/10 text-brand-500 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
-            <Sparkles size={14} /> {storeName}
+      {experience === 'heritage' ? (
+        <HeritageCatalogHero />
+      ) : (
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 sm:p-10 lg:p-12 flex flex-col md:flex-row items-center gap-8 shadow-sm">
+          <div data-guide="products" className="flex flex-col items-start gap-4 flex-1">
+            <div className="inline-flex items-center gap-2 bg-brand-500/10 text-brand-500 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
+              <Sparkles size={14} /> {storeName}
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-black tracking-tight dark:text-white max-w-xl">
+              {heroHeadline || t('discover')}
+            </h1>
+            <p className="text-stone-600 dark:text-stone-400 font-medium max-w-lg text-sm sm:text-base">
+              {heroSubheadline || t('hero_sub')}
+            </p>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black tracking-tight dark:text-white max-w-xl">
-            {heroHeadline || t('discover')}
-          </h1>
-          <p className="text-stone-600 dark:text-stone-400 font-medium max-w-lg text-sm sm:text-base">
-            {heroSubheadline || t('hero_sub')}
-          </p>
+          {heroImageUrl && (
+            <div className="w-full md:w-64 h-48 md:h-64 rounded-3xl overflow-hidden shrink-0">
+              <img src={heroImageUrl} alt="" loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
+            </div>
+          )}
         </div>
-        {heroImageUrl && (
-          <div className="w-full md:w-64 h-48 md:h-64 rounded-3xl overflow-hidden shrink-0">
-            <img src={heroImageUrl} alt="" loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
-          </div>
-        )}
-      </div>
+      )}
 
       {experience !== 'easy' && featuredProducts.length > 0 && (
         <div className="space-y-6">
