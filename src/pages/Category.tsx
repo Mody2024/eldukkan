@@ -21,6 +21,7 @@ export default function Category() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { language } = useTranslation();
   useAIPageContext({
     category,
     productCount: products.length,
