@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Archive, Banknote, CassetteTape, CircleUserRound, Headset, KeyRound, Radio, ShoppingCart, SlidersHorizontal } from 'lucide-react';
 import './heritage-frame.css';
+import './heritage-site.css';
 
 type FrameKind = {
   key: string;
