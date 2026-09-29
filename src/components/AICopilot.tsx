@@ -5,7 +5,7 @@ import { useStore } from '../store';
 import type { GuidedTask } from '../store';
 import { useTranslation } from '../lib/i18n';
 import { useAIContext } from '../hooks/useAIContext';
-import { Bot, Check, Coins, RotateCcw, Send, ShoppingBag, Sparkles, User, X, Zap } from 'lucide-react';
+import { Bot, Check, Coins, RotateCcw, Send, ShoppingBag, Headset, Compass, User, X, Zap } from 'lucide-react';
 import AIProductComparison from './AIProductComparison';
 
 interface Product {
@@ -441,7 +441,7 @@ export default function AICopilot() {
           data-ai-target="ai"
           className="heritage-ai-launch flex items-center gap-3 bg-brand-500 hover:bg-brand-600 text-white font-black px-5 py-3.5 rounded-2xl shadow-xl hover:scale-[1.02] transition-all"
         >
-          <Sparkles size={20} />
+          <Headset size={20} />
           <span>Ask Eldukkan</span>
           {status && <span className="px-2 py-1 rounded-lg bg-white/15 text-xs">{status.unlimited ? '∞' : status.balance}</span>}
         </button>
@@ -463,7 +463,7 @@ export default function AICopilot() {
                   className="p-2.5 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[10px] font-black"
                   title={guidedMode ? t('stop_guidance') : t('guide_me')}
                 >
-                  <Sparkles size={15} />
+                  <Compass size={15} />
                 </button>
                 <button onClick={() => setIsOpen(false)} className="text-stone-400 hover:text-stone-700 dark:hover:text-white p-2 rounded-xl transition" aria-label="Close assistant"><X size={19} /></button>
               </div>
