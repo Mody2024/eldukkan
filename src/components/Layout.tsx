@@ -6,7 +6,6 @@ import ShopIntro from './ShopIntro';
 import { useStore } from '../store';
 import ExperiencePicker from './ExperiencePicker';
 import AIOnboarding from './AIOnboarding';
-import GuidedModeOverlay from './GuidedModeOverlay';
 import MobileBottomNav from './MobileBottomNav';
 import GuidedSpotlight from './GuidedSpotlight';
 import { useTranslation } from '../lib/i18n';
