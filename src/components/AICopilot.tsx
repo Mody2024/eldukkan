@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useStore } from '../store';
 import type { GuidedTask } from '../store';
 import { useTranslation } from '../lib/i18n';
+import { useAIContext } from '../hooks/useAIContext';
 import { Bot, Check, Coins, RotateCcw, Send, ShoppingBag, Sparkles, User, X, Zap } from 'lucide-react';
 
 interface Product {
@@ -69,29 +70,6 @@ function userAskedToNavigate(message: string) {
     || /(افتح|روح إلى|اذهب إلى|وديني إلى|خدني إلى|انتقل إلى|أدخل إلى|ادخل إلى)/.test(normalized);
 }
 
-function collectPageMap() {
-  const nodes = Array.from(document.querySelectorAll('[data-ai-target], button, a, input, select, textarea, [role="button"]')) as HTMLElement[];
-  return nodes
-    .map((node) => {
-      const rect = node.getBoundingClientRect();
-      const style = window.getComputedStyle(node);
-      const target = node.getAttribute('data-ai-target') || '';
-      const label = node.getAttribute('aria-label')
-        || node.getAttribute('placeholder')
-        || (node.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
-      const href = node instanceof HTMLAnchorElement ? node.getAttribute('href') : null;
-      return {
-        target: target || null,
-        label,
-        tag: node.tagName.toLowerCase(),
-        href: href ? href.slice(0, 180) : null,
-        visible: rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none',
-      };
-    })
-    .filter((item) => item.visible && item.label)
-    .slice(0, 140);
-}
-
 const WELCOME: ChatEntry = {
   role: 'model',
   content: "Hi! Tell me what you're looking for. I can search the live catalog and help add a product to your cart.",
@@ -128,6 +106,7 @@ function storageKey(userId: string | null) {
 export default function AICopilot() {
   const { userId, theme, language, experience, cart, addToCart, updateQuantity, removeFromCart, showToast, setExperience, setLanguage, toggleTheme, startGuidedTask, guidedMode, stopGuidedTask } = useStore();
   const { t } = useTranslation();
+  const { getContext } = useAIContext();
   const navigate = useNavigate();
   const key = useMemo(() => storageKey(userId), [userId]);
   const [isOpen, setIsOpen] = useState(false);
@@ -142,7 +121,19 @@ export default function AICopilot() {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const openAssistant = () => { setIsOpen(true); void refreshStatus(); };
+    const openAssistant = (event: Event) => {
+      const detail = (event as CustomEvent<{ prompt?: string; source?: string; mode?: 'chat' | 'guided' | 'task' }>).detail;
+      setIsOpen(true);
+      void refreshStatus();
+      if (detail?.prompt) {
+        setInput(detail.prompt);
+        if (detail.mode === 'guided' || detail.mode === 'task') {
+          window.setTimeout(() => {
+            void sendPrompt(detail.prompt!);
+          }, 60);
+        }
+      }
+    };
     const closeAssistant = () => setIsOpen(false);
     window.addEventListener('eldukkan:open-ai', openAssistant);
     window.addEventListener('eldukkan:close-ai', closeAssistant);
@@ -323,6 +314,12 @@ export default function AICopilot() {
     showToast('Cart action undone');
   };
 
+  const sendPrompt = async (prompt: string) => {
+    if (!prompt.trim() || loading || statusLoading) return;
+    setInput(prompt);
+    await handleSendMessage({ preventDefault: () => {} } as React.FormEvent);
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || loading || statusLoading) return;
@@ -348,25 +345,9 @@ export default function AICopilot() {
     const requestId = crypto.randomUUID();
     try {
       const history = messages.filter((m) => m.role === 'user' || m.role === 'model').slice(-8).map((m) => ({ role: m.role, text: m.content }));
-      const context = {
-        page: window.location.pathname,
-        query: window.location.search,
-        pageTitle: document.title,
-        language,
-        theme,
-        experience,
-        guidedMode,
-        guideStep: guidedMode && useStore.getState().guidedTask
-          ? {
-              index: useStore.getState().guidedStepIndex,
-              target: useStore.getState().guidedTask?.steps[useStore.getState().guidedStepIndex]?.target || null,
-              goal: useStore.getState().guidedTask?.goal || null,
-            }
-          : null,
+      const context = getContext({
         userAskedToNavigate: userAskedToNavigate(userMessage),
-        pageMap: collectPageMap(),
-        cart: cart.slice(0, 8).map((item) => ({ id: item.id, name: item.name, quantity: item.quantity })),
-      };
+      });
       const { data, error } = await supabase.functions.invoke('shop-assistant', {
         body: {
           mode: 'chat',
