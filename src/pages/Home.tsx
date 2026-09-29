@@ -279,7 +279,7 @@ export default function Home() {
             />
           </div>
         ) : (
-          <div data-guide="products-grid" data-ai-target="products" className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+          <div id="products-grid" data-guide="products-grid" data-ai-target="products" className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {filteredProducts.map((product) => {
               const outOfStock = product.stock !== undefined && product.stock <= 0;
               const lowStock = product.stock !== undefined && product.stock > 0 && product.stock <= 5;
