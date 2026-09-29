@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store';
-import HeritageHeader from './HeritageHeader';
 
 const SESSION_KEY = 'eldukkan-intro-shown';
 
 export default function ShopIntro() {
   const storeName = useStore((s) => s.storeName);
-  const experience = useStore((s) => s.experience);
   const [visible, setVisible] = useState(() => !sessionStorage.getItem(SESSION_KEY));
   const [opening, setOpening] = useState(false);
 
@@ -19,8 +17,6 @@ export default function ShopIntro() {
 
   return (
     <>
-      {experience === 'heritage' && <HeritageHeader />}
-
       {!visible ? null : (
     <div
       className={`heritage-intro fixed inset-0 z-[100] flex items-end justify-center overflow-hidden transition-transform duration-[900ms] ease-[cubic-bezier(0.65,0,0.35,1)] ${opening ? '-translate-y-full' : 'translate-y-0'}`}
