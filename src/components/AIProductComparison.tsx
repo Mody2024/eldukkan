@@ -1,8 +1,15 @@
 import { ArrowRight, Star } from 'lucide-react';
-import type { Product } from '../types';
 import { Link } from 'react-router-dom';
 
-type AIProduct = Pick<Product, 'id' | 'name' | 'price' | 'sale_price' | 'stock' | 'category' | 'rating' | 'review_count'> & {
+type AIProduct = {
+  id: string;
+  name: string;
+  price: number;
+  sale_price: number | null;
+  stock: number | null;
+  category: string | null;
+  rating: number | null;
+  review_count: number | null;
   description?: string;
 };
 
