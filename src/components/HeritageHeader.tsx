@@ -1,4 +1,5 @@
 import { FormEvent, useState } from 'react';
+import './heritage.css';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ChevronDown, Heart, Languages, Menu, Moon, Search, ShoppingBag, Sun,
