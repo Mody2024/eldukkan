@@ -94,3 +94,68 @@
   .heritage-page-frame__device-detail{font-size:6px}
   .heritage-page-frame__identity{max-width:48%}
 }
+
+
+.heritage-page-frame__controls{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  margin:-3px 0 12px;
+  padding:6px;
+  border:1px solid #a79e94;
+  border-radius:8px;
+  background:linear-gradient(180deg,#d2c9bf,#bdb4aa);
+  box-shadow:inset 1px 1px 0 rgba(255,255,255,.65),inset -1px -1px 0 rgba(63,52,42,.12)
+}
+.heritage-page-frame__control{
+  min-height:31px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  position:relative;
+  border:1px solid #938a80;
+  border-radius:5px;
+  background:linear-gradient(180deg,#f4efe9,#d2c9bf);
+  color:#4e4943;
+  text-decoration:none;
+  font:900 8px/1 "IBM Plex Mono","Courier New",monospace;
+  letter-spacing:.06em;
+  box-shadow:inset 1px 1px 0 rgba(255,255,255,.75),inset -1px -1px 0 rgba(63,52,42,.13),0 1px 2px rgba(54,42,31,.1);
+  transition:transform 100ms ease,filter 100ms ease,box-shadow 100ms ease
+}
+.heritage-page-frame__control i{
+  width:5px;height:5px;border-radius:50%;background:#77716a;
+  box-shadow:inset 1px 1px 0 rgba(255,255,255,.55)
+}
+.heritage-page-frame__control:hover{
+  transform:translateY(-1px);filter:brightness(1.025)
+}
+.heritage-page-frame__control:active{
+  transform:translateY(1px);
+  box-shadow:inset -1px -1px 0 rgba(255,255,255,.25),inset 1px 1px 0 rgba(63,52,42,.13)
+}
+.heritage-page-frame__control--active{
+  background:linear-gradient(180deg,#6f8797,#536f81);
+  border-color:#435969;color:#fff;
+  text-shadow:0 1px 1px rgba(0,0,0,.3)
+}
+.heritage-page-frame__control--active i{
+  background:#d4eb9a;
+  box-shadow:0 0 6px rgba(212,235,154,.65)
+}
+.heritage-page-frame--product .heritage-page-frame__controls,
+.heritage-page-frame--tracking .heritage-page-frame__controls{
+  grid-template-columns:repeat(3,minmax(0,1fr))
+}
+.heritage-page-frame--cart .heritage-page-frame__controls .heritage-page-frame__control:last-child,
+.heritage-page-frame--checkout .heritage-page-frame__controls .heritage-page-frame__control:last-child{
+  background:linear-gradient(180deg,#7899ad,#59788e);color:#fff;border-color:#476477
+}
+@media(max-width:700px){
+  .heritage-page-frame__controls{gap:5px;margin-top:-2px;margin-bottom:9px;padding:5px}
+  .heritage-page-frame__control{min-height:29px;font-size:7px;padding-inline:4px}
+}
+@media(prefers-reduced-motion:reduce){
+  .heritage-page-frame__control{transition:none}
+}
