@@ -891,3 +891,44 @@
   font-family: "IBM Plex Mono","Courier New",monospace !important;
   letter-spacing: .12em;
 }
+
+.storefront-shell[data-experience="heritage"] .heritage-ai-launch {
+  border: 1px solid #46657b;
+  border-radius: 7px;
+  background: linear-gradient(180deg,#6f9bb8,#4d718e);
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.2), inset -1px -1px 0 rgba(0,0,0,.2), 0 5px 12px rgba(30,24,19,.2);
+  font: 900 10px/1 "IBM Plex Mono","Courier New",monospace;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel {
+  border: 1px solid #8e867d !important;
+  border-radius: 11px !important;
+  background: linear-gradient(145deg,#f8f4ee,#d8d0c6) !important;
+  color: #3f3934;
+  box-shadow: 0 22px 55px rgba(28,22,17,.3), inset 1px 1px 0 rgba(255,255,255,.82);
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel > div:first-child,
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel > form {
+  background: #d8d1c7 !important;
+  border-color: #aaa197 !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel > div:first-child {
+  border-bottom: 1px solid #aaa197;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel h3 {
+  color: #3e3934 !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel input {
+  background: #1d2223 !important;
+  color: #d8ffff !important;
+  border-color: #51595a !important;
+  box-shadow: inset 0 0 8px rgba(0,0,0,.48) !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel .bg-stone-100 {
+  background: #e5ded5 !important;
+  color: #4a443f !important;
+}
+.storefront-shell[data-experience="heritage"] .heritage-ai-panel .bg-white {
+  background: #f4efe9 !important;
+}
