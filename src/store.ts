@@ -10,6 +10,7 @@ let toastTimer: ReturnType<typeof setTimeout> | undefined;
 interface StoreState {
   theme: 'dark' | 'light';
   toggleTheme: () => void;
+  setTheme: (theme: 'dark' | 'light') => void;
 
   cart: CartItem[];
   addToCart: (product: Product) => void;
@@ -78,6 +79,7 @@ export const useStore = create<StoreState>()(
     (set, get) => ({
       theme: 'light',
       toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
+      setTheme: (theme) => set({ theme }),
 
       cart: [],
       addToCart: (product) => set((state) => {
