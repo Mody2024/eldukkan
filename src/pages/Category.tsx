@@ -5,6 +5,9 @@ import type { Product } from '../types';
 import SEO from '../components/SEO';
 import AIEntryPoint from '../components/AIEntryPoint';
 import { useAIPageContext } from '../hooks/useAIContext';
+import { useTranslation } from '../lib/i18n';
+import AIEntryPoint from '../components/AIEntryPoint';
+import { useAIPageContext } from '../hooks/useAIContext';
 
 export default function Category() {
   const { slug } = useParams<{ slug: string }>();
