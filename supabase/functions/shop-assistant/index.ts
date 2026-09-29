@@ -441,6 +441,8 @@ async function runAssistant(
       break;
     } else if (functionCall.name === 'navigate') {
       if (!allowNavigation) break;
+      const path = String(functionCall.args.path ?? '');
+      if (path === '/checkout' && status.actionPermissions?.open_checkout === false) break;
       const path = validPaths(String(functionCall.args.path ?? ''));
       if (path) {
         uiActions.push({ type: 'navigate', path, label: String(functionCall.args.label ?? '').slice(0, 100) });
@@ -448,6 +450,7 @@ async function runAssistant(
         acknowledgeUiTool('navigate', functionCall.id, { ok: true, path });
       }
     } else if (functionCall.name === 'set_theme') {
+      if (status.actionPermissions?.change_theme === false) break;
       const value = String(functionCall.args.theme ?? '');
       if (value === 'light' || value === 'dark') {
         uiActions.push({ type: 'set_theme', theme: value });
@@ -455,6 +458,7 @@ async function runAssistant(
         acknowledgeUiTool('set_theme', functionCall.id, { ok: true, theme: value });
       }
     } else if (functionCall.name === 'set_language') {
+      if (status.actionPermissions?.change_language === false) break;
       const value = String(functionCall.args.language ?? '');
       if (value === 'en' || value === 'ar') {
         uiActions.push({ type: 'set_language', language: value });
@@ -462,6 +466,7 @@ async function runAssistant(
         acknowledgeUiTool('set_language', functionCall.id, { ok: true, language: value });
       }
     } else if (functionCall.name === 'set_experience') {
+      if (status.actionPermissions?.change_experience === false) break;
       const value = String(functionCall.args.experience ?? '');
       if (value === 'modern' || value === 'heritage' || value === 'easy') {
         uiActions.push({ type: 'set_experience', experience: value });
