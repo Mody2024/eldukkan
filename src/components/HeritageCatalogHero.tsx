@@ -28,7 +28,7 @@ export default function HeritageCatalogHero() {
           {heroImageUrl ? (
             <img src={heroImageUrl} alt="" loading="eager" decoding="async" />
           ) : (
-            <div className="heritage-catalog-hero__placeholder"><Sparkles size={30} /><span>SHOP / CH 01</span></div>
+            <div className="heritage-catalog-hero__placeholder"><Store size={30} /><span>SHOP / CH 01</span></div>
           )}
           <div className="heritage-catalog-hero__lcds">
             <HeritageLCD label="SYSTEM" value="READY" />
