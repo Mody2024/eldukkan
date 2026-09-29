@@ -137,6 +137,16 @@ export default function Category() {
           <p className="text-stone-500 font-bold">No active products found in this category.</p>
           <Link to="/" className="inline-block text-brand-500 font-bold hover:underline">Browse all products</Link>
         </div>
+      ) : products.length === 0 ? (
+        <div className="py-16 text-center space-y-4 storefront-card">
+          <p className="text-stone-500 font-bold">{language === 'ar' ? 'الفئة دي مفيهاش منتجات متاحة حاليًا.' : 'No active products were found in this category.'}</p>
+          <AIEntryPoint
+            label={language === 'ar' ? 'ساعدني ألاقي بدائل' : 'Find alternatives with AI'}
+            prompt={language === 'ar' ? 'الفئة دي فاضية. ساعدني ألاقي بدائل حقيقية قريبة منها' : 'This category is empty. Help me find real alternatives close to it'}
+            source="category-empty"
+            mode="task"
+          />
+        </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6" data-ai-target="products">
           {products.map((product) => {
