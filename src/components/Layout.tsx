@@ -48,7 +48,7 @@ export default function Layout() {
     if (icon) icon.href = iconHref;
     const appleIcon = document.head.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement | null;
     if (appleIcon) appleIcon.href = iconHref;
-  }, [logoUrl]);
+  }, [logoUrl, experience, theme]);
 
   // Maintenance mode blocks the storefront for everyone except a confirmed
   // signed-in admin.
