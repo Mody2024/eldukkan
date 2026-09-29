@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Product } from '../types';
 import SEO from '../components/SEO';
+import AIEntryPoint from '../components/AIEntryPoint';
+import { useAIPageContext } from '../hooks/useAIContext';
 
 export default function Category() {
   const { slug } = useParams<{ slug: string }>();
@@ -16,6 +18,17 @@ export default function Category() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  useAIPageContext({
+    category,
+    productCount: products.length,
+    visibleProducts: products.slice(0, 12).map((product) => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      sale_price: product.sale_price ?? null,
+      stock: product.stock ?? null,
+    })),
+  });
 
   useEffect(() => {
     if (!category) {
@@ -99,6 +112,20 @@ export default function Category() {
         <p className="text-sm text-stone-500">
           {loading ? 'Loading products…' : `${products.length} product${products.length === 1 ? '' : 's'} in this category`}
         </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <AIEntryPoint
+          label={language === 'ar' ? 'ساعدني أختار' : 'Help me choose'}
+          prompt={language === 'ar' ? 'ساعدني أختار من الفئة دي' : 'Help me choose from this category'}
+          source="category"
+          mode="task"
+        />
+        <AIEntryPoint
+          label={language === 'ar' ? 'قارن المنتجات' : 'Compare products'}
+          prompt={language === 'ar' ? 'قارن المنتجات الظاهرة هنا' : 'Compare the products shown here'}
+          source="category"
+        />
       </div>
 
       {loading ? (
