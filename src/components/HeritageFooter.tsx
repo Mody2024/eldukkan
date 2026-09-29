@@ -5,7 +5,7 @@ import { useTranslation } from '../lib/i18n';
 import './heritage-footer.css';
 
 export default function HeritageFooter() {
-  const { storeName, footerCreditsEnabled, footerCreditsText, sponsors } = useStore();
+  const { storeName, footerCreditsEnabled, footerCreditsText, sponsors, userId } = useStore();
   const { language } = useTranslation();
   const rtl = language === 'ar';
 
@@ -38,7 +38,7 @@ export default function HeritageFooter() {
           <nav className="heritage-footer__column" aria-label="Orders">
             <h2>{rtl ? 'الطلبات' : 'ORDERS'}</h2>
             <Link to="/tracking"><PackageSearch size={14} />{rtl ? 'تتبع الطلب' : 'Track order'}</Link>
-            <Link to={useStore.getState().userId ? '/account' : '/login'}>{rtl ? 'الحساب' : 'Account'}</Link>
+            <Link to={userId ? '/account' : '/login'}>{rtl ? 'الحساب' : 'Account'}</Link>
           </nav>
 
           <section className="heritage-footer__service">
