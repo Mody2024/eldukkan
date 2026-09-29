@@ -39,11 +39,16 @@ interface AiStatus {
 
 const SEARCH_TOOL = {
   name: 'search_products',
-  description: "Search the store's live product catalog by keyword and optionally sort by rating or price.",
+  description: "Search the store's live product catalog. Use structured constraints for budgets, categories, stock, and sale requests instead of putting those constraints into the keyword.",
   parameters: {
     type: 'object',
     properties: {
-      query: { type: 'string', description: 'Keyword to search product names, descriptions, or categories.' },
+      query: { type: 'string', description: 'Short product/category keyword, without budget words.' },
+      category: { type: 'string', description: 'Exact category when known from the catalog context.' },
+      min_price: { type: 'number', description: 'Minimum effective price in EGP.' },
+      max_price: { type: 'number', description: 'Maximum effective price in EGP.' },
+      on_sale: { type: 'boolean', description: 'Only return products currently on sale.' },
+      in_stock: { type: 'boolean', description: 'When true, exclude out-of-stock products.' },
       sort: { type: 'string', enum: ['rating', 'price_asc', 'price_desc'], description: 'Sort by rating or price when requested.' },
     },
     required: ['query'],
@@ -358,25 +363,57 @@ async function runAssistant(
       if (status.actionPermissions?.search_products === false) break;
       const query = String(functionCall.args.query ?? '').trim().slice(0, 120);
       const sort = String(functionCall.args.sort ?? '');
+      const category = String(functionCall.args.category ?? '').trim().slice(0, 120);
+      const minPrice = Number(functionCall.args.min_price);
+      const maxPrice = Number(functionCall.args.max_price);
+      const onSale = functionCall.args.on_sale === true;
+      const inStock = functionCall.args.in_stock !== false;
       const safeQuery = query.replace(/[%_,()]/g, ' ').trim();
       if (!safeQuery) break;
 
       let q = supabaseAdmin
         .from('products')
-        .select('id, name, description, price, sale_price, category, stock, rating, image_url')
+        .select('id, name, description, price, sale_price, sale_ends_at, category, stock, rating, review_count, image_url')
         .eq('is_active', true)
         .or(`name.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%,category.ilike.%${safeQuery}%`)
-        .limit(5);
+        .limit(25);
 
+      if (category) q = q.eq('category', category);
+      if (Number.isFinite(minPrice)) q = q.gte('price', Math.max(0, minPrice));
+      if (Number.isFinite(maxPrice)) q = q.lte('price', Math.max(0, maxPrice));
+      if (inStock) q = q.gt('stock', 0);
       if (sort === 'rating') q = q.order('rating', { ascending: false });
       else if (sort === 'price_asc') q = q.order('price', { ascending: true });
       else if (sort === 'price_desc') q = q.order('price', { ascending: false });
 
       const { data, error } = await q;
       if (error) throw new Error('Catalog search failed: ' + error.message);
-      searchResults = (data ?? []) as Product[];
+      const now = Date.now();
+      searchResults = ((data ?? []) as (Product & { sale_ends_at?: string | null; review_count?: number | null })[])
+        .filter((product) => {
+          const saleActive = Number(product.sale_price ?? 0) > 0
+            && (!product.sale_ends_at || new Date(product.sale_ends_at).getTime() > now);
+          const effectivePrice = saleActive ? Number(product.sale_price) : Number(product.price);
+          return (!onSale || saleActive)
+            && (!Number.isFinite(minPrice) || effectivePrice >= minPrice)
+            && (!Number.isFinite(maxPrice) || effectivePrice <= maxPrice)
+            && (!inStock || Number(product.stock ?? 0) > 0);
+        })
+        .slice(0, 8) as Product[];
       searchUsed = true;
-      toolTrace.push({ tool: 'search_products', input: { query: safeQuery, sort }, resultCount: searchResults.length });
+      toolTrace.push({
+        tool: 'search_products',
+        input: {
+          query: safeQuery,
+          category: category || null,
+          min_price: Number.isFinite(minPrice) ? minPrice : null,
+          max_price: Number.isFinite(maxPrice) ? maxPrice : null,
+          on_sale: onSale,
+          in_stock: inStock,
+          sort,
+        },
+        resultCount: searchResults.length
+      });
 
       const modelContent = response.candidates?.[0]?.content;
       if (!modelContent) throw new Error('Gemini returned an incomplete tool call.');
