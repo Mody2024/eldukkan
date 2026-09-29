@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import './heritage-hero.css';
 import { ArrowRight, Radio, Sparkles } from 'lucide-react';
 import { useStore } from '../store';
 import { useTranslation } from '../lib/i18n';
