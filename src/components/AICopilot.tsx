@@ -316,13 +316,13 @@ export default function AICopilot() {
 
   const sendPrompt = async (prompt: string) => {
     if (!prompt.trim() || loading || statusLoading) return;
-    setInput(prompt);
-    await handleSendMessage({ preventDefault: () => {} } as React.FormEvent);
+    await handleSendMessage({ preventDefault: () => {} } as React.FormEvent, prompt);
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent, requestedMessage?: string) => {
     e.preventDefault();
-    if (!input.trim() || loading || statusLoading) return;
+    const requested = requestedMessage?.trim() || input.trim();
+    if (!requested || loading || statusLoading) return;
 
     if (status?.enabled === false) {
       setMessages((prev) => [...prev, { role: 'model', content: 'The AI assistant is currently unavailable.' }]);
@@ -337,7 +337,7 @@ export default function AICopilot() {
       return;
     }
 
-    const userMessage = input.trim();
+    const userMessage = requested;
     setInput('');
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setLoading(true);
