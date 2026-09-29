@@ -108,7 +108,7 @@ function storageKey(userId: string | null) {
 }
 
 export default function AICopilot() {
-  const { userId, theme, language, experience, cart, addToCart, updateQuantity, removeFromCart, showToast, setExperience, setLanguage, toggleTheme, startGuidedTask, guidedMode, stopGuidedTask } = useStore();
+  const { userId, theme, language, cart, addToCart, updateQuantity, removeFromCart, showToast, setExperience, setLanguage, toggleTheme, startGuidedTask, guidedMode, stopGuidedTask } = useStore();
   const { t } = useTranslation();
   const { getContext } = useAIContext();
   const navigate = useNavigate();
@@ -253,7 +253,7 @@ export default function AICopilot() {
   const addProductToCart = (product: Product, quantity: number) => {
     const previousQuantity = cart.find((item) => item.id === product.id)?.quantity ?? 0;
     for (let i = 0; i < quantity; i += 1) {
-      addToCart({ ...product, category: product.category ?? undefined, stock: product.stock ?? undefined, rating: product.rating ?? undefined, image_url: product.image_url || '', price: product.sale_price ?? product.price });
+      addToCart({ ...product, category: product.category ?? undefined, stock: product.stock ?? undefined, rating: product.rating ?? undefined, review_count: product.review_count ?? undefined, image_url: product.image_url || '', price: product.sale_price ?? product.price });
     }
     return previousQuantity;
   };
