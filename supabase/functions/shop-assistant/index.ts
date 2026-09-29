@@ -68,6 +68,20 @@ const CART_TOOL = {
   },
 };
 
+const CART_CHANGE_TOOL = {
+  name: 'change_cart',
+  description: 'Suggest a reversible change to an item already in the current customer cart. Never use it for checkout or payment.',
+  parameters: {
+    type: 'object',
+    properties: {
+      action: { type: 'string', enum: ['remove', 'set_quantity'] },
+      product_id: { type: 'string' },
+      quantity: { type: 'number' },
+    },
+    required: ['action', 'product_id'],
+  },
+};
+
 const UI_TOOLS = [
   {
     name: 'navigate',
@@ -276,7 +290,7 @@ async function callGemini(
   const selectedUiTools = options.allowNavigation
     ? UI_TOOLS
     : UI_TOOLS.filter((tool) => tool.name !== 'navigate');
-  const tools = [{ functionDeclarations: [SEARCH_TOOL, ...(options.allowCart ? [CART_TOOL] : []), ...selectedUiTools] }];
+  const tools = [{ functionDeclarations: [SEARCH_TOOL, ...(options.allowCart ? [CART_TOOL, CART_CHANGE_TOOL] : []), ...selectedUiTools] }];
   const payload = {
     contents,
     tools,
@@ -335,7 +349,7 @@ async function runAssistant(
     { id?: string; name: string; args: Record<string, unknown> } | undefined;
 
   let searchResults: Product[] = [];
-  let suggestedAction: { type: 'add_to_cart'; product_id: string; quantity: number; product_name?: string; requiresConfirmation: boolean; creditCost: number } | null = null;
+  let suggestedAction: { type: 'add_to_cart' | 'change_cart'; product_id: string; quantity: number; action?: 'remove' | 'set_quantity'; product_name?: string; requiresConfirmation: boolean; creditCost: number } | null = null;
   let searchUsed = false;
 
   const toolTrace: { tool: string; input?: Record<string, unknown>; resultCount?: number }[] = [];
@@ -437,6 +451,26 @@ async function runAssistant(
           creditCost: status.actionCost,
         };
         toolTrace.push({ tool: 'add_to_cart', input: { product_id: match.id, quantity }, resultCount: 1 });
+      }
+      break;
+    } else if (functionCall.name === 'change_cart') {
+      if (!allowCart) break;
+      const action = String(functionCall.args.action ?? '');
+      const productId = String(functionCall.args.product_id ?? '');
+      const cartItems = Array.isArray(context.cart?.items) ? context.cart.items as { id?: unknown; name?: unknown; quantity?: unknown }[] : [];
+      const current = cartItems.find((item) => String(item.id || '') === productId);
+      if ((action === 'remove' || action === 'set_quantity') && current) {
+        const quantity = action === 'remove' ? 0 : Math.max(1, Math.min(10, Math.floor(Number(functionCall.args.quantity) || 1)));
+        suggestedAction = {
+          type: 'change_cart',
+          action: action as 'remove' | 'set_quantity',
+          product_id: productId,
+          quantity,
+          product_name: String(current.name || 'cart item'),
+          requiresConfirmation: true,
+          creditCost: status.actionCost,
+        };
+        toolTrace.push({ tool: 'change_cart', input: { action, product_id: productId, quantity }, resultCount: 1 });
       }
       break;
     } else if (functionCall.name === 'navigate') {
@@ -644,7 +678,7 @@ Deno.serve(async (req) => {
       identifier?: string;
       requestId?: string;
       context?: Record<string, unknown>;
-      action?: { type: 'add_to_cart'; product_id: string; quantity?: number; product_name?: string };
+      action?: { type: 'add_to_cart' | 'change_cart'; product_id: string; quantity?: number; product_name?: string; action?: 'remove' | 'set_quantity' };
       event?: Record<string, unknown>;
     };
 
@@ -743,20 +777,29 @@ Deno.serve(async (req) => {
       }
 
       if (mode === 'confirm_action') {
-        if (!body.action || body.action.type !== 'add_to_cart') return json({ error: 'Unsupported action.' }, 400);
-        if (status.actionPermissions?.add_to_cart === false) return json({ error: 'Add-to-cart AI action is disabled.' }, 403);
+        if (!body.action || !['add_to_cart', 'change_cart'].includes(body.action.type)) return json({ error: 'Unsupported action.' }, 400);
+        if (status.actionPermissions?.add_to_cart === false) return json({ error: 'AI cart actions are disabled.' }, 403);
 
         const productId = body.action.product_id;
-        const quantity = Math.max(1, Math.min(10, Math.floor(Number(body.action.quantity) || 1)));
-        const { data: product, error: productError } = await supabaseAdmin
-          .from('products')
-          .select('id,name,description,price,sale_price,category,stock,rating,image_url')
-          .eq('id', productId)
-          .eq('is_active', true)
-          .maybeSingle();
+        const quantity = Math.max(0, Math.min(10, Math.floor(Number(body.action.quantity) || 0)));
+        const isChange = body.action.type === 'change_cart';
+        if (isChange && !['remove', 'set_quantity'].includes(String(body.action.action || ''))) {
+          return json({ error: 'Unsupported cart change.' }, 400);
+        }
 
-        if (productError) throw new Error('Could not validate product: ' + productError.message);
-        if (!product || Number(product.stock ?? 0) <= 0) return json({ error: 'That product is no longer available.' }, 409);
+        let product: Record<string, unknown> | null = null;
+        if (!isChange) {
+          const { data: productRow, error: productError } = await supabaseAdmin
+            .from('products')
+            .select('id,name,description,price,sale_price,category,stock,rating,image_url')
+            .eq('id', productId)
+            .eq('is_active', true)
+            .maybeSingle();
+
+          if (productError) throw new Error('Could not validate product: ' + productError.message);
+          if (!productRow || Number(productRow.stock ?? 0) <= 0) return json({ error: 'That product is no longer available.' }, 409);
+          product = productRow as Record<string, unknown>;
+        }
 
         const charge = await supabaseAdmin.rpc('ai_consume_credits', {
           p_user_id: user?.id ?? null,
@@ -764,12 +807,19 @@ Deno.serve(async (req) => {
           p_cost: status.actionCost,
           p_request_id: body.requestId ? `action:${body.requestId}` : `action:${crypto.randomUUID()}`,
           p_event_type: 'action',
-          p_reason: 'AI add-to-cart action',
-          p_metadata: { product_id: productId, quantity },
+          p_reason: isChange ? 'AI cart change action' : 'AI add-to-cart action',
+          p_metadata: { product_id: productId, quantity, action: body.action.action || 'add_to_cart' },
         });
         if (charge.error) throw new Error('Action credit charge failed: ' + charge.error.message);
         if (!(charge.data as Record<string, unknown>)?.ok) return json({ ...(charge.data as object), error: 'Not enough credits for this AI action.' }, 402);
 
+        return json({
+          allowed: true,
+          action: body.action.action || 'add_to_cart',
+          product,
+          quantity,
+          credits: charge.data,
+        });
         await logActivity(supabaseAdmin, {
           userId: user?.id ?? null,
           identifier,
