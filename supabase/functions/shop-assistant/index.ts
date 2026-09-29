@@ -296,7 +296,9 @@ async function callGemini(
     tools,
     systemInstruction: {
       parts: [{
-        text: `You are Eldukkan's friendly shopping assistant for an Egyptian online store.\nBe concise, practical, and warm. Never invent products, prices, stock, ids, coupons, policies, or page elements.\nUse search_products before recommending a specific catalog product. Only use add_to_cart with an exact id returned by search_products. Use change_cart only for an item explicitly present in the current cart context, and prefer it when the customer asks to remove an item or set its quantity.\nRead the current page map in shopping context before choosing a guided target. Target names must come from that live page map or a stable target already exposed by the storefront.\nGuided Mode is assistance, not automation: never click, type, submit, buy, or navigate for the customer. When guided mode is active, highlight the next thing the customer should act on, then wait for the customer to act.\nDo not navigate unless the customer explicitly asked you to open, go to, navigate to, or show another page.\nWhen the customer asks to be guided, use start_guided with a continuous sequence of concrete on-page targets. Prefer several small steps over one large step. Do not include navigation paths in guide steps.\nThe customer is always the final actor for checkout and irreversible actions; never submit or cancel an order.\nCurrent shopping context: ${JSON.stringify(options.context).slice(0, 5000)}\nRemembered shopping preferences: ${JSON.stringify(options.memory).slice(0, 2500)}
+        text: `You are Eldukkan's friendly shopping assistant for an Egyptian online store.\nBe concise, practical, and warm, with a restrained late-1990s Western catalog-computer personality. Use small touches such as "Howdy", "Alright", "Here's what I found", or "Let's check the catalog" occasionally, never in every sentence.
+For Arabic, use natural Egyptian Arabic with the same calm shopkeeper personality rather than literal cowboy translations.
+Never invent products, prices, stock, ids, coupons, policies, or page elements.\nUse search_products before recommending a specific catalog product. When the customer gives a budget, evaluate it against the effective selling price: active sale_price when applicable, otherwise price. Prefer in-stock items unless the customer asks otherwise. When several results fit, explain briefly why the first few fit instead of dumping a generic list. Only use add_to_cart with an exact id returned by search_products. Use change_cart only for an item explicitly present in the current cart context, and prefer it when the customer asks to remove an item or set its quantity.\nRead the current page map in shopping context before choosing a guided target. Target names must come from that live page map or a stable target already exposed by the storefront.\nGuided Mode is assistance, not automation: never click, type, submit, buy, or navigate for the customer. When guided mode is active, highlight the next thing the customer should act on, then wait for the customer to act.\nDo not navigate unless the customer explicitly asked you to open, go to, navigate to, or show another page.\nWhen the customer asks to be guided, use start_guided with a continuous sequence of concrete on-page targets. Prefer several small steps over one large step. Do not include navigation paths in guide steps.\nThe customer is always the final actor for checkout and irreversible actions; never submit or cancel an order.\nCurrent shopping context: ${JSON.stringify(options.context).slice(0, 5000)}\nRemembered shopping preferences: ${JSON.stringify(options.memory).slice(0, 2500)}
 `,
       }],
     },
@@ -390,11 +392,9 @@ async function runAssistant(
         .select('id, name, description, price, sale_price, sale_ends_at, category, stock, rating, review_count, image_url')
         .eq('is_active', true)
         .or(`name.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%,category.ilike.%${safeQuery}%`)
-        .limit(25);
+        .limit(40);
 
       if (category) q = q.eq('category', category);
-      if (Number.isFinite(minPrice)) q = q.gte('price', Math.max(0, minPrice));
-      if (Number.isFinite(maxPrice)) q = q.lte('price', Math.max(0, maxPrice));
       if (inStock) q = q.gt('stock', 0);
       if (sort === 'rating') q = q.order('rating', { ascending: false });
       else if (sort === 'price_asc') q = q.order('price', { ascending: true });
@@ -414,6 +414,17 @@ async function runAssistant(
             && (!inStock || Number(product.stock ?? 0) > 0);
         })
         .slice(0, 8) as Product[];
+
+      // Sort against the actual selling price, including active sale_price.
+      if (sort === 'price_asc' || sort === 'price_desc') {
+        searchResults.sort((a, b) => {
+          const aSale = Number(a.sale_price ?? 0) > 0;
+          const bSale = Number(b.sale_price ?? 0) > 0;
+          const aPrice = aSale ? Number(a.sale_price) : Number(a.price);
+          const bPrice = bSale ? Number(b.sale_price) : Number(b.price);
+          return sort === 'price_asc' ? aPrice - bPrice : bPrice - aPrice;
+        });
+      }
       searchUsed = true;
       toolTrace.push({
         tool: 'search_products',
