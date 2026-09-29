@@ -8,6 +8,7 @@ import ExperiencePicker from './ExperiencePicker';
 import AIOnboarding from './AIOnboarding';
 import MobileBottomNav from './MobileBottomNav';
 import GuidedSpotlight from './GuidedSpotlight';
+import HeritagePageFrame from './HeritagePageFrame';
 import { useTranslation } from '../lib/i18n';
 
 export default function Layout() {
@@ -236,7 +237,7 @@ export default function Layout() {
           </div>
         ) : (
           <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8">
-            <Outlet />
+            {experience === 'heritage' ? <HeritagePageFrame><Outlet /></HeritagePageFrame> : <Outlet />}
           </div>
         )}
       </main>
