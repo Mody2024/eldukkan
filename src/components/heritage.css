@@ -932,3 +932,208 @@
 .storefront-shell[data-experience="heritage"] .heritage-ai-panel .bg-white {
   background: #f4efe9 !important;
 }
+
+
+/* Heritage refinement layer — tactile, restrained nostalgia. */
+.storefront-shell[data-experience="heritage"] .heritage-header {
+  box-shadow: 0 7px 18px rgba(52, 42, 33, .12);
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-header__bezel {
+  box-shadow:
+    inset 2px 2px 0 rgba(255,255,255,.84),
+    inset -3px -3px 0 rgba(79,68,56,.25),
+    0 12px 26px rgba(55,43,32,.14),
+    0 1px 0 rgba(255,255,255,.35);
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-brand-module,
+.storefront-shell[data-experience="heritage"] .heritage-search-console,
+.storefront-shell[data-experience="heritage"] .heritage-control-bank {
+  transition: box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-brand-module:hover {
+  transform: translateY(-1px);
+  border-color: #81786e;
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.92),
+    inset -2px -2px 0 rgba(64,53,42,.18),
+    0 5px 10px rgba(52,40,29,.11);
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-search-console:focus-within {
+  border-color: #777069;
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.92),
+    inset -2px -2px 0 rgba(64,53,42,.18),
+    0 0 0 2px rgba(90,130,166,.13),
+    0 5px 11px rgba(52,40,29,.1);
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-control:focus-visible,
+.storefront-shell[data-experience="heritage"] .heritage-cart-key:focus-visible,
+.storefront-shell[data-experience="heritage"] .heritage-channel:focus-visible,
+.storefront-shell[data-experience="heritage"] .heritage-display-go:focus-visible,
+.storefront-shell[data-experience="heritage"] .heritage-mobile-toggle:focus-visible,
+.storefront-shell[data-experience="heritage"] .heritage-mobile-grid a:focus-visible,
+.storefront-shell[data-experience="heritage"] .heritage-mobile-grid button:focus-visible {
+  outline: 2px solid #5a82a6;
+  outline-offset: 2px;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-channel {
+  position: relative;
+  overflow: hidden;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-channel::after {
+  content: "";
+  position: absolute;
+  inset: auto 7px 3px;
+  height: 2px;
+  background: rgba(105,94,82,.12);
+  border-radius: 1px;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-channel--active {
+  border-color: #7d7369;
+  background: linear-gradient(180deg, #e8e0d6, #c7beb3);
+  color: #2f2b27;
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.82),
+    inset -1px -1px 0 rgba(67,54,42,.18),
+    0 2px 4px rgba(53,41,30,.11);
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-channel--active span {
+  background: #242526;
+  color: #d4ec9f;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-channel--info {
+  opacity: .74;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-picker [role="menu"] {
+  width: min(340px, calc(100vw - 28px));
+  overflow: hidden;
+  padding: 6px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,0)),
+    #ded6cc !important;
+  box-shadow:
+    0 18px 38px rgba(48,38,28,.25),
+    inset 1px 1px 0 rgba(255,255,255,.72),
+    inset -1px -1px 0 rgba(69,55,44,.16);
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-picker [role="menu"]::before {
+  content: "INPUT SELECTOR / CH 01–03";
+  display: block;
+  padding: 8px 9px 7px;
+  border-bottom: 1px solid #b1a79d;
+  color: #6d655d;
+  font: 900 8px/1 "IBM Plex Mono","Courier New",monospace;
+  letter-spacing: .1em;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-picker .experience-picker-option {
+  align-items: center;
+  min-height: 52px;
+  margin: 2px 0;
+  padding: 8px 9px !important;
+  border: 1px solid transparent !important;
+  border-radius: 7px !important;
+  color: #453f39 !important;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-picker .experience-picker-option:hover {
+  background: #d1c8be !important;
+  border-color: #aaa096 !important;
+  transform: none;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-picker .experience-picker-option[aria-checked="true"] {
+  background: linear-gradient(180deg, #ebe4dc, #cbc2b7) !important;
+  border-color: #8e857b !important;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.78), inset -1px -1px 0 rgba(63,51,40,.1) !important;
+}
+
+.storefront-shell[data-experience="heritage"] .experience-picker-option__code {
+  flex: 0 0 auto;
+  min-width: 39px;
+  padding: 4px 5px;
+  border: 1px solid #8e877f;
+  border-radius: 4px;
+  background: #252627;
+  color: #cbe896;
+  text-align: center;
+  font: 900 7px/1 "IBM Plex Mono","Courier New",monospace;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-picker .experience-picker-option > span:nth-child(3) {
+  color: #504a43 !important;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-picker .experience-picker-option > span:nth-child(3) span {
+  color: #756d65 !important;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-picker .experience-picker-option > span:nth-child(2) {
+  background: #232425;
+  border-color: #6f6963;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-picker .experience-picker-option[aria-checked="true"] > span:nth-child(2) {
+  background: #5b7181;
+  border-color: #486173;
+}
+
+.storefront-shell[data-experience="heritage"] .heritage-mobile-panel {
+  animation: heritage-panel-in 150ms cubic-bezier(.2,.8,.2,1);
+  transform-origin: top center;
+}
+
+@keyframes heritage-panel-in {
+  from { opacity: 0; transform: translateY(-5px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 700px) {
+  .storefront-shell[data-experience="heritage"] .heritage-utility__inner {
+    min-height: 28px;
+    padding-inline: 12px;
+  }
+
+  .storefront-shell[data-experience="heritage"] .heritage-utility__hint {
+    font-size: 9px;
+    letter-spacing: .05em;
+  }
+
+  .storefront-shell[data-experience="heritage"] .heritage-header {
+    box-shadow: 0 5px 14px rgba(52,42,33,.1);
+  }
+
+  .storefront-shell[data-experience="heritage"] .heritage-control,
+  .storefront-shell[data-experience="heritage"] .heritage-cart-key {
+    box-shadow:
+      inset 1px 1px 0 rgba(255,255,255,.86),
+      inset -2px -2px 0 rgba(65,54,43,.15),
+      0 2px 4px rgba(58,45,33,.09);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .storefront-shell[data-experience="heritage"] .heritage-brand-module,
+  .storefront-shell[data-experience="heritage"] .heritage-search-console,
+  .storefront-shell[data-experience="heritage"] .heritage-control-bank,
+  .storefront-shell[data-experience="heritage"] .heritage-channel {
+    transition: none;
+  }
+
+  .storefront-shell[data-experience="heritage"] .heritage-mobile-panel {
+    animation: none;
+  }
+}
