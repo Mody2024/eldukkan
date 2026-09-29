@@ -42,6 +42,8 @@ export default function Layout() {
   // site icon while the actual destination can follow the current branding.
   useEffect(() => {
     const iconHref = logoUrl || '/favicon';
+    const themeColor = document.head.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+    if (themeColor) themeColor.content = experience === 'heritage' ? '#27282a' : theme === 'dark' ? '#0c0a09' : '#c96a2e';
     const icon = document.head.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
     if (icon) icon.href = iconHref;
     const appleIcon = document.head.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement | null;
