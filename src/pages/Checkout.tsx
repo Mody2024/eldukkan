@@ -7,6 +7,8 @@ import { useStore } from '../store';
 import { useTranslation } from '../lib/i18n';
 import type { PaymentMethod } from '../types';
 import { ShoppingBag, ArrowLeft, CheckCircle2, CreditCard, Tag, X, Loader2 } from 'lucide-react';
+import AIEntryPoint from '../components/AIEntryPoint';
+import { useAIPageContext } from '../hooks/useAIContext';
 
 export default function Checkout() {
   const { cart, clearCart, showToast, userEmail, userId } = useStore();
@@ -30,6 +32,17 @@ export default function Checkout() {
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const displayTotal = Math.max(0, subtotal - (appliedDiscount?.amount ?? 0));
+  useAIPageContext({
+    checkout: {
+      subtotal,
+      discount: appliedDiscount?.amount ?? 0,
+      total: displayTotal,
+      paymentMethod: formData.paymentMethod,
+      fields: ['name', 'email', 'phone', 'address', 'discount', 'payment_method'],
+      canExplain: true,
+      orderSubmissionRequiresCustomerAction: true,
+    },
+  });
 
   // Speed up repeat checkouts: a signed-in customer's details fill in from
   // their most recent order automatically instead of retyping name/phone/
@@ -225,7 +238,25 @@ export default function Checkout() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-5 sm:space-y-8 animate-in fade-in duration-300">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate('/cart')} className="p-3 bg-stone-100 dark:bg-stone-800 rounded-xl hover:scale-105 transition dark:text-white">
+            <ArrowLeft size={20} />
+          </button>
+          <div>
+            <h1 className="text-3xl font-black dark:text-white tracking-tight">{t('checkout')}</h1>
+            <p className="text-stone-500 text-sm">
+              {prefilling ? 'Filling in your saved details...' : 'Complete your delivery and payment details.'}
+            </p>
+          </div>
+        </div>
+        <AIEntryPoint
+          label={t('ai_checkout_help')}
+          prompt={language === 'ar' ? 'ساعدني أفهم خطوات إتمام الشراء من غير ما تعمل الطلب بدالي' : 'Help me understand checkout without placing the order for me'}
+          source="checkout"
+          className="shrink-0"
+        />
+      </div>
         <button onClick={() => navigate('/cart')} className="p-3 bg-stone-100 dark:bg-stone-800 rounded-xl hover:scale-105 transition dark:text-white">
           <ArrowLeft size={20} />
         </button>
