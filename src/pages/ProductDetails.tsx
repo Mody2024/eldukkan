@@ -12,7 +12,7 @@ import { useAIPageContext } from '../hooks/useAIContext';
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [product, setProduct] = useState<Product | null>(null);
   const [related, setRelated] = useState<Product[]>([]);
   const [activeImage, setActiveImage] = useState(0);
