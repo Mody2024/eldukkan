@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+      - update3-intelligence
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
